@@ -174,17 +174,21 @@
                                   |j $ {} (:type :expr) (:by |u0) (:at 1605515973340)
                                     :data $ {}
                                       |T $ {} (:type :leaf) (:by |u0) (:at 1605515973340) (:text |[])
-                                      |j $ {} (:type :leaf) (:by |u0) (:at 1605517168921) (:text |200)
+                                      |j $ {} (:type :leaf) (:by |u0) (:at 1605523733165) (:text |0)
                                       |r $ {} (:type :leaf) (:by |u0) (:at 1605517038115) (:text |80)
                                       |v $ {} (:type :leaf) (:by |u0) (:at 1605517092035) (:text |60)
                               |y $ {} (:type :expr) (:by |u0) (:at 1605515973340)
                                 :data $ {}
                                   |T $ {} (:type :leaf) (:by |u0) (:at 1605515973340) (:text |:line-width)
-                                  |j $ {} (:type :leaf) (:by |u0) (:at 1605517094978) (:text |2)
+                                  |j $ {} (:type :leaf) (:by |u0) (:at 1605523729116) (:text |2)
                               |yT $ {} (:type :expr) (:by |u0) (:at 1605517060766)
                                 :data $ {}
                                   |T $ {} (:type :leaf) (:by |u0) (:at 1605517062810) (:text |:line-join)
                                   |j $ {} (:type :leaf) (:by |u0) (:at 1605517071622) (:text |:round)
+                              |yj $ {} (:type :expr) (:by |u0) (:at 1605524319474)
+                                :data $ {}
+                                  |T $ {} (:type :leaf) (:by |u0) (:at 1605524322778) (:text |:skip-first?)
+                                  |j $ {} (:type :leaf) (:by |u0) (:at 1605524324162) (:text |true)
                   |D $ {} (:type :leaf) (:by |u0) (:at 1605516692398) (:text |let)
                   |L $ {} (:type :expr) (:by |u0) (:at 1605516696462)
                     :data $ {}
@@ -194,23 +198,23 @@
                           |j $ {} (:type :expr) (:by |u0) (:at 1605516717581)
                             :data $ {}
                               |T $ {} (:type :leaf) (:by |u0) (:at 1605516718182) (:text |range)
-                              |j $ {} (:type :leaf) (:by |u0) (:at 1605517642691) (:text |800)
+                              |j $ {} (:type :leaf) (:by |u0) (:at 1605524477699) (:text |200)
                       |j $ {} (:type :expr) (:by |u0) (:at 1605516837267)
                         :data $ {}
                           |T $ {} (:type :leaf) (:by |u0) (:at 1605516838387) (:text |radius)
-                          |j $ {} (:type :leaf) (:by |u0) (:at 1605516985368) (:text |240)
+                          |j $ {} (:type :leaf) (:by |u0) (:at 1605523537518) (:text |160)
                       |r $ {} (:type :expr) (:by |u0) (:at 1605516841351)
                         :data $ {}
                           |T $ {} (:type :leaf) (:by |u0) (:at 1605516843784) (:text |v)
-                          |j $ {} (:type :leaf) (:by |u0) (:at 1605517632231) (:text |0.01)
+                          |j $ {} (:type :leaf) (:by |u0) (:at 1605524484002) (:text |0.09)
                       |v $ {} (:type :expr) (:by |u0) (:at 1605517453531)
                         :data $ {}
                           |T $ {} (:type :leaf) (:by |u0) (:at 1605517454019) (:text |r2)
-                          |j $ {} (:type :leaf) (:by |u0) (:at 1605517651667) (:text |60)
+                          |j $ {} (:type :leaf) (:by |u0) (:at 1605524497705) (:text |10)
                       |x $ {} (:type :expr) (:by |u0) (:at 1605517458698)
                         :data $ {}
                           |T $ {} (:type :leaf) (:by |u0) (:at 1605517526344) (:text |v2)
-                          |j $ {} (:type :leaf) (:by |u0) (:at 1605517648538) (:text |0.3)
+                          |j $ {} (:type :leaf) (:by |u0) (:at 1605524503804) (:text |0.4)
           |on-window-event $ {} (:type :expr) (:by |u0) (:at 1605514426898)
             :data $ {}
               |T $ {} (:type :leaf) (:by |u0) (:at 1605514426898) (:text |defn)

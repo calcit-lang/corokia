@@ -16,11 +16,11 @@
         |render-shape $ quote
           defn render-shape ()
             let
-                xs $ range 800
-                radius 240
-                v 0.01
-                r2 60
-                v2 0.3
+                xs $ range 200
+                radius 160
+                v 0.09
+                r2 10
+                v2 0.4
               draw-canvas $ g
                 {} (:x 260) (:y 260)
                 {} (:type :polyline) (:from $ [] radius 0)
@@ -33,9 +33,10 @@
                         +
                           * radius $ sin (* v x)
                           * r2 $ sin (* v2 x)
-                  :stroke-color $ [] 200 80 60
+                  :stroke-color $ [] 0 80 60
                   :line-width 2
                   :line-join :round
+                  :skip-first? true
         |on-window-event $ quote
           defn on-window-event (event) (echo event)
       :proc $ quote ()
