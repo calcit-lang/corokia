@@ -16,6 +16,54 @@ Edit with [Calcit Editor](https://github.com/Cirru/calcit-editor):
 ce
 ```
 
+### Draft
+
+Phlox use a data structure to represent a component.
+Unlikely normal virual DOM solutions, child components are collectted in `:children` field,
+which means users have to grab and fill them in the trees with extra logics:
+
+```cirru
+{}
+  :type :component
+  :s0 $ {}
+  :args $ [] P1 P2
+  :render $ fn (cursor state)
+    fn (args)
+      {}
+        :children $ {}
+          |a-1 TODO
+          |a-2 TODO
+          |find TODO
+        :render $ fn (dict)
+          g
+            {}
+            GRAB |a-1
+            GRAB |a-2
+            GRAB |find
+  :events $ {}
+    :mouse-down $ fn (event cursor state d!)
+      d! :action DATA
+```
+
+After expansion, children are listed with a map, prepraring for handling events:
+
+```cirru
+{}
+  :type :component
+  :children $ {}
+    |a-1 TODO
+    |a-2 TODO
+    :x TODO
+  :tree $ fn (dict)
+    g
+      {}
+      get dict |a-1
+      get dict |a-2
+      get dict :x
+
+  :events COPY
+```
+
 ### License
 
 MIT
