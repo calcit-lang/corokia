@@ -4,28 +4,8 @@
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
-        ns phlox.main $ :require ([] phlox.core :refer $ [] expand-tree def get-shape-tree g) ([] phlox.complex :refer $ [] c+ c- c* rad-point)
+        ns phlox.main $ :require ([] phlox.core :refer $ [] expand-tree get-shape-tree g) ([] phlox.complex :refer $ [] c+ c- c* rad-point)
       :defs $ {}
-        |comp-todo-list $ quote
-          def comp-todo-list $ {} (:type :comp) (:s0 $ {}) (:args $ [])
-            :render $ fn (cursor state)
-              fn (& args)
-                {}
-                  :children $ merge
-                    {} $ :header
-                      merge comp-todo-task $ {} (:args $ [])
-                    ->> (range 3)
-                      map $ fn (x)
-                        [] (str |task- x)
-                          merge comp-todo-task $ {} (:args $ [] x)
-                      pairs-map
-                  :render $ fn (dict)
-                    {} (:type :group)
-                      :children $ [] (get dict :header)
-                        {} (:type :group)
-                          :children $ ->> (range 3)
-                            map $ fn (x) (get dict $ str |task- x)
-            :events $ {}
         |main! $ quote
           defn main! ()
             init-canvas $ {} (:title "\"Phlox") (:width 800) (:height 800)
@@ -49,29 +29,64 @@
                   :line-width 2
                   :line-join :round
                   :skip-first? true
-        |comp-todo-task $ quote
-          def comp-todo-task $ {} (:type :comp) (:args $ [])
+        |comp-counter $ quote
+          def comp-counter $ {} (:type :comp)
+            :s0 $ {} (:count 0)
+            :args $ []
             :render $ fn (cursor state)
-              fn (& args)
+              fn (c)
                 {} (:children $ {})
-                  :render $ fn (dict) (g $ {})
+                  :render $ fn (dict)
+                    g ({})
+                      {} (:type :touch-area) (:x 0) (:radius 10) (:path $ [] "\"TODO") (:events $ [] :touch-down)
+                      {} (:type :touch-area) (:x 80) (:radius 10) (:path $ [] "\"TODO") (:events $ [] :touch-down)
+                      {} (:type :text) (:x 0) (:text "\"-") (:color $ [] 0 0 100) (:align "\"center")
+                      {} (:type :text) (:x 40) (:text $ str c) (:color $ [] 0 0 100) (:align "\"center")
+                      {} (:type :text) (:x 80) (:text "\"+") (:color $ [] 0 90 100) (:align "\"center")
             :events $ {}
         |on-window-event $ quote
           defn on-window-event (event) (echo event)
         |*app-states $ quote (defatom *app-states $ {})
+        |comp-data-list $ quote
+          def comp-data-list $ {} (:type :comp)
+            :s0 $ {} (:size 0)
+            :args $ []
+            :render $ fn (cursor state)
+              fn ()
+                {}
+                  :children $ ->> (range 3)
+                    map $ fn (x)
+                      [] (str |task- x)
+                        g
+                          {} (:x 0) (:y $ * x 30)
+                          merge comp-counter $ {} (:args $ [] x)
+                    pairs-map
+                  :render $ fn (dict)
+                    {} (:type :group) (:x 0) (:y 0)
+                      :children $ []
+                        {} (:type :group)
+                          :children $ []
+                            {} (:type :text) (:x 20) (:y 20)
+                              :text $ str "\"Size: " (:size state)
+                              :color $ [] 0 0 100
+                              :align "\"center"
+                            g
+                              {} (:x 40) (:y 60)
+                              , &
+                              ->> (range 3)
+                                map $ fn (x) (get dict $ str |task- x)
+            :events $ {}
         |render-shape $ quote
-          defn render-shape () (; render-cycloid)
+          defn render-shape () (; render-cycloid) (; render-rotate)
             &let
               tree $ expand-tree
-                merge comp-todo-list $ {} (:args $ [])
+                merge comp-data-list $ {} (:args $ [])
                 []
                 deref *app-states
               reset! *app-states tree
-              echo "\"tree:"
-              echo tree
-              echo "\"shape:"
-              echo $ get-shape-tree tree
-            render-rotate
+              ; echo "\"tree:"
+              ; echo tree
+              &let (info $ get-shape-tree tree) (echo "\"shape:") (echo info) (draw-canvas info)
         |reload! $ quote
           defn reload! () (println "\"reloaded") (render-shape)
         |render-cycloid $ quote
@@ -101,6 +116,35 @@
     |phlox.core $ {}
       :ns $ quote (ns phlox.core)
       :defs $ {}
+        |wrap-kwd-in-list $ quote
+          defn wrap-kwd-in-list (xs0) (map wrap-keywords-in-path xs0)
+        |*tree-state $ quote (defatom *tree-state nil)
+        |handle-tree-event $ quote (defn handle-tree-event $)
+        |get-shape-tree $ quote
+          defn get-shape-tree (tree)
+            case (:type tree)
+              nil $ do (echo "\"nil type from tree:" tree) nil
+              :group $ update tree :children
+                fn (xs) (map get-shape-tree xs)
+              :component $ get-shape-tree (:tree tree)
+              :touch-area $ update tree :path
+                fn (path)
+                  if (nil? path) path $ wrap-keywords-in-path path
+              (:type tree)
+                , tree
+        |wrap-keywords-in-path $ quote
+          defn wrap-keywords-in-path (x)
+            case (type-of x) (:list $ wrap-kwd-in-list x)
+              :map (wrap-kwd-in-map x) 
+              :keyword $ str "\":" (turn-str x0)
+              (type-of x)
+                , x
+        |wrap-kwd-in-map $ quote
+          defn wrap-kwd-in-map (xs)
+            ->> xs
+              map-kv $ fn (k v)
+                [] (wrap-keywords-in-path k) (wrap-keywords-in-path v)
+              pairs-map
         |expand-tree $ quote
           defn expand-tree (tree coord states)
             case (:type tree)
@@ -121,31 +165,6 @@
                     , xs
               (:type tree)
                 do (println "\"other type:" $ :type tree) (, tree)
-        |wrap-keywords-in-path $ quote
-          defn wrap-keywords-in-path (xs0)
-            apply
-              fn (acc xs)
-                if (empty? xs) acc $ recur
-                  append acc $ let& (x0 $ first xs)
-                    if (keyword? x0) (str "\":" $ turn-str x0) (turn-str x0)
-                  rest xs
-              [] ([]) xs0
-        |handle-tree-event $ quote (defn handle-tree-event $)
-        |*tree-state $ quote (defatom *tree-state nil)
-        |get-shape-tree $ quote
-          defn get-shape-tree (tree)
-            case (:type tree)
-              nil $ do (echo "\"nil type from tree:" tree) nil
-              :group $ update tree :children
-                fn (xs) (map get-shape-tree xs)
-              :component $ get-shape-tree (:tree tree)
-              :touch-area $ update tree :path
-                fn (path)
-                  if (nil? path) path $ wrap-keywords-in-path path
-              (:type tree)
-                , tree
-        |def $ quote
-          defmacro def (name x) x
         |g $ quote
           defn g (props & xs)
             merge props $ {} (:type :group) (:children xs)
