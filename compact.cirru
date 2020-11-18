@@ -4,7 +4,7 @@
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
-        ns phlox.main $ :require ([] phlox.core :refer $ [] expand-tree def get-shape-tree) ([] phlox.complex :refer $ [] c+ c- c* rad-point)
+        ns phlox.main $ :require ([] phlox.core :refer $ [] expand-tree def get-shape-tree g) ([] phlox.complex :refer $ [] c+ c- c* rad-point)
       :defs $ {}
         |comp-todo-list $ quote
           def comp-todo-list $ {} (:type :comp) (:s0 $ {}) (:args $ [])
@@ -18,7 +18,7 @@
                       map $ fn (x)
                         [] (str |task- x)
                           merge comp-todo-task $ {} (:args $ [] x)
-                      pair-map
+                      pairs-map
                   :render $ fn (dict)
                     {} (:type :group)
                       :children $ [] (get dict :header)
@@ -45,7 +45,7 @@
                       c*
                         [] (+ b0 $ * r0 x) (, 0)
                         rad-point $ * &PI r1 x
-                  :stroke-color $ [] 0 80 60
+                  :stroke-color $ [] 0 30 30
                   :line-width 2
                   :line-join :round
                   :skip-first? true
@@ -54,8 +54,7 @@
             :render $ fn (cursor state)
               fn (& args)
                 {} (:children $ {})
-                  :render $ fn (dict)
-                    {} (:type :group) (:children $ [])
+                  :render $ fn (dict) (g $ {})
             :events $ {}
         |on-window-event $ quote
           defn on-window-event (event) (echo event)
@@ -68,8 +67,10 @@
                 []
                 deref *app-states
               reset! *app-states tree
-              echo "\"tree:" tree
-              echo "\"shape:" $ get-shape-tree tree
+              echo "\"tree:"
+              echo tree
+              echo "\"shape:"
+              echo $ get-shape-tree tree
             render-rotate
         |reload! $ quote
           defn reload! () (println "\"reloaded") (render-shape)
@@ -104,18 +105,22 @@
           defn expand-tree (tree coord states)
             case (:type tree)
               :comp $ &let (renderer $ :render tree) (assert "\"render function for component" $ fn? renderer)
-                &let
-                  internal-result $ apply (renderer coord states) (:args tree)
-                  {} (:type :component) (:children $ :children internal-result)
-                    :tree $ apply (:render internal-result) ([] $ :children internal-result)
+                let
+                    internal-result $ apply (renderer coord states) (:args tree)
+                    children $ ->> (:children internal-result)
+                      map-kv $ fn (k v)
+                        &let (child $ expand-tree v coord states) ([] k child)
+                      pairs-map
+                  {} (:type :component) (:children children)
+                    :tree $ apply (:render internal-result) ([] children)
                     :events $ :events tree
               :group $ update tree :children
                 fn (xs)
                   map
-                    fn (x) (expand-tree x coord)
+                    fn (x) (expand-tree x coord states)
                     , xs
               (:type tree)
-                , tree
+                do (println "\"other type:" $ :type tree) (, tree)
         |wrap-keywords-in-path $ quote
           defn wrap-keywords-in-path (xs0)
             apply
@@ -134,11 +139,16 @@
               :group $ update tree :children
                 fn (xs) (map get-shape-tree xs)
               :component $ get-shape-tree (:tree tree)
-              (:type tree)
-                update tree :path $ fn (path)
+              :touch-area $ update tree :path
+                fn (path)
                   if (nil? path) path $ wrap-keywords-in-path path
+              (:type tree)
+                , tree
         |def $ quote
           defmacro def (name x) x
+        |g $ quote
+          defn g (props & xs)
+            merge props $ {} (:type :group) (:children xs)
       :proc $ quote ()
       :configs $ {}
     |phlox.complex $ {}
