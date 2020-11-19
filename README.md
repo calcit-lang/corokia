@@ -25,24 +25,23 @@ which means users have to grab and fill them in the trees with extra logics:
 ```cirru
 {}
   :type :component
-  :s0 $ {}
+  :name :comp-name
   :args $ [] P1 P2
-  :render $ fn (cursor state)
-    fn (args)
-      {}
-        :children $ {}
-          |a-1 TODO
-          |a-2 TODO
-          |find TODO
-        :render $ fn (dict)
-          g
-            {}
-            GRAB |a-1
-            GRAB |a-2
-            GRAB |find
-  :events $ {}
-    :mouse-down $ fn (event cursor state d!)
-      d! :action DATA
+  :render $ fn (states & args)
+    {}
+      :children $ {}
+        |a-1 TODO
+        |a-2 TODO
+        |find TODO
+      :render $ fn (dict)
+        g
+          {}
+          GRAB |a-1
+          GRAB |a-2
+          GRAB |find
+      :events $ {}
+        :mouse-down $ fn (event d!)
+          d! :action DATA
 ```
 
 After expansion, children are listed with a map, prepraring for handling events:
@@ -54,12 +53,12 @@ After expansion, children are listed with a map, prepraring for handling events:
     |a-1 TODO
     |a-2 TODO
     :x TODO
-  :tree $ fn (dict)
+  :tree
     g
       {}
-      get dict |a-1
-      get dict |a-2
-      get dict :x
+      GOT |a-1
+      GOT |a-2
+      GOT :x
 
   :events COPY
 ```
