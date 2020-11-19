@@ -23,25 +23,23 @@ Unlikely normal virual DOM solutions, child components are collectted in `:child
 which means users have to grab and fill them in the trees with extra logics:
 
 ```cirru
-{}
-  :type :component
-  :name :comp-name
-  :args $ [] P1 P2
-  :render $ fn (states & args)
-    {}
-      :children $ {}
-        |a-1 TODO
-        |a-2 TODO
-        |find TODO
-      :render $ fn (dict)
-        g
-          {}
-          GRAB |a-1
-          GRAB |a-2
-          GRAB |find
-      :events $ {}
-        :mouse-down $ fn (event d!)
-          d! :action DATA
+defn comp-name (states & args)
+  {}
+    :type :component
+    :name :comp-name
+    :children $ {}
+      |a-1 TODO
+      |a-2 TODO
+      |find TODO
+    :render $ fn (dict)
+      g
+        {}
+        GRAB |a-1
+        GRAB |a-2
+        GRAB |find
+    :actions $ {}
+      Action $ fn (event d!)
+        d! :action DATA
 ```
 
 After expansion, children are listed with a map, prepraring for handling events:
@@ -53,14 +51,8 @@ After expansion, children are listed with a map, prepraring for handling events:
     |a-1 TODO
     |a-2 TODO
     :x TODO
-  :tree
-    g
-      {}
-      GOT |a-1
-      GOT |a-2
-      GOT :x
-
-  :events COPY
+  :render COPY
+  :actions COPY
 ```
 
 ### License
