@@ -4,7 +4,7 @@
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
-        ns phlox.main $ :require ([] phlox.core :refer $ [] expand-tree get-shape-tree g >> *tree-state handle-tree-event defcomp update-states) ([] phlox.comp :refer $ [] comp-drag-point comp-slider) ([] phlox.complex :refer $ [] c+ c- c* rad-point)
+        ns phlox.main $ :require ([] phlox.core :refer $ [] expand-tree get-shape-tree g >> *tree-state handle-tree-event defcomp update-states circle rect text touch-area) ([] phlox.comp :refer $ [] comp-drag-point comp-slider) ([] phlox.complex :refer $ [] c+ c- c* rad-point)
       :defs $ {}
         |dispatch! $ quote
           defn dispatch! (op data)
@@ -48,14 +48,11 @@
                 :render $ fn (dict)
                   g
                     {} (:x 0) (:y $ * x 30)
-                    {} (:type :touch-area) (:x 0) (:radius 10) (:path cursor) (:events $ [] :mouse-down) (:action :dec)
-                    {} (:type :touch-area) (:x 80) (:radius 10) (:path cursor) (:events $ [] :mouse-down) (:action :inc)
-                    {} (:type :text) (:x 0) (:text "\"-") (:color $ [] 0 0 100) (:align "\"center")
-                    {} (:type :text) (:x 40)
-                      :text $ str x "\":" (:count state)
-                      :color $ [] 0 0 100
-                      :align "\"center"
-                    {} (:type :text) (:x 80) (:text "\"+") (:color $ [] 0 90 100) (:align "\"center")
+                    touch-area :dec cursor $ {} (:radius 10)
+                    touch-area :inc cursor $ {} (:radius 10) (:x 80)
+                    text ([] 0 0) "\"-" $ {} (:align :center)
+                    text ([] 40 0) (str x "\":" $ :count state) ({} $ :align :center)
+                    text ([] 80 0) "\"+" $ {} (:align :center)
                 :actions $ {}
                   :inc $ fn (e d!)
                     when
@@ -97,10 +94,7 @@
                         :on-change $ fn (v d!) (println "\"slider change:" v) (d! cursor $ assoc state :slider-v v)
                 :render $ fn (dict)
                   g ({})
-                    {} (:type :text) (:x 20) (:y 20)
-                      :text $ str "\"Size: " (:size state)
-                      :color $ [] 0 0 100
-                      :align "\"center"
+                    text ([] 20 20) (str "\"Size: " $ :size state) ({} $ :align :center)
                     g
                       {} (:x 40) (:y 60)
                       , &
@@ -111,6 +105,10 @@
                           {} (:x 300) (:y 100)
                           get dict :drag-demo
                     get dict :slider
+                    g ({})
+                      circle ([] 100 200) 20 $ {} (:fill-color $ [] 0 0 100 0.4) (:stroke-color $ [] 200 80 90) (:line-width 1)
+                      rect ([] 100 250) ([] 40 40)
+                        {} (:fill-color $ [] 0 0 100 0.4) (:stroke-color $ [] 200 80 90) (:line-width 1)
                 :actions $ {}
         |render-shape $ quote
           defn render-shape () (; render-cycloid) (; render-rotate)
@@ -125,6 +123,8 @@
               &let (info $ get-shape-tree tree) (; echo "\"shape rerendering") (; echo info) (draw-canvas info)
         |reload! $ quote
           defn reload! () (println "\"reloaded") (render-shape)
+        |on-error $ quote
+          defn on-error (message) (draw-error-message message)
         |render-cycloid $ quote
           defn render-cycloid ()
             let
@@ -184,6 +184,11 @@
               :vec $ map wrap-kwd-in-event x
               (type-of x)
                 , x
+        |touch-area $ quote
+          defn touch-area (action path & args)
+            merge
+              {} (:type :touch-area) (:x 0) (:y 0) (:radius 10) (:action action) (:path path)
+              either (first args) ({})
         |handle-tree-event $ quote
           defn handle-tree-event (event dispatch!)
             let
@@ -204,6 +209,13 @@
                         listener e dispatch!
                       ; echo target-component
                       ; echo $ deref *tree-state
+        |text $ quote
+          defn text (position content & args)
+            &let
+              options $ either (first args) ({})
+              {} (:type :text) (:x $ first position) (:y $ last position) (:text content)
+                :color $ either (:color options) ([] 0 0 100)
+                :align $ either (:align options) "\"left"
         |get-shape-tree $ quote
           defn get-shape-tree (tree)
             case (:type tree)
@@ -249,6 +261,28 @@
               :keyword $ str "\":" (turn-str x)
               (type-of x)
                 , x
+        |rect $ quote
+          defn rect (position sizes & args)
+            let
+                options $ merge
+                  {} (:fill-color $ [] 0 0 100 0.3) (:stroke-color $ [] 0 0 100 0.8) (:stroke-width 2)
+                  first args
+              {} (:type :ops)
+                :ops $ [] ([] :rectangle position sizes) ([] :source-rgb $ :fill-color options) ([] :fill-preserve) ([] :source-rgb $ :stroke-color options) ([] :line-width $ :line-width options) ([] :stroke)
+        |circle $ quote
+          defn circle (position radius & args)
+            let
+                options $ merge
+                  {} (:fill-color $ [] 0 0 100 0.3) (:stroke-color $ [] 0 0 100 0.8) (:stroke-width 2)
+                  first args
+              {} (:type :ops)
+                :ops $ []
+                  [] :arc position radius ([] 0 $ &* 2 &PI) (, false)
+                  [] :source-rgb $ :fill-color options
+                  [] :fill-preserve
+                  [] :source-rgb $ :stroke-color options
+                  [] :line-width $ :line-width options
+                  [] :stroke
         |defcomp $ quote
           defmacro defcomp (comp-name args & body)
             quote-replace $ defn (~ comp-name) (~ args)
@@ -297,19 +331,19 @@
       :configs $ {}
     |phlox.comp $ {}
       :ns $ quote
-        ns phlox.comp $ :require ([] phlox.core :refer $ [] defcomp g)
+        ns phlox.comp $ :require ([] phlox.core :refer $ [] defcomp g touch-area)
       :defs $ {}
         |comp-drag-point $ quote
           defcomp comp-drag-point (states props)
             let
-                cursor $ :cursor states
+                cursor $ either (:cursor states) ([])
                 state $ either (:data states)
                   {} (:x0 0) (:y0 0)
               {} (:children $ {})
                 :render $ fn (dict)
                   g
                     {} (:x $ :x props) (:y $ :y props)
-                    {} (:type :touch-area) (:x 0) (:y 0) (:path cursor) (:action :drag) (:events $ [] :mouse-down :mouse-move) (:radius 12)
+                    touch-area :drag cursor $ {} (:radius 12)
                     {} (:type :text)
                       :text $ str "\"(" (:x props) "\"," (:y props) "\")"
                       :color $ [] 0 0 100 0.7
@@ -340,9 +374,11 @@
                 :render $ fn (dict)
                   g
                     {} (:x $ :x props) (:y $ :y props)
-                    {} (:type :touch-area) (:x 0) (:y 0) (:path cursor) (:action :slide) (:events $ [] :mouse-down :mouse-move) (:radius 8)
+                    touch-area :slide cursor $ {} (:radius 8)
                     {} (:type :text) (:x 12) (:y 0)
-                      :text $ str "\"slide: " (:value props)
+                      :text $ str "\"slider: "
+                        format-number (:value props)
+                          either (:precision props) 2
                       :color $ [] 0 0 100 0.7
                 :actions $ {}
                   :slide $ fn (e d!)
@@ -353,5 +389,6 @@
                             either (:dx e) 0
                             either (:unit props) 1
                         , d!
+        |polyline $ quote (defn polyline $)
       :proc $ quote ()
       :configs $ {}
