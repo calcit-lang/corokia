@@ -55,6 +55,37 @@ After expansion, children are listed with a map, prepraring for handling events:
   :actions COPY
 ```
 
+### Shapes
+
+Circle:
+
+```cirru
+circle ([] 100 20) 10
+  {}
+    :fill-color Color
+    :stroke-color Color
+    :line-width 2
+```
+
+Rect:
+
+```cirru
+rect ([] 100 20) ([] 10 10)
+  {}
+    :fill-color Color
+    :stroke-color Color
+    :line-width 2
+```
+
+Text:
+
+```cirru
+text ([] 100 20) "|Demo"
+  {}
+    :color Color
+    :align :left
+```
+
 ### License
 
 MIT
