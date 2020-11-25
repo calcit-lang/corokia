@@ -57,6 +57,29 @@ After expansion, children are listed with a map, prepraring for handling events:
 
 ### Shapes
 
+```cirru
+phlox.core/expand-tree
+phlox.core/get-shape-tree
+phlox.core/g
+phlox.core/>>
+phlox.core/*tree-state
+phlox.core/handle-tree-event
+phlox.core/defcomp
+phlox.core/update-states
+phlox.core/circle
+phlox.core/rect
+phlox.core/text
+phlox.core/touch-area
+
+phlox.complext/c*
+phlox.complext/c+
+phlox.complext/c-
+phlox.complext/rad-point
+
+phlox.comp/comp-drag-point
+phlox.comp/comp-slider
+```
+
 Circle:
 
 ```cirru

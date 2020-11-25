@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [])
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -64,6 +64,7 @@
                       dispatch! cursor $ update state :count (\ - % 1)
         |on-window-event $ quote
           defn on-window-event (event) (handle-tree-event event dispatch!)
+            when (= |window-resized $ get event "\"type") (render-shape)
         |comp-data-list $ quote
           defcomp comp-data-list (store)
             let
@@ -95,15 +96,12 @@
                 :render $ fn (dict)
                   g ({})
                     text ([] 20 20) (str "\"Size: " $ :size state) ({} $ :align :center)
-                    g
-                      {} (:x 40) (:y 60)
-                      , &
-                      concat
-                        ->> (range 3)
-                          map $ fn (x) (get dict $ str |task- x)
-                        [] $ g
-                          {} (:x 300) (:y 100)
-                          get dict :drag-demo
+                    g ({,} :x 40 , :y 60) & $ concat
+                      ->> (range 3)
+                        map $ fn (x) (get dict $ str |task- x)
+                      [] $ g
+                        {} (:x 300) (:y 100)
+                        get dict :drag-demo
                     get dict :slider
                     g ({})
                       circle ([] 100 200) 20 $ {} (:fill-color $ [] 0 0 100 0.4) (:stroke-color $ [] 200 80 90) (:line-width 1)
@@ -331,7 +329,7 @@
       :configs $ {}
     |phlox.comp $ {}
       :ns $ quote
-        ns phlox.comp $ :require ([] phlox.core :refer $ [] defcomp g touch-area)
+        ns phlox.comp $ :require ([] phlox.core :refer $ [] defcomp g touch-area text)
       :defs $ {}
         |comp-drag-point $ quote
           defcomp comp-drag-point (states props)
@@ -373,13 +371,12 @@
               {} (:children $ {})
                 :render $ fn (dict)
                   g
-                    {} (:x $ :x props) (:y $ :y props)
+                    {,} :x (:x props) , :y $ :y props
                     touch-area :slide cursor $ {} (:radius 8)
-                    {} (:type :text) (:x 12) (:y 0)
-                      :text $ str "\"slider: "
-                        format-number (:value props)
-                          either (:precision props) 2
-                      :color $ [] 0 0 100 0.7
+                    text ([] 12 0)
+                      str "\"slider: " $ format-number (:value props)
+                        either (:precision props) 2
+                      {} $ :color ([] 0 0 100 0.7)
                 :actions $ {}
                   :slide $ fn (e d!)
                     if (= :mouse-move $ :type e)
