@@ -4,8 +4,11 @@
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
-        ns phlox.main $ :require ([] phlox.core :refer $ [] expand-tree get-shape-tree g >> *tree-state handle-tree-event defcomp update-states circle rect text touch-area) ([] phlox.comp :refer $ [] comp-drag-point comp-slider) ([] phlox.complex :refer $ [] c+ c- c* rad-point)
+        ns phlox.main $ :require ([] phlox.core :refer $ [] render-app! g >> handle-tree-event defcomp update-states circle rect text touch-area) ([] phlox.comp :refer $ [] comp-drag-point comp-slider) ([] phlox.complex :refer $ [] c+ c- c* rad-point)
       :defs $ {}
+        |render-page $ quote
+          defn render-page ()
+            render-app! $ comp-data-list (deref *store)
         |dispatch! $ quote
           defn dispatch! (op data)
             if (list? op) (recur :states $ [] op data) (swap! *store updater op data)
@@ -18,27 +21,9 @@
         |main! $ quote
           defn main! ()
             init-canvas $ {} (:title "\"Phlox") (:width 800) (:height 800)
-            render-shape
-            add-watch *store :change $ fn (v v0) (render-shape)
+            render-page
+            add-watch *store :change $ fn (v v0) (render-page)
             echo "\"app started."
-        |render-rotate $ quote
-          defn render-rotate ()
-            let
-                b0 20
-                r0 1.6
-                r1 $ / 1.48 3
-              draw-canvas $ g
-                {} (:x 200) (:y 300)
-                {} (:type :polyline) (:from $ [] 100 0)
-                  :relative-stops $ ->> (range 200)
-                    map $ fn (x)
-                      c*
-                        [] (+ b0 $ * r0 x) (, 0)
-                        rad-point $ * &PI r1 x
-                  :stroke-color $ [] 0 30 30
-                  :line-width 2
-                  :line-join :round
-                  :skip-first? true
         |comp-counter $ quote
           defcomp comp-counter (states x)
             let
@@ -62,9 +47,54 @@
                     when
                       = (:type e) :mouse-down
                       dispatch! cursor $ update state :count (\ - % 1)
+        |comp-demo-rotate $ quote
+          defcomp comp-demo-rotate ()
+            {} (:children $ {})
+              :render $ fn (dict)
+                let
+                    b0 20
+                    r0 1.6
+                    r1 $ / 1.48 3
+                  g
+                    {} (:x 200) (:y 300)
+                    {} (:type :polyline) (:from $ [] 100 0)
+                      :relative-stops $ ->> (range 200)
+                        map $ fn (x)
+                          c*
+                            [] (+ b0 $ * r0 x) (, 0)
+                            rad-point $ * &PI r1 x
+                      :stroke-color $ [] 0 30 30
+                      :line-width 2
+                      :line-join :round
+                      :skip-first? true
+              :actions $ {}
         |on-window-event $ quote
           defn on-window-event (event) (handle-tree-event event dispatch!)
-            when (= |window-resized $ get event "\"type") (render-shape)
+        |comp-demo-cycloid $ quote
+          defcomp comp-demo-cycloid ()
+            {} (:children $ {})
+              :render $ fn (dict)
+                let
+                    n 600
+                    t1 3
+                    t2 $ / 40 5
+                    v 0.02
+                    radius 200
+                    r2 $ / radius t1
+                    v2 $ * v t2
+                  g
+                    {} (:x 400) (:y 400)
+                    {} (:type :polyline) (:from $ [] radius 0)
+                      :stops $ ->> (range n)
+                        map $ fn (x)
+                          c+
+                            c* ([] radius 0) (rad-point $ * v x)
+                            c* ([] r2 0) (rad-point $ * v2 x)
+                      :stroke-color $ [] 0 80 60
+                      :line-width 2
+                      :line-join :round
+                      :skip-first? true
+              :actions $ {}
         |comp-data-list $ quote
           defcomp comp-data-list (store)
             let
@@ -93,6 +123,8 @@
                         :y 200
                         :unit 0.1
                         :on-change $ fn (v d!) (println "\"slider change:" v) (d! cursor $ assoc state :slider-v v)
+                    :rotate $ comp-demo-rotate
+                    :cycloid $ comp-demo-cycloid
                 :render $ fn (dict)
                   g ({})
                     text ([] 20 20) (str "\"Size: " $ :size state) ({} $ :align :center)
@@ -107,44 +139,13 @@
                       circle ([] 100 200) 20 $ {} (:fill-color $ [] 0 0 100 0.4) (:stroke-color $ [] 200 80 90) (:line-width 1)
                       rect ([] 100 250) ([] 40 40)
                         {} (:fill-color $ [] 0 0 100 0.4) (:stroke-color $ [] 200 80 90) (:line-width 1)
+                    get dict :rotate
+                    get dict :cycloid
                 :actions $ {}
-        |render-shape $ quote
-          defn render-shape () (; render-cycloid) (; render-rotate)
-            &let
-              tree $ expand-tree (comp-data-list $ deref *store)
-              reset! *tree-state tree
-              ; echo "\"tree:"
-              ; echo tree
-              ; echo "\"Generated" $ macroexpand
-                quote $ defcomp comp-name (a b)
-                  {} (:children nil) (:tree nil) (:actions $ {})
-              &let (info $ get-shape-tree tree) (; echo "\"shape rerendering") (; echo info) (draw-canvas info)
         |reload! $ quote
-          defn reload! () (println "\"reloaded") (render-shape)
+          defn reload! () (println "\"reloaded") (render-page)
         |on-error $ quote
           defn on-error (message) (draw-error-message message)
-        |render-cycloid $ quote
-          defn render-cycloid ()
-            let
-                n 600
-                t1 3
-                t2 $ / 40 5
-                v 0.02
-                radius 200
-                r2 $ / radius t1
-                v2 $ * v t2
-              draw-canvas $ g
-                {} (:x 400) (:y 400)
-                {} (:type :polyline) (:from $ [] radius 0)
-                  :stops $ ->> (range n)
-                    map $ fn (x)
-                      c+
-                        c* ([] radius 0) (rad-point $ * v x)
-                        c* ([] r2 0) (rad-point $ * v2 x)
-                  :stroke-color $ [] 0 80 60
-                  :line-width 2
-                  :line-join :round
-                  :skip-first? true
       :proc $ quote ()
       :configs $ {}
     |phlox.core $ {}
@@ -192,21 +193,26 @@
             let
                 e $ wrap-kwd-in-event event
                 path $ :path e
-              if
-                and (some? path) (some? $ :action e)
-                let
-                    data-path $ ->> path (map $ \ [] :children %) (apply concat)
-                    target-component $ get-in (deref *tree-state) data-path
-                    actions $ either (:actions target-component) ({})
-                  ; echo e
-                  if (nil? target-component) (echo "\"WARNING: cannot find target component:" data-path)
-                    let
-                        listener $ get actions (:action e)
-                      if (nil? listener)
-                        echo "\"WARNING: cannot find listener on component:" (:action e) "\"among" $ keys actions
-                        listener e dispatch!
-                      ; echo target-component
-                      ; echo $ deref *tree-state
+              cond
+                  = :window-resized $ :type e
+                  &let
+                    info $ get-shape-tree (deref *tree-state)
+                    ; with-log info
+                    draw-canvas info
+                (and (some? path) (some? $ :action e))
+                  let
+                      data-path $ ->> path (map $ \ [] :children %) (apply concat)
+                      target-component $ get-in (deref *tree-state) data-path
+                      actions $ either (:actions target-component) ({})
+                    ; echo e
+                    if (nil? target-component) (echo "\"WARNING: cannot find target component:" data-path)
+                      let
+                          listener $ get actions (:action e)
+                        if (nil? listener)
+                          echo "\"WARNING: cannot find listener on component:" (:action e) "\"among" $ keys actions
+                          listener e dispatch!
+                        ; echo target-component
+                        ; echo $ deref *tree-state
         |text $ quote
           defn text (position content & args)
             &let
@@ -228,6 +234,10 @@
                   if (nil? path) path $ wrap-kwd-in-path path
               (:type tree)
                 , tree
+        |render-app! $ quote
+          defn render-app! (comp-tree)
+            &let (tree $ expand-tree comp-tree) (reset! *tree-state tree) (; with-log tree)
+              &let (info $ get-shape-tree tree) (; with-log info) (draw-canvas info)
         |expand-tree $ quote
           defn expand-tree (tree)
             case (:type tree)
