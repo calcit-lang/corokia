@@ -111,18 +111,13 @@
                     pairs-map
                   {}
                     :drag-demo $ comp-drag-point (>> states :drag-demo)
+                      either (:point-d state) ([] 0 0)
+                      fn (new-position d!) (d! cursor $ assoc state :point-d new-position)
                       {}
-                        :x $ either (first $ :point-d state) (, 0)
-                        :y $ either (last $ :point-d state) (, 0)
-                        :on-change $ fn (x y d!)
-                          d! cursor $ assoc state :point-d ([] x y)
-                    :slider $ comp-slider (>> states :slider)
-                      {}
-                        :value $ either (:slider-v state) 10
-                        :x 200
-                        :y 200
-                        :unit 0.1
-                        :on-change $ fn (v d!) (println "\"slider change:" v) (d! cursor $ assoc state :slider-v v)
+                    :slider $ comp-slider (>> states :slider) ([] 200 200)
+                      either (:slider-v state) 10
+                      fn (v d!) (println "\"slider change:" v) (d! cursor $ assoc state :slider-v v)
+                      {} $ :unit 0.1
                     :rotate $ comp-demo-rotate
                     :cycloid $ comp-demo-cycloid
                 :render $ fn (dict)
@@ -339,62 +334,62 @@
       :configs $ {}
     |phlox.comp $ {}
       :ns $ quote
-        ns phlox.comp $ :require ([] phlox.core :refer $ [] defcomp g touch-area text)
+        ns phlox.comp $ :require ([] phlox.core :refer $ [] defcomp g touch-area text) ([] phlox.complex :refer $ [] c+ c-)
       :defs $ {}
         |comp-drag-point $ quote
-          defcomp comp-drag-point (states props)
+          defcomp comp-drag-point (states position on-change & args)
             let
                 cursor $ either (:cursor states) ([])
-                state $ either (:data states)
-                  {} (:x0 0) (:y0 0)
+                state $ either (:data states) ({} $ :initial-position position)
+                options $ either (first args) ({})
+              assert "\"expects states" $ map? states
+              assert "\"expects position in a list" $ list? position
+              assert "\"expects on-change function" $ fn? on-change
               {} (:children $ {})
                 :render $ fn (dict)
                   g
-                    {} (:x $ :x props) (:y $ :y props)
+                    {} (:x $ first position) (:y $ last position)
                     touch-area :drag cursor $ {} (:radius 12)
-                    {} (:type :text)
-                      :text $ str "\"(" (:x props) "\"," (:y props) "\")"
-                      :color $ [] 0 0 100 0.7
-                      :x 16
-                      :y 0
+                    text ([] 16 0)
+                      str "\"(" (first position) "\"," (last position) "\")"
+                      {} $ :color ([] 0 0 100 0.7)
                 :actions $ {}
                   :drag $ fn (e d!)
                     &let (t $ :type e)
-                      when (= :mouse-down t)
-                        d! cursor $ merge state
-                          &{} ([] :x0 $ :x props) ([] :y0 $ :y props)
+                      when (= :mouse-down t) (d! cursor $ assoc state :initial-position position)
                       when (= :mouse-move t)
-                          :on-change props
-                          +
-                            either (:x0 state) 0
-                            :dx e
-                          +
-                            either (:y0 state) 0
-                            :dy e
+                        on-change
+                          c+ (:initial-position state)
+                            []
+                              either (:dx e) 0
+                              either (:dy e) 0
                           , d!
         |comp-slider $ quote
-          defcomp comp-slider (states props)
+          defcomp comp-slider (states position value on-change & args)
             let
                 cursor $ :cursor states
-                state $ either (:data states)
-                  {} (:x $ :x props) (:y $ :y props)
+                options $ merge
+                  {} (:precision 2) (:unit 1)
+                  get args 0
+              assert "\"expects states in map" $ map? states
+              assert "\"expects position in a list" $ list? position
+              assert "\"expects a number value" $ number? value
+              assert "\"expects on-change function" $ fn? on-change
               {} (:children $ {})
                 :render $ fn (dict)
                   g
-                    {,} :x (:x props) , :y $ :y props
+                    {,} :x (first position) , :y $ last position
                     touch-area :slide cursor $ {} (:radius 8)
                     text ([] 12 0)
-                      str "\"slider: " $ format-number (:value props)
-                        either (:precision props) 2
+                      str "\"slider: " $ format-number value (:precision options)
                       {} $ :color ([] 0 0 100 0.7)
                 :actions $ {}
                   :slide $ fn (e d!)
                     if (= :mouse-move $ :type e)
-                        :on-change props
-                        + (:value props)
-                          *
-                            either (:dx e) 0
-                            either (:unit props) 1
+                      on-change
+                        + value $ *
+                          either (:dx e) 0
+                          :unit options
                         , d!
         |polyline $ quote (defn polyline $)
       :proc $ quote ()

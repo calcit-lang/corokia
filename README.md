@@ -58,32 +58,34 @@ After expansion, children are listed with a map, prepraring for handling events:
 ### Shapes
 
 ```cirru
-phlox.core/expand-tree
-phlox.core/get-shape-tree
-phlox.core/g
-phlox.core/>>
-phlox.core/*tree-state
-phlox.core/handle-tree-event
-phlox.core/defcomp
-phlox.core/update-states
-phlox.core/circle
-phlox.core/rect
-phlox.core/text
-phlox.core/touch-area
+phlox.core/g $ {}
 
-phlox.complext/c*
-phlox.complext/c+
-phlox.complext/c-
-phlox.complext/rad-point
+phlox.core/>> states :k
 
-phlox.comp/comp-drag-point
-phlox.comp/comp-slider
+phlox.core/handle-tree-event event dispatch!
+
+phlox.core/defcomp c1 (a b c)
+  {}
+    :children $ {}
+    :render $ fn (dict)
+      g $ {}
+    :actions $ {}
+
+phlox.core/update-states store ([] op data)
+
+phlox.complext/c* ([] 1 2) ([] 3 4)
+
+phlox.complext/c+ ([] 1 2) ([] 3 4)
+
+phlox.complext/c- ([] 1 2) ([] 3 4)
+
+phlox.complext/rad-point 1.07
 ```
 
 Circle:
 
 ```cirru
-circle ([] 100 20) 10
+phlox.core/circle ([] 100 20) 10
   {}
     :fill-color Color
     :stroke-color Color
@@ -93,7 +95,7 @@ circle ([] 100 20) 10
 Rect:
 
 ```cirru
-rect ([] 100 20) ([] 10 10)
+phlox.core/rect ([] 100 20) ([] 10 10)
   {}
     :fill-color Color
     :stroke-color Color
@@ -103,10 +105,32 @@ rect ([] 100 20) ([] 10 10)
 Text:
 
 ```cirru
-text ([] 100 20) "|Demo"
+phlox.core/text ([] 100 20) "|Demo"
   {}
     :color Color
     :align :left
+```
+
+Touch area:
+
+```cirru
+phlox.core/touch-area :action cursor $ {} (:radius 8)
+```
+
+Component for slide value:
+
+```cirru
+phlox.comp/comp-slider (>> states :k) ([] 1 2) 10
+  fn (new-value) (do)
+  {} (:precision 2) (:unit 1)
+```
+
+Component for dragging position:
+
+```cirru
+phlox.comp/comp-drag-point (>> states :k) ([] 1 2)
+  fn (new-position d!)
+  {}
 ```
 
 ### License
