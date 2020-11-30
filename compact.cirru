@@ -240,8 +240,12 @@
                     {} (:x $ first position) (:y $ last position)
                     touch-area :drag cursor $ {} (:radius 12)
                     text ([] 16 0)
-                      str "\"(" (first position) "\"," (last position) "\")"
-                      {} $ :color ([] 0 0 100 0.7)
+                      if (fn? $ :render-text options)
+                          :render-text options
+                          , position
+                        str "\"(" (first position) "\"," (last position) "\")"
+                      {} $ :color
+                        either (:text-color options) ([] 0 0 100 0.7)
                 :actions $ {}
                   :drag $ fn (e d!)
                     &let (t $ :type e)

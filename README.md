@@ -131,6 +131,9 @@ Component for dragging position:
 phlox.comp/comp-drag-point (>> states :k) ([] 1 2)
   fn (new-position d!)
   {}
+    :text-color $ [] 0 0 80
+    :render-text $ fn (position)
+      join-str |, position
 ```
 
 ### License
