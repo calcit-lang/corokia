@@ -10,7 +10,7 @@
           defn render-page ()
             render-app! $ comp-container (deref *store)
         |dispatch! $ quote
-          defn dispatch! (op data) (echo "\"dispatching:" op data)
+          defn dispatch! (op data) (; echo "\"dispatching:" op data)
             if (list? op) (recur :states $ [] op data) (swap! *store updater op data)
         |*store $ quote
           defatom *store $ {}
@@ -106,7 +106,7 @@
                 :align $ either (:align options) "\"left"
         |get-shape-tree $ quote
           defn get-shape-tree (tree)
-            case (:type tree)
+            if (nil? tree) nil $ case (:type tree)
               nil $ do (echo "\"nil type from tree:" tree) nil
               :group $ update tree :children
                 fn (xs) (map get-shape-tree xs)
@@ -124,7 +124,7 @@
               &let (info $ get-shape-tree tree) (; with-log info) (draw-canvas info)
         |expand-tree $ quote
           defn expand-tree (tree)
-            case (:type tree)
+            if (nil? tree) nil $ case (:type tree)
               :comp $ let
                   children $ ->> (:children tree)
                     map-kv $ fn (k v)
@@ -429,7 +429,7 @@
               {} (:children $ {})
                 :render $ fn (dict)
                   g ({}) & $ ->> ([] :main :rotate :cycloid :drag-demo :slider)
-                    map-indexed $ fn (idx info) (echo "\"creating")
+                    map-indexed $ fn (idx info)
                       touch-area :select cursor $ {}
                         :x $ + 20 (* idx 40)
                         :y 20
