@@ -4,13 +4,13 @@
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
-        ns phlox.main $ :require ([] phlox.core :refer $ [] render-app! g >> handle-tree-event defcomp update-states circle rect text touch-area) ([] phlox.comp :refer $ [] comp-drag-point comp-slider) ([] phlox.complex :refer $ [] c+ c- c* rad-point)
+        ns phlox.main $ :require ([] phlox.core :refer $ [] render-app! >> handle-tree-event update-states) ([] phlox.comp.container :refer $ [] comp-container)
       :defs $ {}
         |render-page $ quote
           defn render-page ()
-            render-app! $ comp-data-list (deref *store)
+            render-app! $ comp-container (deref *store)
         |dispatch! $ quote
-          defn dispatch! (op data)
+          defn dispatch! (op data) (; echo "\"dispatching:" op data)
             if (list? op) (recur :states $ [] op data) (swap! *store updater op data)
         |*store $ quote
           defatom *store $ {}
@@ -24,119 +24,8 @@
             render-page
             add-watch *store :change $ fn (v v0) (render-page)
             echo "\"app started."
-        |comp-counter $ quote
-          defcomp comp-counter (states x)
-            let
-                cursor $ :cursor states
-                state $ either (:data states) ({} $ :count 0)
-              {} (:children $ {})
-                :render $ fn (dict)
-                  g
-                    {} (:x 0) (:y $ * x 30)
-                    touch-area :dec cursor $ {} (:radius 10)
-                    touch-area :inc cursor $ {} (:radius 10) (:x 80)
-                    text ([] 0 0) "\"-" $ {} (:align :center)
-                    text ([] 40 0) (str x "\":" $ :count state) ({} $ :align :center)
-                    text ([] 80 0) "\"+" $ {} (:align :center)
-                :actions $ {}
-                  :inc $ fn (e d!)
-                    when
-                      = (:type e) :mouse-down
-                      dispatch! cursor $ update state :count inc
-                  :dec $ fn (e d!)
-                    when
-                      = (:type e) :mouse-down
-                      dispatch! cursor $ update state :count (\ - % 1)
-        |comp-demo-rotate $ quote
-          defcomp comp-demo-rotate ()
-            {} (:children $ {})
-              :render $ fn (dict)
-                let
-                    b0 20
-                    r0 1.6
-                    r1 $ / 1.48 3
-                  g
-                    {} (:x 200) (:y 300)
-                    {} (:type :polyline) (:from $ [] 100 0)
-                      :relative-stops $ ->> (range 200)
-                        map $ fn (x)
-                          c*
-                            [] (+ b0 $ * r0 x) (, 0)
-                            rad-point $ * &PI r1 x
-                      :stroke-color $ [] 0 30 30
-                      :line-width 2
-                      :line-join :round
-                      :skip-first? true
-              :actions $ {}
         |on-window-event $ quote
           defn on-window-event (event) (handle-tree-event event dispatch!)
-        |comp-demo-cycloid $ quote
-          defcomp comp-demo-cycloid ()
-            {} (:children $ {})
-              :render $ fn (dict)
-                let
-                    n 600
-                    t1 3
-                    t2 $ / 40 5
-                    v 0.02
-                    radius 200
-                    r2 $ / radius t1
-                    v2 $ * v t2
-                  g
-                    {} (:x 400) (:y 400)
-                    {} (:type :polyline) (:from $ [] radius 0)
-                      :stops $ ->> (range n)
-                        map $ fn (x)
-                          c+
-                            c* ([] radius 0) (rad-point $ * v x)
-                            c* ([] r2 0) (rad-point $ * v2 x)
-                      :stroke-color $ [] 0 80 60
-                      :line-width 2
-                      :line-join :round
-                      :skip-first? true
-              :actions $ {}
-        |comp-data-list $ quote
-          defcomp comp-data-list (store)
-            let
-                states $ :states store
-                cursor $ :cursor states
-                state $ either (:data states)
-                  {} (:size 0) (:point-d $ [] 0 0) (:slider-v 0)
-              {}
-                :children $ merge
-                  ->> (range 3)
-                    map $ fn (x)
-                      [] (str |task- x)
-                        comp-counter (>> states $ str |task- x) (, x)
-                    pairs-map
-                  {}
-                    :drag-demo $ comp-drag-point (>> states :drag-demo)
-                      either (:point-d state) ([] 0 0)
-                      fn (new-position d!) (d! cursor $ assoc state :point-d new-position)
-                      {}
-                    :slider $ comp-slider (>> states :slider) ([] 200 200)
-                      either (:slider-v state) 10
-                      fn (v d!) (println "\"slider change:" v) (d! cursor $ assoc state :slider-v v)
-                      {} $ :unit 0.1
-                    :rotate $ comp-demo-rotate
-                    :cycloid $ comp-demo-cycloid
-                :render $ fn (dict)
-                  g ({})
-                    text ([] 20 20) (str "\"Size: " $ :size state) ({} $ :align :center)
-                    g ({,} :x 40 , :y 60) & $ concat
-                      ->> (range 3)
-                        map $ fn (x) (get dict $ str |task- x)
-                      [] $ g
-                        {} (:x 300) (:y 100)
-                        get dict :drag-demo
-                    get dict :slider
-                    g ({})
-                      circle ([] 100 200) 20 $ {} (:fill-color $ [] 0 0 100 0.4) (:stroke-color $ [] 200 80 90) (:line-width 1)
-                      rect ([] 100 250) ([] 40 40)
-                        {} (:fill-color $ [] 0 0 100 0.4) (:stroke-color $ [] 200 80 90) (:line-width 1)
-                    get dict :rotate
-                    get dict :cycloid
-                :actions $ {}
         |reload! $ quote
           defn reload! () (println "\"reloaded") (render-page)
         |on-error $ quote
@@ -217,7 +106,7 @@
                 :align $ either (:align options) "\"left"
         |get-shape-tree $ quote
           defn get-shape-tree (tree)
-            case (:type tree)
+            if (nil? tree) nil $ case (:type tree)
               nil $ do (echo "\"nil type from tree:" tree) nil
               :group $ update tree :children
                 fn (xs) (map get-shape-tree xs)
@@ -235,7 +124,7 @@
               &let (info $ get-shape-tree tree) (; with-log info) (draw-canvas info)
         |expand-tree $ quote
           defn expand-tree (tree)
-            case (:type tree)
+            if (nil? tree) nil $ case (:type tree)
               :comp $ let
                   children $ ->> (:children tree)
                     map-kv $ fn (k v)
@@ -351,8 +240,12 @@
                     {} (:x $ first position) (:y $ last position)
                     touch-area :drag cursor $ {} (:radius 12)
                     text ([] 16 0)
-                      str "\"(" (first position) "\"," (last position) "\")"
-                      {} $ :color ([] 0 0 100 0.7)
+                      if (fn? $ :render-text options)
+                          :render-text options
+                          , position
+                        str "\"(" (first position) "\"," (last position) "\")"
+                      {} $ :color
+                        either (:text-color options) ([] 0 0 100 0.7)
                 :actions $ {}
                   :drag $ fn (e d!)
                     &let (t $ :type e)
@@ -392,5 +285,158 @@
                           :unit options
                         , d!
         |polyline $ quote (defn polyline $)
+      :proc $ quote ()
+      :configs $ {}
+    |phlox.comp.container $ {}
+      :ns $ quote
+        ns phlox.comp.container $ :require ([] phlox.core :refer $ [] g >> defcomp circle rect text touch-area) ([] phlox.comp :refer $ [] comp-drag-point comp-slider) ([] phlox.complex :refer $ [] c+ c- c* rad-point)
+      :defs $ {}
+        |comp-counter $ quote
+          defcomp comp-counter (states x)
+            let
+                cursor $ :cursor states
+                state $ either (:data states) ({} $ :count 0)
+              {} (:children $ {})
+                :render $ fn (dict)
+                  g
+                    {} (:x 0) (:y $ * x 30)
+                    touch-area :dec cursor $ {} (:radius 10)
+                    touch-area :inc cursor $ {} (:radius 10) (:x 80)
+                    text ([] 0 0) "\"-" $ {} (:align :center)
+                    text ([] 40 0) (str x "\":" $ :count state) ({} $ :align :center)
+                    text ([] 80 0) "\"+" $ {} (:align :center)
+                :actions $ {}
+                  :inc $ fn (e d!)
+                    when
+                      = (:type e) :mouse-down
+                      d! cursor $ update state :count inc
+                  :dec $ fn (e d!)
+                    when
+                      = (:type e) :mouse-down
+                      d! cursor $ update state :count (\ - % 1)
+        |comp-data-list $ quote
+          defcomp comp-data-list (states)
+            let
+                cursor $ :cursor states
+                state $ either (:data states) ({} $ :size 0)
+              {}
+                :children $ merge
+                  ->> (range 3)
+                    map $ fn (x)
+                      [] (str |task- x)
+                        comp-counter (>> states $ str |task- x) (, x)
+                    pairs-map
+                :render $ fn (dict)
+                  g ({})
+                    text ([] 20 20) (str "\"Size: " $ :size state) ({} $ :align :center)
+                    g ({,} :x 40 , :y 60) & $ concat
+                      ->> (range 3)
+                        map $ fn (x) (get dict $ str |task- x)
+                      [] $ g
+                        {} (:x 300) (:y 100)
+                    g ({})
+                      circle ([] 100 200) 20 $ {} (:fill-color $ [] 0 0 100 0.4) (:stroke-color $ [] 200 80 90) (:line-width 1)
+                      rect ([] 100 250) ([] 40 40)
+                        {} (:fill-color $ [] 0 0 100 0.4) (:stroke-color $ [] 200 80 90) (:line-width 1)
+                :actions $ {}
+        |comp-demo-cycloid $ quote
+          defcomp comp-demo-cycloid ()
+            {} (:children $ {})
+              :render $ fn (dict)
+                let
+                    n 600
+                    t1 3
+                    t2 $ / 40 5
+                    v 0.02
+                    radius 200
+                    r2 $ / radius t1
+                    v2 $ * v t2
+                  g
+                    {} (:x 400) (:y 400)
+                    {} (:type :polyline) (:from $ [] radius 0)
+                      :stops $ ->> (range n)
+                        map $ fn (x)
+                          c+
+                            c* ([] radius 0) (rad-point $ * v x)
+                            c* ([] r2 0) (rad-point $ * v2 x)
+                      :stroke-color $ [] 0 80 60
+                      :line-width 2
+                      :line-join :round
+                      :skip-first? true
+              :actions $ {}
+        |comp-demo-rotate $ quote
+          defcomp comp-demo-rotate ()
+            {} (:children $ {})
+              :render $ fn (dict)
+                let
+                    b0 20
+                    r0 1.6
+                    r1 $ / 1.48 3
+                  g
+                    {} (:x 200) (:y 300)
+                    {} (:type :polyline) (:from $ [] 100 0)
+                      :relative-stops $ ->> (range 200)
+                        map $ fn (x)
+                          c*
+                            [] (+ b0 $ * r0 x) (, 0)
+                            rad-point $ * &PI r1 x
+                      :stroke-color $ [] 0 30 30
+                      :line-width 2
+                      :line-join :round
+                      :skip-first? true
+              :actions $ {}
+        |comp-container $ quote
+          defcomp comp-container (store)
+            let
+                states $ :states store
+                cursor $ either (:cursor states) ([])
+                state $ either (:data states)
+                  {} (:tab :slider) (:point-d $ [] 20 20) (:slider-v 0)
+                tab $ :tab state
+              {}
+                :children $ {}
+                  :main $ if
+                    or (= tab :main) (nil? tab)
+                    comp-data-list $ >> states :main
+                  :tabs $ comp-tabs (>> states :tabs) tab
+                    fn (new-tab d!) (d! cursor $ assoc state :tab new-tab)
+                  :rotate $ if (= tab :rotate) (comp-demo-rotate)
+                  :cycloid $ if (= tab :cycloid) (comp-demo-cycloid)
+                  :drag-demo $ if (= tab :drag-demo)
+                    comp-drag-point (>> states :drag-demo)
+                      either (:point-d state) ([] 0 0)
+                      fn (new-position d!) (d! cursor $ assoc state :point-d new-position)
+                      {}
+                  :slider $ if (= tab :slider)
+                    comp-slider (>> states :slider) ([] 200 200)
+                      either (:slider-v state) 10
+                      fn (v d!) (println "\"slider change:" v) (d! cursor $ assoc state :slider-v v)
+                      {} $ :unit 0.1
+                :render $ fn (dict)
+                  g ({}) (get dict :tabs)
+                    g
+                      {} (:x 20) (:y 40)
+                      get dict :main
+                      get dict :rotate
+                      get dict :cycloid
+                      get dict :slider
+                      get dict :drag-demo
+                :actions $ {}
+        |comp-tabs $ quote
+          defcomp comp-tabs (states tab on-change)
+            let
+                cursor $ :cursor states
+              {} (:children $ {})
+                :render $ fn (dict)
+                  g ({}) & $ ->> ([] :main :rotate :cycloid :drag-demo :slider)
+                    map-indexed $ fn (idx info)
+                      touch-area :select cursor $ {}
+                        :x $ + 20 (* idx 40)
+                        :y 20
+                        :data info
+                :actions $ {}
+                  :select $ fn (e d!)
+                    when (= :mouse-down $ :type e)
+                      on-change (turn-keyword $ :data e) (, d!)
       :proc $ quote ()
       :configs $ {}
