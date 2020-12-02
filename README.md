@@ -117,6 +117,12 @@ Touch area:
 phlox.core/touch-area :action cursor $ {} (:radius 8)
 ```
 
+Key listener:
+
+```cirru
+phlox.core/key-listener "a" :action cursor nil
+```
+
 Component for slide value:
 
 ```cirru
