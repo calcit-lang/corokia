@@ -67,13 +67,16 @@
               :vec $ map wrap-kwd-in-event x
               (type-of x)
                 , x
+        |key-listener $ quote
+          defn key-listener (key action path & args)
+            {} (:type :key-listener) (:key key) (:path path) (:action action) (:data $ first args)
         |touch-area $ quote
           defn touch-area (action path & args)
             merge
               {} (:type :touch-area) (:x 0) (:y 0) (:radius 10) (:action action) (:path path)
               either (first args) ({})
         |handle-tree-event $ quote
-          defn handle-tree-event (event dispatch!)
+          defn handle-tree-event (event dispatch!) (; echo "\"get event" event)
             let
                 e $ wrap-kwd-in-event event
                 path $ :path e
@@ -116,6 +119,9 @@
               :touch-area $ update tree :path
                 fn (path)
                   if (nil? path) path $ wrap-kwd-in-path path
+              :key-listener $ update tree :path
+                fn (path)
+                  if (nil? path) path $ wrap-kwd-in-path path
               (:type tree)
                 , tree
         |render-app! $ quote
@@ -144,12 +150,10 @@
         |wrap-kwd-in-path $ quote
           defn wrap-kwd-in-path (x)
             case (type-of x) (:list $ map wrap-kwd-in-path x)
-              :map
-                ->> x
-                  map-kv $ fn (k v)
-                    [] (wrap-kwd-in-path k) (wrap-kwd-in-path v)
-                  pairs-map
-                , 
+              :map $ ->> x
+                map-kv $ fn (k v)
+                  [] (wrap-kwd-in-path k) (wrap-kwd-in-path v)
+                pairs-map
               :keyword $ str "\":" (turn-str x)
               (type-of x)
                 , x
@@ -289,7 +293,7 @@
       :configs $ {}
     |phlox.comp.container $ {}
       :ns $ quote
-        ns phlox.comp.container $ :require ([] phlox.core :refer $ [] g >> defcomp circle rect text touch-area) ([] phlox.comp :refer $ [] comp-drag-point comp-slider) ([] phlox.complex :refer $ [] c+ c- c* rad-point)
+        ns phlox.comp.container $ :require ([] phlox.core :refer $ [] g >> defcomp circle rect text touch-area key-listener) ([] phlox.comp :refer $ [] comp-drag-point comp-slider) ([] phlox.complex :refer $ [] c+ c- c* rad-point)
       :defs $ {}
         |comp-counter $ quote
           defcomp comp-counter (states x)
@@ -410,8 +414,9 @@
                   :slider $ if (= tab :slider)
                     comp-slider (>> states :slider) ([] 100 100)
                       either (:slider-v state) 10
-                      fn (v d!) (println "\"slider change:" v) (d! cursor $ assoc state :slider-v v)
+                      fn (v d!) (; println "\"slider change:" v) (d! cursor $ assoc state :slider-v v)
                       {} $ :unit 0.1
+                  :keydown $ if (= tab :keydown) (comp-keydown $ >> states :keydown)
                 :render $ fn (dict)
                   g ({}) (get dict :tabs)
                     g
@@ -421,6 +426,7 @@
                       get dict :cycloid
                       get dict :slider
                       get dict :drag-demo
+                      get dict :keydown
                 :actions $ {}
         |comp-tabs $ quote
           defcomp comp-tabs (states tab on-change)
@@ -428,7 +434,7 @@
                 cursor $ :cursor states
               {} (:children $ {})
                 :render $ fn (dict)
-                  g ({}) & $ ->> ([] :main :rotate :cycloid :drag-demo :slider)
+                  g ({}) & $ ->> ([] :main :rotate :cycloid :drag-demo :slider :keydown)
                     map-indexed $ fn (idx info)
                       g
                         {}
@@ -442,5 +448,22 @@
                   :select $ fn (e d!)
                     when (= :mouse-down $ :type e)
                       on-change (turn-keyword $ :data e) (, d!)
+        |comp-keydown $ quote
+          defcomp comp-keydown (states)
+            let
+                cursor $ :cursor states
+                state $ either (:data states) ({} $ :times 0)
+              {} (:children $ {})
+                :render $ fn (dict)
+                  g ({})
+                    text ([] 100 100) (str "\"press up times..: " $ :times state) ({})
+                    key-listener "\"up" :inc cursor
+                    key-listener "\"down" :dec cursor
+                :actions $ {}
+                  :inc $ fn (e d!)
+                    if (= :key-down $ :type e) (d! cursor $ update state :times inc)
+                  :dec $ fn (e d!)
+                    if (= :key-down $ :type e)
+                      d! cursor $ update state :times (\ &- % 1)
       :proc $ quote ()
       :configs $ {}
