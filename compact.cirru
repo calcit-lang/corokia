@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [])
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ []) (:version nil)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -352,7 +352,7 @@
                     r2 $ / radius t1
                     v2 $ * v t2
                   g
-                    {} (:x 400) (:y 400)
+                    {} (:x 300) (:y 300)
                     {} (:type :polyline) (:from $ [] radius 0)
                       :stops $ ->> (range n)
                         map $ fn (x)
@@ -373,7 +373,7 @@
                     r0 1.6
                     r1 $ / 1.48 3
                   g
-                    {} (:x 200) (:y 300)
+                    {} (:x 260) (:y 280)
                     {} (:type :polyline) (:from $ [] 100 0)
                       :relative-stops $ ->> (range 200)
                         map $ fn (x)
@@ -408,7 +408,7 @@
                       fn (new-position d!) (d! cursor $ assoc state :point-d new-position)
                       {}
                   :slider $ if (= tab :slider)
-                    comp-slider (>> states :slider) ([] 200 200)
+                    comp-slider (>> states :slider) ([] 100 100)
                       either (:slider-v state) 10
                       fn (v d!) (println "\"slider change:" v) (d! cursor $ assoc state :slider-v v)
                       {} $ :unit 0.1
@@ -430,10 +430,14 @@
                 :render $ fn (dict)
                   g ({}) & $ ->> ([] :main :rotate :cycloid :drag-demo :slider)
                     map-indexed $ fn (idx info)
-                      touch-area :select cursor $ {}
-                        :x $ + 20 (* idx 40)
-                        :y 20
-                        :data info
+                      g
+                        {}
+                          :x $ + 40 (* idx 80)
+                          :y 20
+                        touch-area :select cursor $ {} (:data info) (:rect? true) (:dx 30) (:dy 10)
+                        text ([] 0 0)
+                          substr (str info) 1
+                          {} $ :align :center
                 :actions $ {}
                   :select $ fn (e d!)
                     when (= :mouse-down $ :type e)
