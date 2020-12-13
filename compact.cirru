@@ -73,7 +73,7 @@
         |touch-area $ quote
           defn touch-area (action path & args)
             merge
-              {} (:type :touch-area) (:x 0) (:y 0) (:radius 10) (:action action) (:path path)
+              {} (:type :touch-area) (:position $ [] 0 0) (:radius 10) (:action action) (:path path)
               either (first args) ({})
         |handle-tree-event $ quote
           defn handle-tree-event (event dispatch!) (; echo "\"get event" event)
