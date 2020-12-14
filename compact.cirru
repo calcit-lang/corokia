@@ -96,7 +96,7 @@
                       let
                           listener $ get actions (:action e)
                         if (nil? listener)
-                          echo "\"WARNING: cannot find listener on component:" (:action e) "\"among" $ keys actions
+                          echo "\"WARNING: cannot find comp listener" (:action e) "\"among" (keys actions) "|with path" path
                           listener e dispatch!
                         ; echo target-component
                         ; echo $ deref *tree-state

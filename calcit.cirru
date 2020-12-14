@@ -625,7 +625,7 @@
                                           |r $ {} (:type :expr) (:by |u0) (:at 1605775637496)
                                             :data $ {}
                                               |T $ {} (:type :leaf) (:by |u0) (:at 1605775639064) (:text |echo)
-                                              |j $ {} (:type :leaf) (:by |u0) (:at 1605775658381) (:text "|\"WARNING: cannot find listener on component:")
+                                              |j $ {} (:type :leaf) (:by |u0) (:at 1607938153236) (:text "|\"WARNING: cannot find comp listener")
                                               |r $ {} (:type :expr) (:by |u0) (:at 1605775666921)
                                                 :data $ {}
                                                   |T $ {} (:type :leaf) (:by |u0) (:at 1605775666921) (:text |:action)
@@ -635,6 +635,8 @@
                                                   |T $ {} (:type :leaf) (:by |u0) (:at 1605776559769) (:text |keys)
                                                   |j $ {} (:type :leaf) (:by |u0) (:at 1605776561423) (:text |actions)
                                               |t $ {} (:type :leaf) (:by |u0) (:at 1605775688403) (:text "|\"among")
+                                              |x $ {} (:type :leaf) (:by |u0) (:at 1607938068551) (:text "||with path")
+                                              |y $ {} (:type :leaf) (:by |u0) (:at 1607938069130) (:text |path)
                                           |v $ {} (:type :expr) (:by |u0) (:at 1605775692997)
                                             :data $ {}
                                               |T $ {} (:type :leaf) (:by |u0) (:at 1605775695812) (:text |listener)
@@ -3633,7 +3635,7 @@
                               |T $ {} (:type :leaf) (:by |u0) (:at 1606751541086) (:text |{})
                               |j $ {} (:type :expr) (:by |u0) (:at 1606751731883)
                                 :data $ {}
-                                  |T $ {} (:type :leaf) (:by |u0) (:at 1606751731669) (:text |:select)
+                                  |T $ {} (:type :leaf) (:by |u0) (:at 1607938114851) (:text |:select)
                                   |j $ {} (:type :expr) (:by |u0) (:at 1606751732798)
                                     :data $ {}
                                       |T $ {} (:type :leaf) (:by |u0) (:at 1606751732734) (:text |fn)
