@@ -104,7 +104,7 @@
           defn text (position content & args)
             &let
               options $ either (first args) ({})
-              {} (:type :text) (:x $ first position) (:y $ last position) (:text content)
+              merge options $ {} (:type :text) (:x $ first position) (:y $ last position) (:text content)
                 :color $ either (:color options) ([] 0 0 100)
                 :align $ either (:align options) "\"left"
         |get-shape-tree $ quote
@@ -244,7 +244,7 @@
                 :render $ fn (dict)
                   g
                     {} (:x $ first position) (:y $ last position)
-                    touch-area :drag cursor $ {} (:radius 12)
+                    touch-area :drag cursor $ merge ({} $ :radius 12) (, options)
                     text ([] 16 0)
                       if (fn? $ :render-text options)
                           :render-text options
