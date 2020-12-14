@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ []) (:version nil)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ []) (:version |0.0.1)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -146,7 +146,9 @@
                 do (println "\"other type:" $ :type tree) (, tree)
         |g $ quote
           defn g (props & xs)
-            merge props $ {} (:type :group) (:children xs)
+            if (list? props)
+              {} (:type :group) (:x $ first props) (:y $ last props) (:children xs)
+              merge props $ {} (:type :group) (:children xs)
         |wrap-kwd-in-path $ quote
           defn wrap-kwd-in-path (x)
             case (type-of x) (:list $ map wrap-kwd-in-path x)
@@ -219,7 +221,7 @@
                 &* (last p1) (last p2)
               &+
                 &* (first p1) (last p2)
-                &* (last p1) (last p2)
+                &* (last p1) (first p2)
         |rad-point $ quote
           defn rad-point (x)
             [] (cos x) (sin x)
