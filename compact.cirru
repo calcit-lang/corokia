@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ []) (:version nil)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ []) (:version |0.0.1)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -96,7 +96,7 @@
                       let
                           listener $ get actions (:action e)
                         if (nil? listener)
-                          echo "\"WARNING: cannot find listener on component:" (:action e) "\"among" $ keys actions
+                          echo "\"WARNING: cannot find comp listener" (:action e) "\"among" (keys actions) "|with path" path
                           listener e dispatch!
                         ; echo target-component
                         ; echo $ deref *tree-state
@@ -104,7 +104,7 @@
           defn text (position content & args)
             &let
               options $ either (first args) ({})
-              {} (:type :text) (:x $ first position) (:y $ last position) (:text content)
+              merge options $ {} (:type :text) (:x $ first position) (:y $ last position) (:text content)
                 :color $ either (:color options) ([] 0 0 100)
                 :align $ either (:align options) "\"left"
         |get-shape-tree $ quote
@@ -146,7 +146,9 @@
                 do (println "\"other type:" $ :type tree) (, tree)
         |g $ quote
           defn g (props & xs)
-            merge props $ {} (:type :group) (:children xs)
+            if (list? props)
+              {} (:type :group) (:x $ first props) (:y $ last props) (:children xs)
+              merge props $ {} (:type :group) (:children xs)
         |wrap-kwd-in-path $ quote
           defn wrap-kwd-in-path (x)
             case (type-of x) (:list $ map wrap-kwd-in-path x)
@@ -219,7 +221,7 @@
                 &* (last p1) (last p2)
               &+
                 &* (first p1) (last p2)
-                &* (last p1) (last p2)
+                &* (last p1) (first p2)
         |rad-point $ quote
           defn rad-point (x)
             [] (cos x) (sin x)
@@ -242,7 +244,7 @@
                 :render $ fn (dict)
                   g
                     {} (:x $ first position) (:y $ last position)
-                    touch-area :drag cursor $ {} (:radius 12)
+                    touch-area :drag cursor $ merge ({} $ :radius 12) (, options)
                     text ([] 16 0)
                       if (fn? $ :render-text options)
                           :render-text options
