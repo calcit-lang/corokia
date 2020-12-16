@@ -51,7 +51,7 @@ After expansion, children are listed with a map, prepraring for handling events:
     |a-1 TODO
     |a-2 TODO
     :x TODO
-  :render COPY
+  :tree TREE ; rendered with :render and :children
   :actions COPY
 ```
 
