@@ -1,14 +1,15 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ []) (:version |0.0.2)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.0.3)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
-        ns phlox.main $ :require ([] phlox.core :refer $ [] render-app! >> handle-tree-event update-states) ([] phlox.comp.container :refer $ [] comp-container)
+        ns phlox.main $ :require ([] phlox.core :refer $ [] render-app! >> handle-tree-event update-states) ([] phlox.comp.container :refer $ [] comp-container) ([] memof.alias :refer $ [] tick-calling-loop! reset-calling-caches!)
       :defs $ {}
         |render-page $ quote
           defn render-page ()
             render-app! $ comp-container (deref *store)
+            tick-calling-loop!
         |dispatch! $ quote
           defn dispatch! (op data) (; echo "\"dispatching:" op data)
             if (list? op) (recur :states $ [] op data) (swap! *store updater op data)
@@ -27,7 +28,7 @@
         |on-window-event $ quote
           defn on-window-event (event) (handle-tree-event event dispatch!)
         |reload! $ quote
-          defn reload! () (println "\"reloaded") (render-page)
+          defn reload! () (reset-calling-caches!) (println "\"reloaded") (render-page)
         |on-error $ quote
           defn on-error (message) (draw-error-message message)
       :proc $ quote ()
@@ -114,9 +115,7 @@
               nil $ do (echo "\"nil type from tree:" tree) nil
               :group $ if (:pure-shape? tree) tree
                 update tree :children $ fn (xs) (map get-shape-tree xs)
-              :component $ get-shape-tree
-                  :render tree
-                  :children tree
+              :component $ get-shape-tree (:tree tree)
               :touch-area $ update tree :path
                 fn (path)
                   if (nil? path) path $ wrap-kwd-in-path path
@@ -127,30 +126,11 @@
                 , tree
         |render-app! $ quote
           defn render-app! (comp-tree)
-            &let
-              tree $ track-cost 40 (expand-tree comp-tree)
-              reset! *tree-state tree
-              ; with-log tree
+            &let (tree comp-tree) (reset! *tree-state tree) (; with-log tree)
               &let
                 info $ track-cost 40 (get-shape-tree tree)
                 ; with-log info
                 track-cost 40 $ draw-canvas info
-        |expand-tree $ quote
-          defn expand-tree (tree)
-            if (nil? tree) nil $ case (:type tree)
-              :comp $ let
-                  children $ ->> (:children tree)
-                    map-kv $ fn (k v)
-                      &let (child $ expand-tree v) ([] k child)
-                    pairs-map
-                {} (:type :component) (:children children) (:render $ :render tree) (:actions $ :actions tree)
-              :group $ update tree :children
-                fn (xs)
-                  map
-                    fn (x) (expand-tree x)
-                    , xs
-              (:type tree)
-                do (println "\"other type:" $ :type tree) (, tree)
         |g $ quote
           defn g (props & xs)
             if (list? props)
@@ -204,7 +184,9 @@
                     &and (contains? ret :children) (map? $ :children ret)
                   assert (str "\"expects an :actions field in map: " c)
                     &and (contains? ret :actions) (map? $ :actions ret)
-                  , ret
+                  {} (:type :component) (:children $ :children ret)
+                    :tree $ (:render ret) (:children ret)
+                    :actions $ :actions ret
       :proc $ quote ()
       :configs $ {}
     |phlox.complex $ {}
@@ -302,7 +284,7 @@
       :configs $ {}
     |phlox.comp.container $ {}
       :ns $ quote
-        ns phlox.comp.container $ :require ([] phlox.core :refer $ [] g >> defcomp circle rect text touch-area key-listener) ([] phlox.comp :refer $ [] comp-drag-point comp-slider) ([] phlox.complex :refer $ [] c+ c- c* rad-point)
+        ns phlox.comp.container $ :require ([] phlox.core :refer $ [] g >> defcomp circle rect text touch-area key-listener) ([] phlox.comp :refer $ [] comp-drag-point comp-slider) ([] phlox.complex :refer $ [] c+ c- c* rad-point) ([] memof.alias :refer $ [] memof-call)
       :defs $ {}
         |comp-counter $ quote
           defcomp comp-counter (states x)
@@ -410,11 +392,11 @@
                 :children $ {}
                   :main $ if
                     or (= tab :main) (nil? tab)
-                    comp-data-list $ >> states :main
+                    memof-call comp-data-list $ >> states :main
                   :tabs $ comp-tabs (>> states :tabs) tab
                     fn (new-tab d!) (d! cursor $ assoc state :tab new-tab)
-                  :rotate $ if (= tab :rotate) (comp-demo-rotate)
-                  :cycloid $ if (= tab :cycloid) (comp-demo-cycloid)
+                  :rotate $ if (= tab :rotate) (memof-call comp-demo-rotate)
+                  :cycloid $ if (= tab :cycloid) (memof-call comp-demo-cycloid)
                   :drag-demo $ if (= tab :drag-demo)
                     comp-drag-point (>> states :drag-demo)
                       either (:point-d state) ([] 0 0)
