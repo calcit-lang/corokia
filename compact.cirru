@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ []) (:version |0.0.1)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ []) (:version |0.0.2)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -112,8 +112,8 @@
           defn get-shape-tree (tree)
             if (nil? tree) nil $ case (:type tree)
               nil $ do (echo "\"nil type from tree:" tree) nil
-              :group $ update tree :children
-                fn (xs) (map get-shape-tree xs)
+              :group $ if (:pure-shape? tree) tree
+                update tree :children $ fn (xs) (map get-shape-tree xs)
               :component $ get-shape-tree
                   :render tree
                   :children tree
@@ -365,7 +365,7 @@
                     r2 $ / radius t1
                     v2 $ * v t2
                   g
-                    {} (:x 300) (:y 300)
+                    {} (:position $ [] 300 300) (:pure-shape? true)
                     {} (:type :polyline) (:from $ [] radius 0)
                       :stops $ ->> (range n)
                         map $ fn (x)
@@ -386,7 +386,7 @@
                     r0 1.6
                     r1 $ / 1.48 3
                   g
-                    {} (:x 260) (:y 280)
+                    {} (:position $ [] 260 280) (:pure-shape? true)
                     {} (:type :polyline) (:from $ [] 100 0)
                       :relative-stops $ ->> (range 200)
                         map $ fn (x)

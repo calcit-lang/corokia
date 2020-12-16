@@ -850,22 +850,30 @@
                       |n $ {} (:type :expr) (:by |u0) (:at 1605606213641)
                         :data $ {}
                           |T $ {} (:type :leaf) (:by |u0) (:at 1605606214792) (:text |:group)
-                          |j $ {} (:type :expr) (:by |u0) (:at 1605606223561)
+                          |j $ {} (:type :expr) (:by |u0) (:at 1608087148396)
                             :data $ {}
-                              |T $ {} (:type :leaf) (:by |u0) (:at 1605606224276) (:text |update)
-                              |j $ {} (:type :leaf) (:by |u0) (:at 1605606226487) (:text |tree)
-                              |r $ {} (:type :leaf) (:by |u0) (:at 1605606229875) (:text |:children)
-                              |v $ {} (:type :expr) (:by |u0) (:at 1605606230344)
+                              |T $ {} (:type :expr) (:by |u0) (:at 1605606223561)
                                 :data $ {}
-                                  |T $ {} (:type :leaf) (:by |u0) (:at 1605606230648) (:text |fn)
-                                  |j $ {} (:type :expr) (:by |u0) (:at 1605606230939)
+                                  |T $ {} (:type :leaf) (:by |u0) (:at 1605606224276) (:text |update)
+                                  |j $ {} (:type :leaf) (:by |u0) (:at 1605606226487) (:text |tree)
+                                  |r $ {} (:type :leaf) (:by |u0) (:at 1605606229875) (:text |:children)
+                                  |v $ {} (:type :expr) (:by |u0) (:at 1605606230344)
                                     :data $ {}
-                                      |T $ {} (:type :leaf) (:by |u0) (:at 1605606232106) (:text |xs)
-                                  |r $ {} (:type :expr) (:by |u0) (:at 1605606250474)
-                                    :data $ {}
-                                      |T $ {} (:type :leaf) (:by |u0) (:at 1605606255773) (:text |map)
-                                      |j $ {} (:type :leaf) (:by |u0) (:at 1605606258992) (:text |get-shape-tree)
-                                      |r $ {} (:type :leaf) (:by |u0) (:at 1605606261748) (:text |xs)
+                                      |T $ {} (:type :leaf) (:by |u0) (:at 1605606230648) (:text |fn)
+                                      |j $ {} (:type :expr) (:by |u0) (:at 1605606230939)
+                                        :data $ {}
+                                          |T $ {} (:type :leaf) (:by |u0) (:at 1605606232106) (:text |xs)
+                                      |r $ {} (:type :expr) (:by |u0) (:at 1605606250474)
+                                        :data $ {}
+                                          |T $ {} (:type :leaf) (:by |u0) (:at 1605606255773) (:text |map)
+                                          |j $ {} (:type :leaf) (:by |u0) (:at 1605606258992) (:text |get-shape-tree)
+                                          |r $ {} (:type :leaf) (:by |u0) (:at 1605606261748) (:text |xs)
+                              |D $ {} (:type :leaf) (:by |u0) (:at 1608087149932) (:text |if)
+                              |L $ {} (:type :expr) (:by |u0) (:at 1608087150383)
+                                :data $ {}
+                                  |T $ {} (:type :leaf) (:by |u0) (:at 1608087185135) (:text |:pure-shape?)
+                                  |j $ {} (:type :leaf) (:by |u0) (:at 1608087153862) (:text |tree)
+                              |P $ {} (:type :leaf) (:by |u0) (:at 1608087319206) (:text |tree)
                       |v $ {} (:type :expr) (:by |u0) (:at 1605606219972)
                         :data $ {}
                           |T $ {} (:type :expr) (:by |u0) (:at 1605606216328)
@@ -2881,12 +2889,16 @@
                                       |T $ {} (:type :leaf) (:by |u0) (:at 1605515973340) (:text |{})
                                       |j $ {} (:type :expr) (:by |u0) (:at 1605516965763)
                                         :data $ {}
-                                          |T $ {} (:type :leaf) (:by |u0) (:at 1605516966217) (:text |:x)
-                                          |j $ {} (:type :leaf) (:by |u0) (:at 1606843347044) (:text |300)
-                                      |r $ {} (:type :expr) (:by |u0) (:at 1605516968620)
+                                          |T $ {} (:type :leaf) (:by |u0) (:at 1608087381411) (:text |:position)
+                                          |j $ {} (:type :expr) (:by |u0) (:at 1608087382294)
+                                            :data $ {}
+                                              |T $ {} (:type :leaf) (:by |u0) (:at 1606843347044) (:text |300)
+                                              |D $ {} (:type :leaf) (:by |u0) (:at 1608087382839) (:text |[])
+                                              |j $ {} (:type :leaf) (:by |u0) (:at 1608087384303) (:text |300)
+                                      |v $ {} (:type :expr) (:by |u0) (:at 1608087373203)
                                         :data $ {}
-                                          |T $ {} (:type :leaf) (:by |u0) (:at 1605516969723) (:text |:y)
-                                          |j $ {} (:type :leaf) (:by |u0) (:at 1606843348648) (:text |300)
+                                          |T $ {} (:type :leaf) (:by |u0) (:at 1608087378135) (:text |:pure-shape?)
+                                          |j $ {} (:type :leaf) (:by |u0) (:at 1608087398343) (:text |true)
                                   |r $ {} (:type :expr) (:by |u0) (:at 1605515973340)
                                     :data $ {}
                                       |T $ {} (:type :leaf) (:by |u0) (:at 1605515973340) (:text |{})
@@ -3059,12 +3071,16 @@
                                       |T $ {} (:type :leaf) (:by |u0) (:at 1605584475557) (:text |{})
                                       |j $ {} (:type :expr) (:by |u0) (:at 1605584475557)
                                         :data $ {}
-                                          |T $ {} (:type :leaf) (:by |u0) (:at 1605584475557) (:text |:x)
-                                          |j $ {} (:type :leaf) (:by |u0) (:at 1606843310578) (:text |260)
-                                      |r $ {} (:type :expr) (:by |u0) (:at 1605584475557)
+                                          |T $ {} (:type :leaf) (:by |u0) (:at 1608087406485) (:text |:position)
+                                          |j $ {} (:type :expr) (:by |u0) (:at 1608087407131)
+                                            :data $ {}
+                                              |T $ {} (:type :leaf) (:by |u0) (:at 1606843310578) (:text |260)
+                                              |D $ {} (:type :leaf) (:by |u0) (:at 1608087407782) (:text |[])
+                                              |j $ {} (:type :leaf) (:by |u0) (:at 1608087409435) (:text |280)
+                                      |v $ {} (:type :expr) (:by |u0) (:at 1608087344827)
                                         :data $ {}
-                                          |T $ {} (:type :leaf) (:by |u0) (:at 1605584475557) (:text |:y)
-                                          |j $ {} (:type :leaf) (:by |u0) (:at 1606843315774) (:text |280)
+                                          |T $ {} (:type :leaf) (:by |u0) (:at 1608087348147) (:text |:pure-shape?)
+                                          |j $ {} (:type :leaf) (:by |u0) (:at 1608087348813) (:text |true)
                                   |r $ {} (:type :expr) (:by |u0) (:at 1605584475557)
                                     :data $ {}
                                       |T $ {} (:type :leaf) (:by |u0) (:at 1605584475557) (:text |{})
@@ -4021,4 +4037,4 @@
                           |j $ {} (:type :leaf) (:by |u0) (:at 1608050460824) (:text |threshold)
         :proc $ {} (:type :expr) (:by |u0) (:at 1608049923135) (:data $ {})
         :configs $ {}
-  :configs $ {} (:reload-fn |phlox.main/reload!) (:modules $ []) (:output |src) (:port 6001) (:extension |.cljs) (:local-ui? false) (:init-fn |phlox.main/main!) (:compact-output? true) (:version |0.0.1)
+  :configs $ {} (:reload-fn |phlox.main/reload!) (:modules $ []) (:output |src) (:port 6001) (:extension |.cljs) (:local-ui? false) (:init-fn |phlox.main/main!) (:compact-output? true) (:version |0.0.2)
