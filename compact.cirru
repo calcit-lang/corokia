@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ []) (:version |0.0.1)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ []) (:version |0.0.2)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -33,7 +33,8 @@
       :proc $ quote ()
       :configs $ {}
     |phlox.core $ {}
-      :ns $ quote (ns phlox.core)
+      :ns $ quote
+        ns phlox.core $ :require ([] phlox.util :refer $ [] track-cost)
       :defs $ {}
         |>> $ quote
           defn >> (states k)
@@ -83,9 +84,9 @@
               cond
                   = :window-resized $ :type e
                   &let
-                    info $ get-shape-tree (deref *tree-state)
+                    info $ track-cost 40 (get-shape-tree $ deref *tree-state)
                     ; with-log info
-                    draw-canvas info
+                    track-cost 40 $ draw-canvas info
                 (and (some? path) (some? $ :action e))
                   let
                       data-path $ ->> path (map $ \ [] :children %) (apply concat)
@@ -111,8 +112,8 @@
           defn get-shape-tree (tree)
             if (nil? tree) nil $ case (:type tree)
               nil $ do (echo "\"nil type from tree:" tree) nil
-              :group $ update tree :children
-                fn (xs) (map get-shape-tree xs)
+              :group $ if (:pure-shape? tree) tree
+                update tree :children $ fn (xs) (map get-shape-tree xs)
               :component $ get-shape-tree
                   :render tree
                   :children tree
@@ -126,8 +127,14 @@
                 , tree
         |render-app! $ quote
           defn render-app! (comp-tree)
-            &let (tree $ expand-tree comp-tree) (reset! *tree-state tree) (; with-log tree)
-              &let (info $ get-shape-tree tree) (; with-log info) (draw-canvas info)
+            &let
+              tree $ track-cost 40 (expand-tree comp-tree)
+              reset! *tree-state tree
+              ; with-log tree
+              &let
+                info $ track-cost 40 (get-shape-tree tree)
+                ; with-log info
+                track-cost 40 $ draw-canvas info
         |expand-tree $ quote
           defn expand-tree (tree)
             if (nil? tree) nil $ case (:type tree)
@@ -307,7 +314,7 @@
                   g
                     {} (:x 0) (:y $ * x 30)
                     touch-area :dec cursor $ {} (:radius 10)
-                    touch-area :inc cursor $ {} (:radius 10) (:x 80)
+                    touch-area :inc cursor $ {} (:radius 10) (:position $ [] 80 0)
                     text ([] 0 0) "\"-" $ {} (:align :center)
                     text ([] 40 0) (str x "\":" $ :count state) ({} $ :align :center)
                     text ([] 80 0) "\"+" $ {} (:align :center)
@@ -358,7 +365,7 @@
                     r2 $ / radius t1
                     v2 $ * v t2
                   g
-                    {} (:x 300) (:y 300)
+                    {} (:position $ [] 300 300) (:pure-shape? true)
                     {} (:type :polyline) (:from $ [] radius 0)
                       :stops $ ->> (range n)
                         map $ fn (x)
@@ -379,7 +386,7 @@
                     r0 1.6
                     r1 $ / 1.48 3
                   g
-                    {} (:x 260) (:y 280)
+                    {} (:position $ [] 260 280) (:pure-shape? true)
                     {} (:type :polyline) (:from $ [] 100 0)
                       :relative-stops $ ->> (range 200)
                         map $ fn (x)
@@ -467,5 +474,30 @@
                   :dec $ fn (e d!)
                     if (= :key-down $ :type e)
                       d! cursor $ update state :times (\ &- % 1)
+      :proc $ quote ()
+      :configs $ {}
+    |phlox.util $ {}
+      :ns $ quote (ns phlox.util)
+      :defs $ {}
+        |track-cost $ quote
+          defmacro track-cost (threshold expr)
+            let
+                started $ gensym |started
+                result $ gensym |result
+                cost $ gensym |cost
+              assert "\"expects number for threshold" $ number? threshold
+              quote-replace $ let
+                    ~ started
+                    cpu-time
+                  (~ result)
+                    ~ expr
+                  (~ cost)
+                    &* 1000 $ &- (cpu-time) (~ started)
+                if
+                  &> (~ cost) (~ threshold)
+                  echo "\"[Phlox Time]" (quote $ ~ expr) (, |=>)
+                    format-number (~ cost) 3
+                    , |ms
+                ~ result
       :proc $ quote ()
       :configs $ {}

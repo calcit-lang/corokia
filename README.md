@@ -59,6 +59,7 @@ After expansion, children are listed with a map, prepraring for handling events:
 
 ```cirru
 phlox.core/g $ {}
+  :position $ [] 20 30
 
 phlox.core/>> states :k
 
@@ -80,6 +81,17 @@ phlox.complext/c+ ([] 1 2) ([] 3 4)
 phlox.complext/c- ([] 1 2) ([] 3 4)
 
 phlox.complext/rad-point 1.07
+```
+
+Group, use `:pure-shape?` for performance when no components inside:
+
+```cirru
+phlox.core/g $ {}
+  :position $ [] 20 30
+
+phlox.core/g $ {}
+  :position $ [] 20 30
+  :pure-shape? true
 ```
 
 Circle:
