@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.0.3)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.0.4)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -259,26 +259,30 @@
                 options $ merge
                   {} (:precision 2) (:unit 1)
                   get args 0
+                state $ either (:data states)
+                  {} (:v0 nil) (:x0 nil)
               assert "\"expects states in map" $ map? states
               assert "\"expects position in a list" $ list? position
               assert "\"expects a number value" $ number? value
               assert "\"expects on-change function" $ fn? on-change
               {} (:children $ {})
                 :render $ fn (dict)
-                  g
-                    {,} :x (first position) , :y $ last position
+                  g position
                     touch-area :slide cursor $ {} (:radius 8)
                     text ([] 12 0)
-                      str "\"slider: " $ format-number value (:precision options)
+                      str "\"Slider: " $ format-number value (:precision options)
                       {} $ :color ([] 0 0 100 0.7)
                 :actions $ {}
                   :slide $ fn (e d!)
-                    if (= :mouse-move $ :type e)
-                      on-change
-                        + value $ *
-                          either (:dx e) 0
-                          :unit options
+                    case (:type e)
+                      :mouse-move $ on-change
+                        + (:v0 state)
+                          *
+                            - (:x e) (:x0 state)
+                            :unit options
                         , d!
+                      :mouse-down $ d! cursor
+                        -> state (assoc :v0 value) (assoc :x0 $ :x e)
         |polyline $ quote (defn polyline $)
       :proc $ quote ()
       :configs $ {}
