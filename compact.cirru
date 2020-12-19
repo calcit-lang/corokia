@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.0.4)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.0.5)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -52,6 +52,9 @@
               assoc-in store
                 concat ([] :states) cursor $ [] :data
                 , data
+        |ops $ quote
+          defn ops (& xs)
+            {} (:type :ops) (:ops xs)
         |wrap-kwd-in-event $ quote
           defn wrap-kwd-in-event (x)
             case (type-of x)
@@ -239,8 +242,8 @@
                           :render-text options
                           , position
                         str "\"(" (first position) "\"," (last position) "\")"
-                      {} $ :color
-                        either (:text-color options) ([] 0 0 100 0.7)
+                      merge options $ {}
+                        :color $ either (:text-color options) ([] 0 0 100 0.7)
                 :actions $ {}
                   :drag $ fn (e d!)
                     &let (t $ :type e)
@@ -257,8 +260,8 @@
             let
                 cursor $ :cursor states
                 options $ merge
-                  {} (:precision 2) (:unit 1)
-                  get args 0
+                  {} (:precision 2) (:unit 1) (:title "\"Slider")
+                  first args
                 state $ either (:data states)
                   {} (:v0 nil) (:x0 nil)
               assert "\"expects states in map" $ map? states
@@ -270,7 +273,7 @@
                   g position
                     touch-area :slide cursor $ {} (:radius 8)
                     text ([] 12 0)
-                      str "\"Slider: " $ format-number value (:precision options)
+                      str (:title options) "\": " $ format-number value (:precision options)
                       {} $ :color ([] 0 0 100 0.7)
                 :actions $ {}
                   :slide $ fn (e d!)

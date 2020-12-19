@@ -129,6 +129,15 @@ Touch area:
 phlox.core/touch-area :action cursor $ {} (:radius 8)
 ```
 
+Ops:
+
+```cirru
+phlox.core/ops
+  [] :move-to $ [] 1 1
+  [] :line-to $ [] 2 2
+  [] :stroke
+```
+
 Key listener:
 
 ```cirru
@@ -141,6 +150,7 @@ Component for slide value:
 phlox.comp/comp-slider (>> states :k) ([] 1 2) 10
   fn (new-value) (do)
   {} (:precision 2) (:unit 1)
+    :title |Slider
 ```
 
 Component for dragging position:
@@ -152,6 +162,8 @@ phlox.comp/comp-drag-point (>> states :k) ([] 1 2)
     :text-color $ [] 0 0 80
     :render-text $ fn (position)
       join-str |, position
+    :font-size 14
+    :font-face "|Arial"
 ```
 
 ### License
