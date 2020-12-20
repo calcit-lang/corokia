@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.0.5)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.0.6)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -134,6 +134,15 @@
                 info $ track-cost 40 (get-shape-tree tree)
                 ; with-log info
                 track-cost 40 $ draw-canvas info
+        |polyline $ quote
+          defn polyline (stops & args) (assert "\"expects stops in list of points" $ list? stops)
+            let
+                options $ either (first args) ({})
+                position $ either (:position options) ([] 0 0)
+              merge
+                {} (:line-width 1) (:line-join :round) (:fill-color $ [] 0 0 100)
+                , options
+                {} (:type :polyline) (:from position) (:relative-stops stops) (:skip-first? true)
         |g $ quote
           defn g (props & xs)
             if (list? props)
@@ -286,12 +295,11 @@
                         , d!
                       :mouse-down $ d! cursor
                         -> state (assoc :v0 value) (assoc :x0 $ :x e)
-        |polyline $ quote (defn polyline $)
       :proc $ quote ()
       :configs $ {}
     |phlox.comp.container $ {}
       :ns $ quote
-        ns phlox.comp.container $ :require ([] phlox.core :refer $ [] g >> defcomp circle rect text touch-area key-listener) ([] phlox.comp :refer $ [] comp-drag-point comp-slider) ([] phlox.complex :refer $ [] c+ c- c* rad-point) ([] memof.alias :refer $ [] memof-call)
+        ns phlox.comp.container $ :require ([] phlox.core :refer $ [] g >> defcomp circle rect text touch-area key-listener polyline) ([] phlox.comp :refer $ [] comp-drag-point comp-slider) ([] phlox.complex :refer $ [] c+ c- c* rad-point) ([] memof.alias :refer $ [] memof-call)
       :defs $ {}
         |comp-counter $ quote
           defcomp comp-counter (states x)
@@ -353,18 +361,14 @@
                     radius 200
                     r2 $ / radius t1
                     v2 $ * v t2
-                  g
-                    {} (:position $ [] 300 300) (:pure-shape? true)
-                    {} (:type :polyline) (:from $ [] radius 0)
-                      :stops $ ->> (range n)
+                  g ({} $ :pure-shape? true)
+                    polyline
+                      ->> (range n)
                         map $ fn (x)
                           c+
                             c* ([] radius 0) (rad-point $ * v x)
                             c* ([] r2 0) (rad-point $ * v2 x)
-                      :stroke-color $ [] 0 80 60
-                      :line-width 2
-                      :line-join :round
-                      :skip-first? true
+                      {} (:position $ [] 300 300) (:stroke-color $ [] 0 80 60) (:line-width 2) (:line-join :round)
               :actions $ {}
         |comp-demo-rotate $ quote
           defcomp comp-demo-rotate ()
@@ -374,18 +378,14 @@
                     b0 20
                     r0 1.6
                     r1 $ / 1.48 3
-                  g
-                    {} (:position $ [] 260 280) (:pure-shape? true)
-                    {} (:type :polyline) (:from $ [] 100 0)
-                      :relative-stops $ ->> (range 200)
+                  g ({} $ :pure-shape? true)
+                    polyline
+                      ->> (range 200)
                         map $ fn (x)
                           c*
                             [] (+ b0 $ * r0 x) (, 0)
                             rad-point $ * &PI r1 x
-                      :stroke-color $ [] 0 30 30
-                      :line-width 2
-                      :line-join :round
-                      :skip-first? true
+                      {} (:position $ [] 360 280) (:stroke-color $ [] 0 30 30) (:line-width 2)
               :actions $ {}
         |comp-container $ quote
           defcomp comp-container (store)

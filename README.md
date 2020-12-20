@@ -16,7 +16,7 @@ Edit with [Calcit Editor](https://github.com/Cirru/calcit-editor):
 ce
 ```
 
-### Draft
+### Component
 
 Phlox use a data structure to represent a component.
 Unlikely normal virual DOM solutions, child components are collectted in `:children` field,
@@ -127,6 +127,22 @@ Touch area:
 
 ```cirru
 phlox.core/touch-area :action cursor $ {} (:radius 8)
+```
+
+Polyline:
+
+```cirru
+phlox.core/polyline
+  []
+    [] 1 1
+    [] 2 2
+  {}
+    :position $ [] 1 1
+    :stroke-color Color
+    :line-width 1
+    :line-join :round
+    ; ":round | :milter | :bevel"
+    :fill-color $ [] 0 0 100
 ```
 
 Ops:
