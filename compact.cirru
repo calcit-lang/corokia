@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.0)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.1)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -35,7 +35,7 @@
       :configs $ {}
     |phlox.core $ {}
       :ns $ quote
-        ns phlox.core $ :require ([] phlox.util :refer $ [] track-cost)
+        ns phlox.core $ :require ([] phlox.util :refer $ [] track-overcost)
       :defs $ {}
         |>> $ quote
           defn >> (states k)
@@ -93,9 +93,9 @@
               cond
                   = :window-resized $ :type e
                   &let
-                    info $ track-cost 40 (get-shape-tree $ deref *tree-state)
+                    info $ track-overcost 40 (get-shape-tree $ deref *tree-state)
                     ; with-log info
-                    track-cost 40 $ draw-canvas info
+                    track-overcost 40 $ draw-canvas info
                 (and (some? path) (some? $ :action e))
                   let
                       data-path $ ->> path (map $ \ [] :children %) (apply concat)
@@ -136,9 +136,9 @@
           defn render-app! (comp-tree)
             &let (tree comp-tree) (reset! *tree-state tree) (; with-log tree)
               &let
-                info $ track-cost 40 (get-shape-tree tree)
+                info $ track-overcost 40 (get-shape-tree tree)
                 ; with-log info
-                track-cost 40 $ draw-canvas info
+                track-overcost 40 $ draw-canvas info
         |polyline $ quote
           defn polyline (stops & args) (assert "\"expects stops in list of points" $ list? stops)
             let
@@ -192,13 +192,13 @@
                   [] :stroke
         |defcomp $ quote
           defmacro defcomp (comp-name args & body)
-            quote-replace $ defn (~ comp-name) (~ args)
+            quote-replace $ defn ~comp-name ~args
               merge
                 {} (:type :comp)
                   :name $ ~ (turn-keyword comp-name)
                 let
-                    ret $ do (~@ body)
-                    c $ quote (~ comp-name)
+                    ret $ do ~@body
+                    c $ quote ~comp-name
                   assert (str "\"component returns a map for component: " c) (map? ret)
                   assert (str "\"expects a :render field in function: " c)
                     &and (contains? ret :render) (fn? $ :render ret)
@@ -477,25 +477,20 @@
     |phlox.util $ {}
       :ns $ quote (ns phlox.util)
       :defs $ {}
-        |track-cost $ quote
-          defmacro track-cost (threshold expr)
+        |track-overcost $ quote
+          defmacro track-overcost (threshold expr)
             let
                 started $ gensym |started
                 result $ gensym |result
                 cost $ gensym |cost
               assert "\"expects number for threshold" $ number? threshold
               quote-replace $ let
-                    ~ started
-                    cpu-time
-                  (~ result)
-                    ~ expr
-                  (~ cost)
-                    &* 1000 $ &- (cpu-time) (~ started)
-                if
-                  &> (~ cost) (~ threshold)
-                  echo "\"[Phlox Time]" (quote $ ~ expr) (, |=>)
-                    format-number (~ cost) 3
-                    , |ms
-                ~ result
+                  ~started $ cpu-time
+                  ~result ~expr
+                  ~cost $ &* 1000
+                    &- (cpu-time) ~started
+                if (&> ~cost ~threshold)
+                  echo "\"[Phlox Time]" (quote ~expr) |=> (format-number ~cost 3) |ms
+                , ~result
       :proc $ quote ()
       :configs $ {}

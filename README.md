@@ -74,13 +74,16 @@ phlox.core/defcomp c1 (a b c)
 
 phlox.core/update-states store ([] op data)
 
-phlox.complext/c* ([] 1 2) ([] 3 4)
+phlox.complex/c* ([] 1 2) ([] 3 4)
 
-phlox.complext/c+ ([] 1 2) ([] 3 4)
+phlox.complex/c+ ([] 1 2) ([] 3 4)
 
-phlox.complext/c- ([] 1 2) ([] 3 4)
+phlox.complex/c- ([] 1 2) ([] 3 4)
 
-phlox.complext/rad-point 1.07
+phlox.complex/rad-point 1.07
+
+; "macro that logs if took >40ms to excute xs"
+phlox.util/track-overcost 40 xs
 ```
 
 Group, use `:pure-shape?` for performance when no components inside:
