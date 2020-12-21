@@ -16,7 +16,7 @@ Edit with [Calcit Editor](https://github.com/Cirru/calcit-editor):
 ce
 ```
 
-### Draft
+### Component
 
 Phlox use a data structure to represent a component.
 Unlikely normal virual DOM solutions, child components are collectted in `:children` field,
@@ -129,6 +129,31 @@ Touch area:
 phlox.core/touch-area :action cursor $ {} (:radius 8)
 ```
 
+Polyline:
+
+```cirru
+phlox.core/polyline
+  []
+    [] 1 1
+    [] 2 2
+  {}
+    :position $ [] 1 1
+    :stroke-color Color
+    :line-width 1
+    :line-join :round
+    ; ":round | :milter | :bevel"
+    :fill-color $ [] 0 0 100
+```
+
+Ops:
+
+```cirru
+phlox.core/ops
+  [] :move-to $ [] 1 1
+  [] :line-to $ [] 2 2
+  [] :stroke
+```
+
 Key listener:
 
 ```cirru
@@ -141,6 +166,7 @@ Component for slide value:
 phlox.comp/comp-slider (>> states :k) ([] 1 2) 10
   fn (new-value) (do)
   {} (:precision 2) (:unit 1)
+    :title |Slider
 ```
 
 Component for dragging position:
@@ -152,6 +178,8 @@ phlox.comp/comp-drag-point (>> states :k) ([] 1 2)
     :text-color $ [] 0 0 80
     :render-text $ fn (position)
       join-str |, position
+    :font-size 14
+    :font-face "|Arial"
 ```
 
 ### License
