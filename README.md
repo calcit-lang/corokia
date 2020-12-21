@@ -97,8 +97,9 @@ phlox.core/g $ {}
 Circle:
 
 ```cirru
-phlox.core/circle ([] 100 20) 10
+phlox.core/circle 10
   {}
+    :position $ [] 100 20
     :fill-color Color
     :stroke-color Color
     :line-width 2
@@ -107,8 +108,9 @@ phlox.core/circle ([] 100 20) 10
 Rect:
 
 ```cirru
-phlox.core/rect ([] 100 20) ([] 10 10)
+phlox.core/rect ([] 10 10)
   {}
+    :position $ [] 100 20
     :fill-color Color
     :stroke-color Color
     :line-width 2
@@ -117,8 +119,9 @@ phlox.core/rect ([] 100 20) ([] 10 10)
 Text:
 
 ```cirru
-phlox.core/text ([] 100 20) "|Demo"
+phlox.core/text "|Demo"
   {}
+    :position $ [] 100 20
     :color Color
     :align :left
 ```
@@ -148,6 +151,13 @@ phlox.core/polyline
 Ops:
 
 ```cirru
+phlox.core/ops
+  {}
+    :position $ [] 1 1
+  [] :move-to $ [] 1 1
+  [] :line-to $ [] 2 2
+  [] :stroke
+
 phlox.core/ops
   [] :move-to $ [] 1 1
   [] :line-to $ [] 2 2

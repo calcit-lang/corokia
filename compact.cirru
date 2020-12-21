@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.0.6)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.0)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -54,7 +54,10 @@
                 , data
         |ops $ quote
           defn ops (& xs)
-            {} (:type :ops) (:ops xs)
+            if (map? $ first xs)
+              merge (first xs)
+                {} (:type :ops) (:ops $ rest xs)
+              {} (:type :ops) (:ops xs)
         |wrap-kwd-in-event $ quote
           defn wrap-kwd-in-event (x)
             case (type-of x)
@@ -77,9 +80,11 @@
             {} (:type :key-listener) (:key key) (:path path) (:action action) (:data $ first args)
         |touch-area $ quote
           defn touch-area (action path & args)
-            merge
-              {} (:type :touch-area) (:position $ [] 0 0) (:radius 10) (:action action) (:path path)
-              either (first args) ({})
+            let
+                options $ either (first args) ({})
+              merge
+                {} (:type :touch-area) (:position $ :position options) (:radius 10) (:action action) (:path path)
+                , options
         |handle-tree-event $ quote
           defn handle-tree-event (event dispatch!) (; echo "\"get event" event)
             let
@@ -106,10 +111,10 @@
                         ; echo target-component
                         ; echo $ deref *tree-state
         |text $ quote
-          defn text (position content & args)
+          defn text (content & args)
             &let
               options $ either (first args) ({})
-              merge options $ {} (:type :text) (:x $ first position) (:y $ last position) (:text content)
+              merge options $ {} (:type :text) (:position $ :position options) (:text content)
                 :color $ either (:color options) ([] 0 0 100)
                 :align $ either (:align options) "\"left"
         |get-shape-tree $ quote
@@ -142,11 +147,11 @@
               merge
                 {} (:line-width 1) (:line-join :round) (:fill-color $ [] 0 0 100)
                 , options
-                {} (:type :polyline) (:from position) (:relative-stops stops) (:skip-first? true)
+                {} (:type :polyline) (:position position) (:stops stops)
         |g $ quote
           defn g (props & xs)
             if (list? props)
-              {} (:type :group) (:x $ first props) (:y $ last props) (:children xs)
+              {} (:type :group) (:position props) (:children xs)
               merge props $ {} (:type :group) (:children xs)
         |wrap-kwd-in-path $ quote
           defn wrap-kwd-in-path (x)
@@ -159,22 +164,27 @@
               (type-of x)
                 , x
         |rect $ quote
-          defn rect (position sizes & args)
+          defn rect (sizes & args)
             let
                 options $ merge
                   {} (:fill-color $ [] 0 0 100 0.3) (:stroke-color $ [] 0 0 100 0.8) (:stroke-width 2)
                   first args
-              {} (:type :ops)
+                position $ either (:position options) ([] 0 0)
+              {} (:type :ops) (:position position)
                 :ops $ [] ([] :rectangle position sizes) ([] :source-rgb $ :fill-color options) ([] :fill-preserve) ([] :source-rgb $ :stroke-color options) ([] :line-width $ :line-width options) ([] :stroke)
         |circle $ quote
-          defn circle (position radius & args)
+          defn circle (radius & args)
             let
                 options $ merge
                   {} (:fill-color $ [] 0 0 100 0.3) (:stroke-color $ [] 0 0 100 0.8) (:stroke-width 2)
                   first args
               {} (:type :ops)
                 :ops $ []
-                  [] :arc position radius ([] 0 $ &* 2 &PI) (, false)
+                  [] :arc
+                    either (:position options) ([] 0 0)
+                    , radius
+                    [] 0 $ &* 2 &PI
+                    , false
                   [] :source-rgb $ :fill-color options
                   [] :fill-preserve
                   [] :source-rgb $ :stroke-color options
@@ -243,16 +253,16 @@
               assert "\"expects on-change function" $ fn? on-change
               {} (:children $ {})
                 :render $ fn (dict)
-                  g
-                    {} (:x $ first position) (:y $ last position)
+                  g ({} $ :position position)
                     touch-area :drag cursor $ merge ({} $ :radius 12) (, options)
-                    text ([] 16 0)
+                    text
                       if (fn? $ :render-text options)
                           :render-text options
                           , position
                         str "\"(" (first position) "\"," (last position) "\")"
                       merge options $ {}
                         :color $ either (:text-color options) ([] 0 0 100 0.7)
+                        :position $ [] 16 0
                 :actions $ {}
                   :drag $ fn (e d!)
                     &let (t $ :type e)
@@ -281,9 +291,9 @@
                 :render $ fn (dict)
                   g position
                     touch-area :slide cursor $ {} (:radius 8)
-                    text ([] 12 0)
+                    text
                       str (:title options) "\": " $ format-number value (:precision options)
-                      {} $ :color ([] 0 0 100 0.7)
+                      {} (:color $ [] 0 0 100 0.7) (:position $ [] 12 0)
                 :actions $ {}
                   :slide $ fn (e d!)
                     case (:type e)
@@ -309,12 +319,13 @@
               {} (:children $ {})
                 :render $ fn (dict)
                   g
-                    {} (:x 0) (:y $ * x 30)
+                    {} $ :position ([] 0 $ * x 30)
                     touch-area :dec cursor $ {} (:radius 10)
                     touch-area :inc cursor $ {} (:radius 10) (:position $ [] 80 0)
-                    text ([] 0 0) "\"-" $ {} (:align :center)
-                    text ([] 40 0) (str x "\":" $ :count state) ({} $ :align :center)
-                    text ([] 80 0) "\"+" $ {} (:align :center)
+                    text "\"-" $ {} (:align :center) (:position $ [] 0 0)
+                    text (str x "\":" $ :count state)
+                      {} (:align :center) (:position $ [] 40 0)
+                    text "\"+" $ {} (:align :center) (:position $ [] 80 0)
                 :actions $ {}
                   :inc $ fn (e d!)
                     when
@@ -338,16 +349,14 @@
                     pairs-map
                 :render $ fn (dict)
                   g ({})
-                    text ([] 20 20) (str "\"Size: " $ :size state) ({} $ :align :center)
-                    g ({,} :x 40 , :y 60) & $ concat
-                      ->> (range 3)
-                        map $ fn (x) (get dict $ str |task- x)
-                      [] $ g
-                        {} (:x 300) (:y 100)
+                    text (str "\"Size: " $ :size state)
+                      {} (:align :center) (:position $ [] 20 20)
+                    g ([] 40 60) & $ ->> (range 3)
+                      map $ fn (x) (get dict $ str |task- x)
                     g ({})
-                      circle ([] 100 200) 20 $ {} (:fill-color $ [] 0 0 100 0.4) (:stroke-color $ [] 200 80 90) (:line-width 1)
-                      rect ([] 100 250) ([] 40 40)
-                        {} (:fill-color $ [] 0 0 100 0.4) (:stroke-color $ [] 200 80 90) (:line-width 1)
+                      circle 20 $ {} (:fill-color $ [] 0 0 100 0.4) (:stroke-color $ [] 200 80 90) (:line-width 1) (:position $ [] 100 200)
+                      rect ([] 40 40)
+                        {} (:position $ [] 100 150) (:fill-color $ [] 0 0 100 0.4) (:stroke-color $ [] 200 80 90) (:line-width 1)
                 :actions $ {}
         |comp-demo-cycloid $ quote
           defcomp comp-demo-cycloid ()
@@ -418,7 +427,7 @@
                 :render $ fn (dict)
                   g ({}) (get dict :tabs)
                     g
-                      {} (:x 20) (:y 40)
+                      {} $ :position ([] 20 40)
                       get dict :main
                       get dict :rotate
                       get dict :cycloid
@@ -435,13 +444,12 @@
                   g ({}) & $ ->> ([] :main :rotate :cycloid :drag-demo :slider :keydown)
                     map-indexed $ fn (idx info)
                       g
-                        {}
-                          :x $ + 40 (* idx 80)
-                          :y 20
+                        {} $ :position
+                          [] (+ 40 $ * idx 80) (, 20)
                         touch-area :select cursor $ {} (:data info) (:rect? true) (:dx 30) (:dy 10)
-                        text ([] 0 0)
+                        text
                           substr (str info) 1
-                          {} $ :align :center
+                          {} (:align :center) (:position $ [] 0 0)
                 :actions $ {}
                   :select $ fn (e d!)
                     when (= :mouse-down $ :type e)
@@ -454,7 +462,8 @@
               {} (:children $ {})
                 :render $ fn (dict)
                   g ({})
-                    text ([] 100 100) (str "\"press up times..: " $ :times state) ({})
+                    text (str "\"press up times..: " $ :times state)
+                      {} $ :position ([] 100 100)
                     key-listener "\"up" :inc cursor
                     key-listener "\"down" :dec cursor
                 :actions $ {}
