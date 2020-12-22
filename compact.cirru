@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.1)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.2)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -240,7 +240,7 @@
       :configs $ {}
     |phlox.comp $ {}
       :ns $ quote
-        ns phlox.comp $ :require ([] phlox.core :refer $ [] defcomp g touch-area text) ([] phlox.complex :refer $ [] c+ c-)
+        ns phlox.comp $ :require ([] phlox.core :refer $ [] defcomp g touch-area text ops >>) ([] phlox.complex :refer $ [] c+ c- c*)
       :defs $ {}
         |comp-drag-point $ quote
           defcomp comp-drag-point (states position on-change & args)
@@ -255,14 +255,20 @@
                 :render $ fn (dict)
                   g ({} $ :position position)
                     touch-area :drag cursor $ merge ({} $ :radius 12) (, options)
-                    text
-                      if (fn? $ :render-text options)
-                          :render-text options
-                          , position
-                        str "\"(" (first position) "\"," (last position) "\")"
-                      merge options $ {}
-                        :color $ either (:text-color options) ([] 0 0 100 0.7)
-                        :position $ [] 16 0
+                    let
+                        renderer $ :render-text options
+                        content $ cond
+                            fn? renderer
+                            (:render-text options)
+                              , position
+                          (= renderer false)
+                            , nil
+                          true $ str "\"(" (first position) "\"," (last position) "\")"
+                      if (some? content)
+                        text content $ merge options
+                          {}
+                            :color $ either (:text-color options) ([] 0 0 100 0.7)
+                            :position $ [] 16 0
                 :actions $ {}
                   :drag $ fn (e d!)
                     &let (t $ :type e)
@@ -305,11 +311,52 @@
                         , d!
                       :mouse-down $ d! cursor
                         -> state (assoc :v0 value) (assoc :x0 $ :x e)
+        |comp-arrow $ quote
+          defcomp comp-arrow (states from to on-change & args)
+            let
+                options $ either (first args) ({})
+                cursor $ :cursor states
+                defaults $ {} (:radius 8) (:render-text false)
+                state $ either (:data states) ({})
+                direction $ c- from to
+                length $ c-length direction
+                unit $ c* direction
+                  [] (&/ 12 length) 0
+                branch-a $ c* unit
+                  [] (cos angle-45) (sin angle-45)
+                branch-b $ c* unit
+                  [] (cos $ &- 0 angle-45) (sin $ &- 0 angle-45)
+              {}
+                :children $ {}
+                  :from $ comp-drag-point (>> states :from) from
+                    fn (point d!) (on-change point to d!)
+                    merge defaults options
+                  :to $ comp-drag-point (>> states :to) to
+                    fn (point d!) (on-change from point d!)
+                    merge defaults options
+                :actions $ {}
+                :render $ fn (dict)
+                  g
+                    {} $ :position (:position options)
+                    get dict :from
+                    get dict :to
+                    ops ([] :move-to from) ([] :line-to to) ([] :line-to $ c+ to branch-a) ([] :move-to to) ([] :line-to $ c+ to branch-b) ([] :hsl $ [] 0 0 100)
+                      [] :line-width $ either (:line-width options) 2
+                      [] :hsl $ either (:line-color options) 2
+                      [] :stroke
+        |c-length $ quote
+          defn c-length (point)
+            assert "\"point in a list" $ and (list? point) (number? $ first point) (number? $ last point)
+            let
+                x $ first point
+                y $ last point
+              sqrt $ &+ (pow x 2) (pow y 2)
+        |angle-45 $ quote (def angle-45 $ &/ &PI 5)
       :proc $ quote ()
       :configs $ {}
     |phlox.comp.container $ {}
       :ns $ quote
-        ns phlox.comp.container $ :require ([] phlox.core :refer $ [] g >> defcomp circle rect text touch-area key-listener polyline) ([] phlox.comp :refer $ [] comp-drag-point comp-slider) ([] phlox.complex :refer $ [] c+ c- c* rad-point) ([] memof.alias :refer $ [] memof-call)
+        ns phlox.comp.container $ :require ([] phlox.core :refer $ [] g >> defcomp circle rect text touch-area key-listener polyline) ([] phlox.comp :refer $ [] comp-drag-point comp-slider comp-arrow) ([] phlox.complex :refer $ [] c+ c- c* rad-point) ([] memof.alias :refer $ [] memof-call)
       :defs $ {}
         |comp-counter $ quote
           defcomp comp-counter (states x)
@@ -413,11 +460,7 @@
                     fn (new-tab d!) (d! cursor $ assoc state :tab new-tab)
                   :rotate $ if (= tab :rotate) (memof-call comp-demo-rotate)
                   :cycloid $ if (= tab :cycloid) (memof-call comp-demo-cycloid)
-                  :drag-demo $ if (= tab :drag-demo)
-                    comp-drag-point (>> states :drag-demo)
-                      either (:point-d state) ([] 0 0)
-                      fn (new-position d!) (d! cursor $ assoc state :point-d new-position)
-                      {}
+                  :drag-demo $ if (= tab :drag-demo) (comp-drag-demo $ >> states :drag-demo)
                   :slider $ if (= tab :slider)
                     comp-slider (>> states :slider) ([] 100 100)
                       either (:slider-v state) 10
@@ -472,6 +515,28 @@
                   :dec $ fn (e d!)
                     if (= :key-down $ :type e)
                       d! cursor $ update state :times (\ &- % 1)
+        |comp-drag-demo $ quote
+          defcomp comp-drag-demo (states)
+            let
+                cursor $ :cursor states
+                state $ either (:data states)
+                  {} (:p $ [] 20 20) (:from $ [] 10 10) (:to $ [] 40 40)
+              {}
+                :children $ {}
+                  :p $ comp-drag-point (>> states :p)
+                    either (:p state) ([] 0 0)
+                    fn (new-position d!) (d! cursor $ assoc state :p new-position)
+                    {}
+                  :arrow $ comp-arrow (>> states :arrow) (:from state) (:to state)
+                    fn (from to d!)
+                      d! cursor $ -> state (assoc :from from) (assoc :to to)
+                    {} (:line-color $ [] 200 80 70) (:line-width 2)
+                :actions $ {}
+                :render $ fn (dict)
+                  g ({}) (get dict :p)
+                    g
+                      {} $ :position ([] 0 100)
+                      get dict :arrow
       :proc $ quote ()
       :configs $ {}
     |phlox.util $ {}
