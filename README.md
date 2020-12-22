@@ -186,13 +186,23 @@ Component for dragging position:
 
 ```cirru
 phlox.comp/comp-drag-point (>> states :k) ([] 1 2)
-  fn (new-position d!)
+  fn (new-position d!) (do)
   {}
     :text-color $ [] 0 0 80
     :render-text $ fn (position)
       join-str |, position
     :font-size 14
     :font-face "|Arial"
+```
+
+Arrow:
+
+```cirru
+phlox.comp/comp-arrow (>> states :k) ([] 0 0) ([] 10 10)
+  fn (from to d!) (do)
+  {}
+    :line-color $ [] 0 0 100
+    :line-width 1
 ```
 
 ### License
