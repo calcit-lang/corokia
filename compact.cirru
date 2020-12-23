@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.2)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.3)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -124,12 +124,6 @@
               :group $ if (:pure-shape? tree) tree
                 update tree :children $ fn (xs) (map get-shape-tree xs)
               :component $ get-shape-tree (:tree tree)
-              :touch-area $ update tree :path
-                fn (path)
-                  if (nil? path) path $ wrap-kwd-in-path path
-              :key-listener $ update tree :path
-                fn (path)
-                  if (nil? path) path $ wrap-kwd-in-path path
               (:type tree)
                 , tree
         |render-app! $ quote
@@ -153,16 +147,6 @@
             if (list? props)
               {} (:type :group) (:position props) (:children xs)
               merge props $ {} (:type :group) (:children xs)
-        |wrap-kwd-in-path $ quote
-          defn wrap-kwd-in-path (x)
-            case (type-of x) (:list $ map wrap-kwd-in-path x)
-              :map $ ->> x
-                map-kv $ fn (k v)
-                  [] (wrap-kwd-in-path k) (wrap-kwd-in-path v)
-                pairs-map
-              :keyword $ str "\":" (turn-str x)
-              (type-of x)
-                , x
         |rect $ quote
           defn rect (sizes & args)
             let
