@@ -205,6 +205,21 @@ phlox.comp/comp-arrow (>> states :k) ([] 0 0) ([] 10 10)
     :line-width 1
 ```
 
+Tabs:
+
+```cirru
+phlox.comp/comp-tags (>> states :k) :a ([] :a :b :c)
+  fn (tab d!) (echo tab)
+  {}
+    :font-size 13
+    :font-face |Arial
+    :font-color $ [] 0 0 100
+    :fill-color $ [] 0 0 100 0.3
+    :stroke-color $ [] 0 0 50
+    :dx 40
+    :dy 12
+```
+
 ### License
 
 MIT

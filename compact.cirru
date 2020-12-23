@@ -352,11 +352,37 @@
                 y $ last point
               sqrt $ &+ (pow x 2) (pow y 2)
         |angle-45 $ quote (def angle-45 $ &/ &PI 5)
+        |comp-tabs $ quote
+          defcomp comp-tabs (states tab tabs on-change & args)
+            let
+                cursor $ :cursor states
+                options $ merge
+                  {} (:font-color $ [] 0 0 100) (:fill-color $ [] 0 0 100 0.2) (:stroke-color $ [] 0 0 50) (:font-size 13)
+                  first args
+                dx $ either (:dx options) 40
+                dy $ either (:dy options) 12
+              {} (:children $ {})
+                :render $ fn (dict)
+                  g ({}) & $ ->> tabs
+                    map-indexed $ fn (idx info)
+                      g
+                        {} $ :position
+                          []
+                            &+ dx $ &* idx (&+ 12 $ &* 2 dx)
+                            , 20
+                        touch-area :select cursor $ {} (:data info) (:rect? true) (:dx dx) (:dy dy) (:fill-color $ :fill-color options) (:stroke-color $ :stroke-color options)
+                        text
+                          substr (str info) 1
+                          {} (:align :center) (:position $ [] 0 0) (:font-size $ :font-size options) (:font-face $ :font-face options) (:color $ :font-color options)
+                :actions $ {}
+                  :select $ fn (e d!)
+                    when (= :mouse-down $ :type e)
+                      on-change (turn-keyword $ :data e) (, d!)
       :proc $ quote ()
       :configs $ {}
     |phlox.comp.container $ {}
       :ns $ quote
-        ns phlox.comp.container $ :require ([] phlox.core :refer $ [] g >> defcomp circle rect text touch-area key-listener polyline) ([] phlox.comp :refer $ [] comp-drag-point comp-slider comp-arrow) ([] phlox.complex :refer $ [] c+ c- c* rad-point) ([] memof.alias :refer $ [] memof-call)
+        ns phlox.comp.container $ :require ([] phlox.core :refer $ [] g >> defcomp circle rect text touch-area key-listener polyline) ([] phlox.comp :refer $ [] comp-drag-point comp-slider comp-arrow comp-tabs) ([] phlox.complex :refer $ [] c+ c- c* rad-point) ([] memof.alias :refer $ [] memof-call)
       :defs $ {}
         |comp-counter $ quote
           defcomp comp-counter (states x)
@@ -456,7 +482,7 @@
                   :main $ if
                     or (= tab :main) (nil? tab)
                     memof-call comp-data-list $ >> states :main
-                  :tabs $ comp-tabs (>> states :tabs) tab
+                  :tabs $ comp-tabs (>> states :tabs) tab ([] :main :rotate :cycloid :drag-demo :slider :keydown)
                     fn (new-tab d!) (d! cursor $ assoc state :tab new-tab)
                   :rotate $ if (= tab :rotate) (memof-call comp-demo-rotate)
                   :cycloid $ if (= tab :cycloid) (memof-call comp-demo-cycloid)
@@ -478,25 +504,6 @@
                       get dict :drag-demo
                       get dict :keydown
                 :actions $ {}
-        |comp-tabs $ quote
-          defcomp comp-tabs (states tab on-change)
-            let
-                cursor $ :cursor states
-              {} (:children $ {})
-                :render $ fn (dict)
-                  g ({}) & $ ->> ([] :main :rotate :cycloid :drag-demo :slider :keydown)
-                    map-indexed $ fn (idx info)
-                      g
-                        {} $ :position
-                          [] (+ 40 $ * idx 80) (, 20)
-                        touch-area :select cursor $ {} (:data info) (:rect? true) (:dx 30) (:dy 10)
-                        text
-                          substr (str info) 1
-                          {} (:align :center) (:position $ [] 0 0)
-                :actions $ {}
-                  :select $ fn (e d!)
-                    when (= :mouse-down $ :type e)
-                      on-change (turn-keyword $ :data e) (, d!)
         |comp-keydown $ quote
           defcomp comp-keydown (states)
             let
