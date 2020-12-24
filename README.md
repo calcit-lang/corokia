@@ -208,7 +208,7 @@ phlox.comp/comp-arrow (>> states :k) ([] 0 0) ([] 10 10)
 Tabs:
 
 ```cirru
-phlox.comp/comp-tags (>> states :k) :a ([] :a :b :c)
+phlox.comp/comp-tabs (>> states :k) :a ([] :a :b :c)
   fn (tab d!) (echo tab)
   {}
     :font-size 13
