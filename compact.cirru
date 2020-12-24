@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.3)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.4)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -58,23 +58,6 @@
               merge (first xs)
                 {} (:type :ops) (:ops $ rest xs)
               {} (:type :ops) (:ops xs)
-        |wrap-kwd-in-event $ quote
-          defn wrap-kwd-in-event (x)
-            case (type-of x)
-              :map $ ->> x
-                map-kv $ fn (k v)
-                  &let
-                    k $ if (string? k) (turn-keyword k) (, k)
-                    [] k $ if
-                      and
-                        or (= k :type) (= k :action)
-                        string? v
-                      turn-keyword v
-                      wrap-kwd-in-event v
-                pairs-map
-              :vec $ map wrap-kwd-in-event x
-              (type-of x)
-                , x
         |key-listener $ quote
           defn key-listener (key action path & args)
             {} (:type :key-listener) (:key key) (:path path) (:action action) (:data $ first args)
@@ -86,9 +69,8 @@
                 {} (:type :touch-area) (:position $ :position options) (:radius 10) (:action action) (:path path)
                 , options
         |handle-tree-event $ quote
-          defn handle-tree-event (event dispatch!) (; echo "\"get event" event)
+          defn handle-tree-event (e dispatch!) (; echo "\"get event:" e)
             let
-                e $ wrap-kwd-in-event event
                 path $ :path e
               cond
                   = :window-resized $ :type e
