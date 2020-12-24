@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.4)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.5)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -133,16 +133,16 @@
           defn rect (sizes & args)
             let
                 options $ merge
-                  {} (:fill-color $ [] 0 0 100 0.3) (:stroke-color $ [] 0 0 100 0.8) (:stroke-width 2)
+                  {} (:fill-color $ [] 0 0 100 0.3) (:line-color $ [] 0 0 100 0.8) (:line-width 1)
                   first args
                 position $ either (:position options) ([] 0 0)
               {} (:type :ops) (:position position)
-                :ops $ [] ([] :rectangle position sizes) ([] :source-rgb $ :fill-color options) ([] :fill-preserve) ([] :source-rgb $ :stroke-color options) ([] :line-width $ :line-width options) ([] :stroke)
+                :ops $ [] ([] :rectangle position sizes) ([] :source-rgb $ :fill-color options) ([] :fill-preserve) ([] :source-rgb $ :line-color options) ([] :line-width $ :line-width options) ([] :stroke)
         |circle $ quote
           defn circle (radius & args)
             let
                 options $ merge
-                  {} (:fill-color $ [] 0 0 100 0.3) (:stroke-color $ [] 0 0 100 0.8) (:stroke-width 2)
+                  {} (:fill-color $ [] 0 0 100 0.3) (:line-color $ [] 0 0 100 0.8) (:line-width 1)
                   first args
               {} (:type :ops)
                 :ops $ []
@@ -153,7 +153,7 @@
                     , false
                   [] :source-rgb $ :fill-color options
                   [] :fill-preserve
-                  [] :source-rgb $ :stroke-color options
+                  [] :source-rgb $ :line-color options
                   [] :line-width $ :line-width options
                   [] :stroke
         |defcomp $ quote
@@ -233,7 +233,7 @@
                       if (some? content)
                         text content $ merge options
                           {}
-                            :color $ either (:text-color options) ([] 0 0 100 0.7)
+                            :color $ either (:font-color options) ([] 0 0 100 0.7)
                             :position $ [] 16 0
                 :actions $ {}
                   :drag $ fn (e d!)
@@ -307,8 +307,8 @@
                     get dict :from
                     get dict :to
                     ops ([] :move-to from) ([] :line-to to) ([] :line-to $ c+ to branch-a) ([] :move-to to) ([] :line-to $ c+ to branch-b) ([] :hsl $ [] 0 0 100)
-                      [] :line-width $ either (:line-width options) 2
-                      [] :hsl $ either (:line-color options) 2
+                      [] :line-width $ either (:line-width options) 1
+                      [] :hsl $ either (:line-color options) ([] 0 0 100)
                       [] :stroke
         |c-length $ quote
           defn c-length (point)
@@ -323,7 +323,7 @@
             let
                 cursor $ :cursor states
                 options $ merge
-                  {} (:font-color $ [] 0 0 100) (:fill-color $ [] 0 0 100 0.2) (:stroke-color $ [] 0 0 50) (:font-size 13)
+                  {} (:font-color $ [] 0 0 100) (:fill-color $ [] 0 0 100 0.2) (:line-color $ [] 0 0 50) (:font-size 13)
                   first args
                 dx $ either (:dx options) 40
                 dy $ either (:dy options) 12
@@ -336,7 +336,7 @@
                           []
                             &+ dx $ &* idx (&+ 12 $ &* 2 dx)
                             , 20
-                        touch-area :select cursor $ {} (:data info) (:rect? true) (:dx dx) (:dy dy) (:fill-color $ :fill-color options) (:stroke-color $ :stroke-color options)
+                        touch-area :select cursor $ {} (:data info) (:rect? true) (:dx dx) (:dy dy) (:fill-color $ :fill-color options) (:line-color $ :line-color options)
                         text
                           substr (str info) 1
                           {} (:align :center) (:position $ [] 0 0) (:font-size $ :font-size options) (:font-face $ :font-face options) (:color $ :font-color options)
@@ -393,9 +393,9 @@
                     g ([] 40 60) & $ ->> (range 3)
                       map $ fn (x) (get dict $ str |task- x)
                     g ({})
-                      circle 20 $ {} (:fill-color $ [] 0 0 100 0.4) (:stroke-color $ [] 200 80 90) (:line-width 1) (:position $ [] 100 200)
+                      circle 20 $ {} (:fill-color $ [] 0 0 100 0.4) (:line-color $ [] 200 80 90) (:position $ [] 100 200)
                       rect ([] 40 40)
-                        {} (:position $ [] 100 150) (:fill-color $ [] 0 0 100 0.4) (:stroke-color $ [] 200 80 90) (:line-width 1)
+                        {} (:position $ [] 100 150) (:fill-color $ [] 0 0 100 0.4) (:line-color $ [] 200 80 90)
                 :actions $ {}
         |comp-demo-cycloid $ quote
           defcomp comp-demo-cycloid ()
@@ -416,7 +416,7 @@
                           c+
                             c* ([] radius 0) (rad-point $ * v x)
                             c* ([] r2 0) (rad-point $ * v2 x)
-                      {} (:position $ [] 300 300) (:stroke-color $ [] 0 80 60) (:line-width 2) (:line-join :round)
+                      {} (:position $ [] 300 300) (:line-color $ [] 0 80 60) (:line-width 2) (:line-join :round)
               :actions $ {}
         |comp-demo-rotate $ quote
           defcomp comp-demo-rotate ()
@@ -433,7 +433,7 @@
                           c*
                             [] (+ b0 $ * r0 x) (, 0)
                             rad-point $ * &PI r1 x
-                      {} (:position $ [] 360 280) (:stroke-color $ [] 0 30 30) (:line-width 2)
+                      {} (:position $ [] 360 280) (:line-color $ [] 0 30 30) (:line-width 2)
               :actions $ {}
         |comp-container $ quote
           defcomp comp-container (store)

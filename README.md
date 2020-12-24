@@ -104,7 +104,7 @@ phlox.core/circle 10
   {}
     :position $ [] 100 20
     :fill-color Color
-    :stroke-color Color
+    :line-color Color
     :line-width 2
 ```
 
@@ -115,7 +115,7 @@ phlox.core/rect ([] 10 10)
   {}
     :position $ [] 100 20
     :fill-color Color
-    :stroke-color Color
+    :line-color Color
     :line-width 2
 ```
 
@@ -144,7 +144,7 @@ phlox.core/polyline
     [] 2 2
   {}
     :position $ [] 1 1
-    :stroke-color Color
+    :line-color Color
     :line-width 1
     :line-join :round
     ; ":round | :milter | :bevel"
@@ -188,7 +188,7 @@ Component for dragging position:
 phlox.comp/comp-drag-point (>> states :k) ([] 1 2)
   fn (new-position d!) (do)
   {}
-    :text-color $ [] 0 0 80
+    :font-color $ [] 0 0 80
     :render-text $ fn (position)
       join-str |, position
     :font-size 14
@@ -215,7 +215,7 @@ phlox.comp/comp-tags (>> states :k) :a ([] :a :b :c)
     :font-face |Arial
     :font-color $ [] 0 0 100
     :fill-color $ [] 0 0 100 0.3
-    :stroke-color $ [] 0 0 50
+    :line-color $ [] 0 0 50
     :dx 40
     :dy 12
 ```
