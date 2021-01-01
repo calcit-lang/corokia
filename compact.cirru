@@ -1,6 +1,6 @@
 
 {} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.5)
+  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.6)
   :files $ {}
     |phlox.main $ {}
       :ns $ quote
@@ -120,8 +120,8 @@
             let
                 options $ either (first args) ({})
                 position $ either (:position options) ([] 0 0)
-              merge
-                {} (:line-width 1) (:line-join :round) (:fill-color $ [] 0 0 100)
+              merge-non-nil
+                {} (:line-width 1) (:line-join :round) (:line-color $ [] 0 0 100)
                 , options
                 {} (:type :polyline) (:position position) (:stops stops)
         |g $ quote
@@ -247,12 +247,13 @@
                               either (:dy e) 0
                           , d!
         |comp-slider $ quote
-          defcomp comp-slider (states position value on-change & args)
+          defcomp comp-slider (states value on-change & args)
             let
                 cursor $ :cursor states
-                options $ merge
-                  {} (:precision 2) (:unit 1) (:title "\"Slider")
+                options $ merge-non-nil
+                  {} (:precision 2) (:unit 1) (:title "\"Slider") (:position $ [] 0 0)
                   first args
+                position $ :position options
                 state $ either (:data states)
                   {} (:v0 nil) (:x0 nil)
               assert "\"expects states in map" $ map? states
@@ -454,10 +455,10 @@
                   :cycloid $ if (= tab :cycloid) (memof-call comp-demo-cycloid)
                   :drag-demo $ if (= tab :drag-demo) (comp-drag-demo $ >> states :drag-demo)
                   :slider $ if (= tab :slider)
-                    comp-slider (>> states :slider) ([] 100 100)
+                    comp-slider (>> states :slider)
                       either (:slider-v state) 10
                       fn (v d!) (; println "\"slider change:" v) (d! cursor $ assoc state :slider-v v)
-                      {} $ :unit 0.1
+                      {} (:unit 0.1) (:position $ [] 0 40) (:title "\"demo")
                   :keydown $ if (= tab :keydown) (comp-keydown $ >> states :keydown)
                 :render $ fn (dict)
                   g ({}) (get dict :tabs)

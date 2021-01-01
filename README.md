@@ -176,10 +176,11 @@ phlox.core/key-listener "a" :action cursor nil
 Component for slide value:
 
 ```cirru
-phlox.comp/comp-slider (>> states :k) ([] 1 2) 10
+phlox.comp/comp-slider (>> states :k) 10
   fn (new-value) (do)
   {} (:precision 2) (:unit 1)
     :title |Slider
+    :position ([] 1 2)
 ```
 
 Component for dragging position:
