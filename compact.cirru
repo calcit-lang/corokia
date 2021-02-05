@@ -1,6 +1,6 @@
 
 {} (:package |corokia)
-  :configs $ {} (:init-fn |corokia.main/main!) (:reload-fn |corokia.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.6)
+  :configs $ {} (:init-fn |corokia.main/main!) (:reload-fn |corokia.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.2.0)
   :files $ {}
     |corokia.main $ {}
       :ns $ quote
