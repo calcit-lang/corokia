@@ -1,10 +1,10 @@
 
-{} (:package |phlox)
-  :configs $ {} (:init-fn |phlox.main/main!) (:reload-fn |phlox.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.6)
+{} (:package |corokia)
+  :configs $ {} (:init-fn |corokia.main/main!) (:reload-fn |corokia.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:version |0.1.6)
   :files $ {}
-    |phlox.main $ {}
+    |corokia.main $ {}
       :ns $ quote
-        ns phlox.main $ :require ([] phlox.core :refer $ [] render-app! >> handle-tree-event update-states) ([] phlox.comp.container :refer $ [] comp-container) ([] memof.alias :refer $ [] tick-calling-loop! reset-calling-caches!)
+        ns corokia.main $ :require ([] corokia.core :refer $ [] render-app! >> handle-tree-event update-states) ([] corokia.comp.container :refer $ [] comp-container) ([] memof.alias :refer $ [] tick-calling-loop! reset-calling-caches!)
       :defs $ {}
         |render-page $ quote
           defn render-page ()
@@ -21,7 +21,7 @@
             case op (:states $ update-states store data) (op store)
         |main! $ quote
           defn main! ()
-            init-canvas $ {} (:title "\"Phlox") (:width 800) (:height 800)
+            init-canvas $ {} (:title "\"corokia") (:width 800) (:height 800)
             render-page
             add-watch *store :change $ fn (v v0) (render-page)
             echo "\"app started."
@@ -33,9 +33,9 @@
           defn on-error (message) (draw-error-message message)
       :proc $ quote ()
       :configs $ {}
-    |phlox.core $ {}
+    |corokia.core $ {}
       :ns $ quote
-        ns phlox.core $ :require ([] phlox.util :refer $ [] track-overcost)
+        ns corokia.core $ :require ([] corokia.util :refer $ [] track-overcost)
       :defs $ {}
         |>> $ quote
           defn >> (states k)
@@ -177,8 +177,8 @@
                     :actions $ :actions ret
       :proc $ quote ()
       :configs $ {}
-    |phlox.complex $ {}
-      :ns $ quote (ns phlox.complex)
+    |corokia.complex $ {}
+      :ns $ quote (ns corokia.complex)
       :defs $ {}
         |c+ $ quote
           defn c+ (p1 p2)
@@ -204,9 +204,9 @@
             [] (cos x) (sin x)
       :proc $ quote ()
       :configs $ {}
-    |phlox.comp $ {}
+    |corokia.comp $ {}
       :ns $ quote
-        ns phlox.comp $ :require ([] phlox.core :refer $ [] defcomp g touch-area text ops >>) ([] phlox.complex :refer $ [] c+ c- c*)
+        ns corokia.comp $ :require ([] corokia.core :refer $ [] defcomp g touch-area text ops >>) ([] corokia.complex :refer $ [] c+ c- c*)
       :defs $ {}
         |comp-drag-point $ quote
           defcomp comp-drag-point (states position on-change & args)
@@ -347,9 +347,9 @@
                       on-change (turn-keyword $ :data e) (, d!)
       :proc $ quote ()
       :configs $ {}
-    |phlox.comp.container $ {}
+    |corokia.comp.container $ {}
       :ns $ quote
-        ns phlox.comp.container $ :require ([] phlox.core :refer $ [] g >> defcomp circle rect text touch-area key-listener polyline) ([] phlox.comp :refer $ [] comp-drag-point comp-slider comp-arrow comp-tabs) ([] phlox.complex :refer $ [] c+ c- c* rad-point) ([] memof.alias :refer $ [] memof-call)
+        ns corokia.comp.container $ :require ([] corokia.core :refer $ [] g >> defcomp circle rect text touch-area key-listener polyline) ([] corokia.comp :refer $ [] comp-drag-point comp-slider comp-arrow comp-tabs) ([] corokia.complex :refer $ [] c+ c- c* rad-point) ([] memof.alias :refer $ [] memof-call)
       :defs $ {}
         |comp-counter $ quote
           defcomp comp-counter (states x)
@@ -513,8 +513,8 @@
                       get dict :arrow
       :proc $ quote ()
       :configs $ {}
-    |phlox.util $ {}
-      :ns $ quote (ns phlox.util)
+    |corokia.util $ {}
+      :ns $ quote (ns corokia.util)
       :defs $ {}
         |track-overcost $ quote
           defmacro track-overcost (threshold expr)
@@ -529,7 +529,7 @@
                   ~cost $ &* 1000
                     &- (cpu-time) ~started
                 if (&> ~cost ~threshold)
-                  echo "\"[Phlox Time]" (quote ~expr) |=> (format-number ~cost 3) |ms
+                  echo "\"[corokia Time]" (quote ~expr) |=> (format-number ~cost 3) |ms
                 , ~result
       :proc $ quote ()
       :configs $ {}
