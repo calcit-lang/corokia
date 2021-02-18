@@ -48,7 +48,8 @@
             :data $ {}
               |T $ {} (:type :leaf) (:by |u0) (:at 1605584374701) (:text |defn)
               |j $ {} (:type :leaf) (:by |u0) (:at 1606367402732) (:text |render-page)
-              |r $ {} (:type :expr) (:by |u0) (:at 1605584374701) (:data $ {})
+              |r $ {} (:type :expr) (:by |u0) (:at 1605584374701)
+                :data $ {}
               |x $ {} (:type :expr) (:by |u0) (:at 1606367308144)
                 :data $ {}
                   |T $ {} (:type :leaf) (:by |u0) (:at 1606367308144) (:text |render-app!)
@@ -148,7 +149,8 @@
             :data $ {}
               |T $ {} (:type :leaf) (:by |u0) (:at 1605513219471) (:text |defn)
               |j $ {} (:type :leaf) (:by |u0) (:at 1605513219471) (:text |main!)
-              |r $ {} (:type :expr) (:by |u0) (:at 1605513219471) (:data $ {})
+              |r $ {} (:type :expr) (:by |u0) (:at 1605513219471)
+                :data $ {}
               |t $ {} (:type :expr) (:by |u0) (:at 1605513414903)
                 :data $ {}
                   |T $ {} (:type :leaf) (:by |u0) (:at 1605513431333) (:text |init-canvas)
@@ -205,7 +207,8 @@
             :data $ {}
               |T $ {} (:type :leaf) (:by |u0) (:at 1605513329498) (:text |defn)
               |j $ {} (:type :leaf) (:by |u0) (:at 1605513329498) (:text |reload!)
-              |r $ {} (:type :expr) (:by |u0) (:at 1605513329498) (:data $ {})
+              |r $ {} (:type :expr) (:by |u0) (:at 1605513329498)
+                :data $ {}
               |v $ {} (:type :expr) (:by |u0) (:at 1605513331829)
                 :data $ {}
                   |T $ {} (:type :leaf) (:by |u0) (:at 1605513333332) (:text |println)
@@ -227,7 +230,8 @@
                 :data $ {}
                   |T $ {} (:type :leaf) (:by |u0) (:at 1606118358908) (:text |draw-error-message)
                   |j $ {} (:type :leaf) (:by |u0) (:at 1606118360626) (:text |message)
-        :proc $ {} (:type :expr) (:by |u0) (:at 1605513209818) (:data $ {})
+        :proc $ {} (:type :expr) (:by |u0) (:at 1605513209818)
+          :data $ {}
         :configs $ {}
       |corokia.core $ {}
         :ns $ {} (:type :expr) (:by |u0) (:at 1605513215399)
@@ -1360,7 +1364,7 @@
                                           |T $ {} (:type :leaf) (:by |u0) (:at 1605858627788) (:text |contains?)
                                           |j $ {} (:type :leaf) (:by |u0) (:at 1605858628942) (:text |ret)
                                           |r $ {} (:type :leaf) (:by |u0) (:at 1605858630917) (:text |:render)
-                                      |D $ {} (:type :leaf) (:by |u0) (:at 1605858649254) (:text |&and)
+                                      |D $ {} (:type :leaf) (:by |u0) (:at 1613564402785) (:text |and)
                                       |j $ {} (:type :expr) (:by |u0) (:at 1605858656067)
                                         :data $ {}
                                           |T $ {} (:type :leaf) (:by |u0) (:at 1605858659467) (:text |fn?)
@@ -1378,7 +1382,7 @@
                                       |j $ {} (:type :leaf) (:by |u0) (:at 1605859083121) (:text |c)
                                   |r $ {} (:type :expr) (:by |u0) (:at 1605858690515)
                                     :data $ {}
-                                      |T $ {} (:type :leaf) (:by |u0) (:at 1605858691464) (:text |&and)
+                                      |T $ {} (:type :leaf) (:by |u0) (:at 1613564404447) (:text |and)
                                       |j $ {} (:type :expr) (:by |u0) (:at 1605858691802)
                                         :data $ {}
                                           |T $ {} (:type :leaf) (:by |u0) (:at 1605858695663) (:text |contains?)
@@ -1401,7 +1405,7 @@
                                       |j $ {} (:type :leaf) (:by |u0) (:at 1605859085169) (:text |c)
                                   |r $ {} (:type :expr) (:by |u0) (:at 1605858732813)
                                     :data $ {}
-                                      |T $ {} (:type :leaf) (:by |u0) (:at 1605858734774) (:text |&and)
+                                      |T $ {} (:type :leaf) (:by |u0) (:at 1613564406258) (:text |and)
                                       |j $ {} (:type :expr) (:by |u0) (:at 1605858735220)
                                         :data $ {}
                                           |T $ {} (:type :leaf) (:by |u0) (:at 1605858736177) (:text |contains?)
@@ -1452,7 +1456,8 @@
                       |L $ {} (:type :leaf) (:by |u0) (:at 1608558209556) (:text |~comp-name)
                       |P $ {} (:type :leaf) (:by |u0) (:at 1608558213906) (:text |~args)
                   |D $ {} (:type :leaf) (:by |u0) (:at 1605759868754) (:text |quote-replace)
-        :proc $ {} (:type :expr) (:by |u0) (:at 1605513215399) (:data $ {})
+        :proc $ {} (:type :expr) (:by |u0) (:at 1605513215399)
+          :data $ {}
         :configs $ {}
       |corokia.complex $ {}
         :ns $ {} (:type :expr) (:by |u0) (:at 1605546082626)
@@ -1605,7 +1610,8 @@
                     :data $ {}
                       |T $ {} (:type :leaf) (:by |u0) (:at 1605547625296) (:text |sin)
                       |j $ {} (:type :leaf) (:by |u0) (:at 1605547630380) (:text |x)
-        :proc $ {} (:type :expr) (:by |u0) (:at 1605546082626) (:data $ {})
+        :proc $ {} (:type :expr) (:by |u0) (:at 1605546082626)
+          :data $ {}
         :configs $ {}
       |corokia.comp $ {}
         :ns $ {} (:type :expr) (:by |u0) (:at 1605859288769)
@@ -2902,7 +2908,8 @@
                                   |T $ {} (:type :leaf) (:by |u0) (:at 1608705754145) (:text |:dy)
                                   |j $ {} (:type :leaf) (:by |u0) (:at 1608705747237) (:text |options)
                               |r $ {} (:type :leaf) (:by |u0) (:at 1608705856360) (:text |12)
-        :proc $ {} (:type :expr) (:by |u0) (:at 1605859288769) (:data $ {})
+        :proc $ {} (:type :expr) (:by |u0) (:at 1605859288769)
+          :data $ {}
         :configs $ {}
       |corokia.comp.container $ {}
         :ns $ {} (:type :expr) (:by |u0) (:at 1606750222318)
@@ -3454,7 +3461,8 @@
             :data $ {}
               |T $ {} (:type :leaf) (:by |u0) (:at 1606367310929) (:text |defcomp)
               |j $ {} (:type :leaf) (:by |u0) (:at 1606750252519) (:text |comp-demo-cycloid)
-              |r $ {} (:type :expr) (:by |u0) (:at 1605513487978) (:data $ {})
+              |r $ {} (:type :expr) (:by |u0) (:at 1605513487978)
+                :data $ {}
               |v $ {} (:type :expr) (:by |u0) (:at 1606367314368)
                 :data $ {}
                   |T $ {} (:type :expr) (:by |u0) (:at 1606367316680)
@@ -3620,7 +3628,8 @@
             :data $ {}
               |T $ {} (:type :leaf) (:by |u0) (:at 1606367139725) (:text |defcomp)
               |j $ {} (:type :leaf) (:by |u0) (:at 1606750266356) (:text |comp-demo-rotate)
-              |r $ {} (:type :expr) (:by |u0) (:at 1605584419081) (:data $ {})
+              |r $ {} (:type :expr) (:by |u0) (:at 1605584419081)
+                :data $ {}
               |v $ {} (:type :expr) (:by |u0) (:at 1606367136387)
                 :data $ {}
                   |T $ {} (:type :expr) (:by |u0) (:at 1606367142103)
@@ -4474,7 +4483,8 @@
                           |j $ {} (:type :expr) (:by |u0) (:at 1608608070758)
                             :data $ {}
                               |T $ {} (:type :leaf) (:by |u0) (:at 1608608071123) (:text |{})
-        :proc $ {} (:type :expr) (:by |u0) (:at 1606750222318) (:data $ {})
+        :proc $ {} (:type :expr) (:by |u0) (:at 1606750222318)
+          :data $ {}
         :configs $ {}
       |corokia.util $ {}
         :ns $ {} (:type :expr) (:by |u0) (:at 1608049923135)
@@ -4580,6 +4590,15 @@
                         :data $ {}
                           |T $ {} (:type :leaf) (:by |u0) (:at 1608050459058) (:text |number?)
                           |j $ {} (:type :leaf) (:by |u0) (:at 1608050460824) (:text |threshold)
-        :proc $ {} (:type :expr) (:by |u0) (:at 1608049923135) (:data $ {})
+        :proc $ {} (:type :expr) (:by |u0) (:at 1608049923135)
+          :data $ {}
         :configs $ {}
-  :configs $ {} (:reload-fn |corokia.main/reload!) (:modules $ [] |memof/compact.cirru |lilac/compact.cirru) (:output |src) (:port 6001) (:extension |.cljs) (:local-ui? false) (:init-fn |corokia.main/main!) (:compact-output? true) (:version |0.2.0)
+  :configs $ {} (:reload-fn |corokia.main/reload!)
+    :modules $ [] |memof/compact.cirru |lilac/compact.cirru
+    :output |src
+    :port 6001
+    :extension |.cljs
+    :local-ui? false
+    :init-fn |corokia.main/main!
+    :compact-output? true
+    :version |0.2.0
