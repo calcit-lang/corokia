@@ -2,7 +2,7 @@
 {} (:package |corokia)
   :configs $ {} (:init-fn |corokia.main/main!) (:reload-fn |corokia.main/reload!)
     :modules $ [] |memof/compact.cirru |lilac/compact.cirru
-    :version |0.2.0
+    :version |0.2.1
   :files $ {}
     |corokia.main $ {}
       :ns $ quote
@@ -74,13 +74,12 @@
                   :ops $ rest xs
               {} (:type :ops) (:ops xs)
         |key-listener $ quote
-          defn key-listener (key action path & args)
-            {} (:type :key-listener) (:key key) (:path path) (:action action)
-              :data $ first args
+          defn key-listener (key action path ? arg)
+            {} (:type :key-listener) (:key key) (:path path) (:action action) (:data arg)
         |touch-area $ quote
-          defn touch-area (action path & args)
+          defn touch-area (action path ? arg)
             let
-                options $ either (first args) ({})
+                options $ either arg ({})
               merge
                 {} (:type :touch-area)
                   :position $ :position options
@@ -116,9 +115,9 @@
                         ; echo target-component
                         ; echo $ deref *tree-state
         |text $ quote
-          defn text (content & args)
+          defn text (content ? arg)
             &let
-              options $ either (first args) ({})
+              options $ either arg ({})
               merge options $ {} (:type :text)
                 :position $ :position options
                 :text content
@@ -140,10 +139,10 @@
                 ; with-log info
                 track-overcost 40 $ draw-canvas info
         |polyline $ quote
-          defn polyline (stops & args)
+          defn polyline (stops ? arg)
             assert "\"expects stops in list of points" $ list? stops
             let
-                options $ either (first args) ({})
+                options $ either arg ({})
                 position $ either (:position options) ([] 0 0)
               merge-non-nil
                 {} (:line-width 1) (:line-join :round)
@@ -155,14 +154,14 @@
               {} (:type :group) (:position props) (:children xs)
               merge props $ {} (:type :group) (:children xs)
         |rect $ quote
-          defn rect (sizes & args)
+          defn rect (sizes ? arg)
             let
                 options $ merge
                   {}
                     :fill-color $ [] 0 0 100 0.3
                     :line-color $ [] 0 0 100 0.8
                     :line-width 1
-                  first args
+                  , arg
                 position $ either (:position options) ([] 0 0)
               {} (:type :ops) (:position position)
                 :ops $ [] ([] :rectangle position sizes)
@@ -172,14 +171,14 @@
                   [] :line-width $ :line-width options
                   [] :stroke
         |circle $ quote
-          defn circle (radius & args)
+          defn circle (radius ? arg)
             let
                 options $ merge
                   {}
                     :fill-color $ [] 0 0 100 0.3
                     :line-color $ [] 0 0 100 0.8
                     :line-width 1
-                  first args
+                  , arg
               {} (:type :ops)
                 :ops $ []
                   [] :arc
@@ -253,12 +252,12 @@
           [] corokia.complex :refer $ [] c+ c- c*
       :defs $ {}
         |comp-drag-point $ quote
-          defcomp comp-drag-point (states position on-change & args)
+          defcomp comp-drag-point (states position on-change ? arg)
             let
                 cursor $ either (:cursor states) ([])
                 state $ either (:data states)
                   {} $ :initial-position position
-                options $ either (first args) ({})
+                options $ either arg ({})
               assert "\"expects states" $ map? states
               assert "\"expects position in a list" $ list? position
               assert "\"expects on-change function" $ fn? on-change
@@ -296,13 +295,13 @@
                               either (:dy e) 0
                           , d!
         |comp-slider $ quote
-          defcomp comp-slider (states value on-change & args)
+          defcomp comp-slider (states value on-change ? arg)
             let
                 cursor $ :cursor states
                 options $ merge-non-nil
                   {} (:precision 2) (:unit 1) (:title "\"Slider")
                     :position $ [] 0 0
-                  first args
+                  , arg
                 position $ :position options
                 state $ either (:data states)
                   {} (:v0 nil) (:x0 nil)
@@ -333,9 +332,9 @@
                         -> state (assoc :v0 value)
                           assoc :x0 $ :x e
         |comp-arrow $ quote
-          defcomp comp-arrow (states from to on-change & args)
+          defcomp comp-arrow (states from to on-change ? arg)
             let
-                options $ either (first args) ({})
+                options $ either arg ({})
                 cursor $ :cursor states
                 defaults $ {} (:radius 8) (:render-text false)
                 state $ either (:data states) ({})
@@ -383,7 +382,7 @@
         |angle-45 $ quote
           def angle-45 $ &/ &PI 5
         |comp-tabs $ quote
-          defcomp comp-tabs (states tab tabs on-change & args)
+          defcomp comp-tabs (states tab tabs on-change ? arg)
             let
                 cursor $ :cursor states
                 options $ merge
@@ -392,7 +391,7 @@
                     :fill-color $ [] 0 0 100 0.2
                     :line-color $ [] 0 0 50
                     :font-size 13
-                  first args
+                  , arg
                 dx $ either (:dx options) 40
                 dy $ either (:dy options) 12
               {}
