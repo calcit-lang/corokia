@@ -30,9 +30,7 @@
               :states $ update-states store data
               op store
         |main! $ quote
-          defn main! ()
-            &ffi-message "\"reset-canvas!" $ [] 200 80 30
-            render-page
+          defn main! () (render-page)
             add-watch *store :change $ fn (v v0) (println "\"rerender page") (render-page)
             echo "\"app started."
         |on-window-event $ quote
@@ -135,6 +133,7 @@
               &let
                 info $ track-overcost 40 (get-shape-tree tree)
                 with-log info
+                &ffi-message "\"reset-canvas!" $ [] 200 80 30
                 track-overcost 40 $ &ffi-message "\"render-canvas!" info
         |polyline $ quote
           defn polyline (stops ? arg)
@@ -314,6 +313,7 @@
                   g position
                     touch-area :slide cursor $ {} (:radius 8)
                       :fill-color $ [] 0 80 40
+                      :position $ [] 20 20
                     text
                       str (:title options) "\": " $ format-number value (:precision options)
                       {}
@@ -445,8 +445,10 @@
                     {} $ :position
                       [] 0 $ * x 30
                     touch-area :dec cursor $ {} (:radius 10)
+                      :fill-color $ [] 200 80 90
                     touch-area :inc cursor $ {} (:radius 10)
                       :position $ [] 80 0
+                      :fill-color $ [] 200 80 90
                     text "\"-" $ {} (:align :center)
                       :position $ [] 0 0
                     text
@@ -523,9 +525,10 @@
                             rad-point $ * v2 x
                     {}
                       :position $ [] 300 300
-                      :line-color $ [] 0 80 60
-                      :line-width 2
-                      :line-join :round
+                      :color $ [] 0 80 60
+                      :width 2
+                      :join :round
+                      :cap :round
             :actions $ {}
         |comp-demo-rotate $ quote
           defcomp comp-demo-rotate () $ {}
@@ -547,8 +550,10 @@
                           rad-point $ * &PI r1 x
                     {}
                       :position $ [] 360 280
-                      :line-color $ [] 0 30 30
-                      :line-width 2
+                      :color $ [] 0 30 30
+                      :width 2
+                      :cap :round
+                      :join :round
             :actions $ {}
         |comp-container $ quote
           defcomp comp-container (store)
@@ -585,7 +590,7 @@
                 :render $ fn (dict)
                   g ({}) (get dict :tabs)
                     g
-                      {} $ :position ([] 20 40)
+                      {} $ :position ([] 80 80)
                       get dict :main
                       get dict :rotate
                       get dict :cycloid
@@ -606,8 +611,8 @@
                     text
                       str "\"press up times..: " $ :times state
                       {} $ :position ([] 100 100)
-                    key-listener "\"up" :inc cursor
-                    key-listener "\"down" :dec cursor
+                    key-listener "\"Up" :inc cursor
+                    key-listener "\"Down" :dec cursor
                 :actions $ {}
                   :inc $ fn (e d!)
                     if
