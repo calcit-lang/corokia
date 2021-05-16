@@ -31,9 +31,9 @@
               op store
         |main! $ quote
           defn main! ()
-            init-canvas $ {} (:title "\"corokia") (:width 800) (:height 800)
+            &ffi-message "\"reset-canvas!" $ [] 200 80 30
             render-page
-            add-watch *store :change $ fn (v v0) (render-page)
+            add-watch *store :change $ fn (v v0) (println "\"rerender page") (render-page)
             echo "\"app started."
         |on-window-event $ quote
           defn on-window-event (event) (handle-tree-event event dispatch!)
@@ -83,12 +83,11 @@
               merge
                 {} (:type :touch-area)
                   :position $ :position options
-                  :radius 10
                   :action action
                   :path path
                 , options
         |handle-tree-event $ quote
-          defn handle-tree-event (e dispatch!) (; echo "\"get event:" e)
+          defn handle-tree-event (e dispatch!) (echo "\"get event:" e)
             let
                 path $ :path e
               cond
@@ -100,9 +99,8 @@
                     track-overcost 40 $ draw-canvas info
                 (and (some? path) (some? (:action e)))
                   let
-                      data-path $ ->> path
-                        map $ \ [] :children %
-                        apply concat
+                      data-path $ concat &
+                        -> path $ map (\ [] :children %)
                       target-component $ get-in (deref *tree-state) data-path
                       actions $ either (:actions target-component) ({})
                     ; echo e
@@ -123,21 +121,21 @@
                 :text content
                 :color $ either (:color options) ([] 0 0 100)
                 :align $ either (:align options) "\"left"
+                :size $ either (:size options) 14
         |get-shape-tree $ quote
           defn get-shape-tree (tree)
-            if (nil? tree) nil $ case (:type tree)
+            if (nil? tree) nil $ case-default (:type tree) tree
               nil $ do (echo "\"nil type from tree:" tree) nil
               :group $ if (:pure-shape? tree) tree
-                update tree :children $ fn (xs) (map get-shape-tree xs)
+                update tree :children $ fn (xs) (map xs get-shape-tree)
               :component $ get-shape-tree (:tree tree)
-              (:type tree) tree
         |render-app! $ quote
           defn render-app! (comp-tree)
             &let (tree comp-tree) (reset! *tree-state tree) (; with-log tree)
               &let
                 info $ track-overcost 40 (get-shape-tree tree)
-                ; with-log info
-                track-overcost 40 $ draw-canvas info
+                with-log info
+                track-overcost 40 $ &ffi-message "\"render-canvas!" info
         |polyline $ quote
           defn polyline (stops ? arg)
             assert "\"expects stops in list of points" $ list? stops
@@ -184,8 +182,8 @@
                   [] :arc
                     either (:position options) ([] 0 0)
                     , radius
-                    [] 0 $ &* 2 &PI
-                    , false
+                      [] 0 $ &* 2 &PI
+                      , false
                   [] :source-rgb $ :fill-color options
                   [] :fill-preserve
                   [] :source-rgb $ :line-color options
@@ -267,7 +265,8 @@
                   g
                     {} $ :position position
                     touch-area :drag cursor $ merge
-                      {} $ :radius 12
+                      {} (:radius 12)
+                        :fill-color $ [] 20 80 90
                       , options
                     let
                         renderer $ :render-text options
@@ -314,6 +313,7 @@
                 :render $ fn (dict)
                   g position
                     touch-area :slide cursor $ {} (:radius 8)
+                      :fill-color $ [] 0 80 40
                     text
                       str (:title options) "\": " $ format-number value (:precision options)
                       {}
@@ -391,13 +391,13 @@
                     :fill-color $ [] 0 0 100 0.2
                     :line-color $ [] 0 0 50
                     :font-size 13
-                  , arg
+                  either arg $ {}
                 dx $ either (:dx options) 40
                 dy $ either (:dy options) 12
               {}
                 :children $ {}
                 :render $ fn (dict)
-                  g ({}) & $ ->> tabs
+                  g ({}) & $ -> tabs
                     map-indexed $ fn (idx info)
                       g
                         {} $ :position
@@ -405,14 +405,14 @@
                             &+ dx $ &* idx
                               &+ 12 $ &* 2 dx
                             , 20
-                        touch-area :select cursor $ {} (:data info) (:rect? true) (:dx dx) (:dy dy)
+                        touch-area :select cursor $ {} (:data info) (:dx dx) (:dy dy)
                           :fill-color $ :fill-color options
                           :line-color $ :line-color options
                         text
                           substr (str info) 1
                           {} (:align :center)
                             :position $ [] 0 0
-                            :font-size $ :font-size options
+                            :size $ :font-size options
                             :font-face $ :font-face options
                             :color $ :font-color options
                 :actions $ {}
@@ -472,7 +472,7 @@
                   {} $ :size 0
               {}
                 :children $ merge
-                  ->> (range 3)
+                  -> (range 3)
                     map $ fn (x)
                       [] (str |task- x)
                         comp-counter
@@ -485,7 +485,7 @@
                       str "\"Size: " $ :size state
                       {} (:align :center)
                         :position $ [] 20 20
-                    g ([] 40 60) & $ ->> (range 3)
+                    g ([] 40 60) & $ -> (range 3)
                       map $ fn (x)
                         get dict $ str |task- x
                     g ({})
@@ -514,7 +514,7 @@
                 g
                   {} $ :pure-shape? true
                   polyline
-                    ->> (range n)
+                    -> (range n)
                       map $ fn (x)
                         c+
                           c* ([] radius 0)
@@ -538,7 +538,7 @@
                 g
                   {} $ :pure-shape? true
                   polyline
-                    ->> (range 200)
+                    -> (range 200)
                       map $ fn (x)
                         c*
                           []
