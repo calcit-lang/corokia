@@ -85,7 +85,7 @@
                   :path path
                 , options
         |handle-tree-event $ quote
-          defn handle-tree-event (e dispatch!) (echo "\"get event:" e)
+          defn handle-tree-event (e dispatch!) (; echo "\"get event:" e)
             let
                 path $ :path e
               cond
@@ -132,7 +132,7 @@
             &let (tree comp-tree) (reset! *tree-state tree) (; with-log tree)
               &let
                 info $ track-overcost 40 (get-shape-tree tree)
-                with-log info
+                ; with-log info
                 &ffi-message "\"reset-canvas!" $ [] 200 80 30
                 track-overcost 40 $ &ffi-message "\"render-canvas!" info
         |polyline $ quote
@@ -160,13 +160,12 @@
                     :line-width 1
                   , arg
                 position $ either (:position options) ([] 0 0)
-              {} (:type :ops) (:position position)
-                :ops $ [] ([] :rectangle position sizes)
-                  [] :source-rgb $ :fill-color options
-                  [] :fill-preserve
-                  [] :source-rgb $ :line-color options
-                  [] :line-width $ :line-width options
-                  [] :stroke
+              {} (:type :rect) (:position position)
+                :width $ first sizes
+                :height $ last sizes
+                :fill-color $ :fill-color options
+                :line-color $ :line-color options
+                :line-width $ :line-width options
         |circle $ quote
           defn circle (radius ? arg)
             let
@@ -176,18 +175,12 @@
                     :line-color $ [] 0 0 100 0.8
                     :line-width 1
                   , arg
-              {} (:type :ops)
-                :ops $ []
-                  [] :arc
-                    either (:position options) ([] 0 0)
-                    , radius
-                      [] 0 $ &* 2 &PI
-                      , false
-                  [] :source-rgb $ :fill-color options
-                  [] :fill-preserve
-                  [] :source-rgb $ :line-color options
-                  [] :line-width $ :line-width options
-                  [] :stroke
+              {} (:type :circle)
+                :position $ either (:position options) ([] 0 0)
+                :radius radius
+                :fill-color $ :fill-color options
+                :line-color $ :line-color options
+                :line-width $ :line-width options
         |defcomp $ quote
           defmacro defcomp (comp-name args & body)
             quote-replace $ defn ~comp-name ~args
@@ -312,8 +305,9 @@
                 :render $ fn (dict)
                   g position
                     touch-area :slide cursor $ {} (:radius 8)
-                      :fill-color $ [] 0 80 40
+                      :fill-color $ [] 0 80 70
                       :position $ [] 20 20
+                      :line-color $ [] 0 0 100
                     text
                       str (:title options) "\": " $ format-number value (:precision options)
                       {}
@@ -550,7 +544,7 @@
                           rad-point $ * &PI r1 x
                     {}
                       :position $ [] 360 280
-                      :color $ [] 0 30 30
+                      :color $ [] 0 30 80
                       :width 2
                       :cap :round
                       :join :round
