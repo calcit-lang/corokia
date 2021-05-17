@@ -70,7 +70,8 @@
               merge (first xs)
                 {} (:type :ops)
                   :ops $ rest xs
-              {} (:type :ops) (:ops xs)
+              {} (:type :ops) (:path xs) (:line-width 1)
+                :line-color $ [] 0 80 80
         |key-listener $ quote
           defn key-listener (key action path ? arg)
             {} (:type :key-listener) (:key key) (:path path) (:action action) (:data arg)
@@ -421,7 +422,7 @@
     |corokia.comp.container $ {}
       :ns $ quote
         ns corokia.comp.container $ :require
-          [] corokia.core :refer $ [] g >> defcomp circle rect text touch-area key-listener polyline
+          [] corokia.core :refer $ [] g >> defcomp circle rect text touch-area key-listener polyline ops
           [] corokia.comp :refer $ [] comp-drag-point comp-slider comp-arrow comp-tabs
           [] corokia.complex :refer $ [] c+ c- c* rad-point
           [] memof.alias :refer $ [] memof-call
@@ -494,6 +495,14 @@
                           :position $ [] 100 150
                           :fill-color $ [] 0 0 100 0.4
                           :line-color $ [] 200 80 90
+                    ops $ {}
+                      :path $ [][]
+                        :cubic-bezier-to ([] 30 40) ([] 130 40) ([] 30 240)
+                        :cubic-bezier-to ([] 70 40) ([] 130 80) ([] 20 40)
+                      :position $ [] 100 0
+                      :line-width 1
+                      :line-color $ [] 300 80 80
+                      :fill-color $ [] 0 0 100 0.2
                 :actions $ {}
         |comp-demo-cycloid $ quote
           defcomp comp-demo-cycloid () $ {}
