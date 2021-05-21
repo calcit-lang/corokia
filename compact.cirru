@@ -31,7 +31,7 @@
               op store
         |main! $ quote
           defn main! () (render-page)
-            add-watch *store :change $ fn (v v0) (println "\"rerender page") (render-page)
+            add-watch *store :change $ fn (v v0) (; println "\"rerender page") (render-page)
             echo "\"app started."
         |on-window-event $ quote
           defn on-window-event (event) (handle-tree-event event dispatch!)
@@ -69,7 +69,7 @@
               map? $ first xs
               merge (first xs)
                 {} (:type :ops)
-                  :ops $ rest xs
+                  :path $ rest xs
               {} (:type :ops) (:path xs) (:line-width 1)
                 :line-color $ [] 0 80 80
         |key-listener $ quote
@@ -95,7 +95,7 @@
                     info $ track-overcost 40
                       get-shape-tree $ deref *tree-state
                     ; with-log info
-                    track-overcost 40 $ draw-canvas info
+                    track-overcost 40 $ draw-canvas! info
                 (and (some? path) (some? (:action e)))
                   let
                       data-path $ concat &
@@ -258,7 +258,7 @@
                   g
                     {} $ :position position
                     touch-area :drag cursor $ merge
-                      {} (:radius 12)
+                      {} (:radius 8)
                         :fill-color $ [] 20 80 90
                       , options
                     let
@@ -331,7 +331,7 @@
             let
                 options $ either arg ({})
                 cursor $ :cursor states
-                defaults $ {} (:radius 8) (:render-text false)
+                defaults $ {} (:radius 6) (:render-text false)
                 state $ either (:data states) ({})
                 direction $ c- from to
                 length $ c-length direction
@@ -357,14 +357,14 @@
                     {} $ :position (:position options)
                     get dict :from
                     get dict :to
-                    ops ([] :move-to from) ([] :line-to to)
+                    ops
+                      {} (:line-width 1)
+                        :line-color $ [] 0 0 100
+                      [] :line-to from
+                      [] :line-to to
                       [] :line-to $ c+ to branch-a
-                      [] :move-to to
+                      [] :line-to to
                       [] :line-to $ c+ to branch-b
-                      [] :hsl $ [] 0 0 100
-                      [] :line-width $ either (:line-width options) 1
-                      [] :hsl $ either (:line-color options) ([] 0 0 100)
-                      [] :stroke
         |c-length $ quote
           defn c-length (point)
             assert "\"point in a list" $ and (list? point)
@@ -668,10 +668,9 @@
               quote-replace $ let
                   ~started $ cpu-time
                   ~result ~expr
-                  ~cost $ &* 1000
-                    &- (cpu-time) ~started
+                  ~cost $ &- (cpu-time) ~started
                 if (&> ~cost ~threshold)
-                  echo "\"[corokia Time]" (quote ~expr) |=> (format-number ~cost 3) |ms
+                  echo "\"[corokia time]" (quote ~expr) |=> (format-number ~cost 3) |ms
                 , ~result
       :proc $ quote ()
       :configs $ {}
