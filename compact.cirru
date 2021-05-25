@@ -65,13 +65,13 @@
                 , data
         |ops $ quote
           defn ops (& xs)
-            if
-              map? $ first xs
-              merge (first xs)
-                {} (:type :ops)
-                  :path $ rest xs
-              {} (:type :ops) (:path xs) (:line-width 1)
-                :line-color $ [] 0 80 80
+            let
+                options $ first xs
+              if (map? options)
+                merge options $ {} (:type :ops)
+                  :path $ either (:path options) (rest xs)
+                {} (:type :ops) (:path xs) (:line-width 1)
+                  :line-color $ [] 0 80 80
         |key-listener $ quote
           defn key-listener (key action path ? arg)
             {} (:type :key-listener) (:key key) (:path path) (:action action) (:data arg)
@@ -95,7 +95,7 @@
                     info $ track-overcost 40
                       get-shape-tree $ deref *tree-state
                     ; with-log info
-                    track-overcost 40 $ draw-canvas! info
+                    track-overcost 40 $ &ffi-message "\"render-canvas!" info
                 (and (some? path) (some? (:action e)))
                   let
                       data-path $ concat &
@@ -360,7 +360,7 @@
                     ops
                       {} (:line-width 1)
                         :line-color $ [] 0 0 100
-                      [] :line-to from
+                      [] :move-to from
                       [] :line-to to
                       [] :line-to $ c+ to branch-a
                       [] :line-to to
@@ -497,8 +497,8 @@
                           :line-color $ [] 200 80 90
                     ops $ {}
                       :path $ [][]
-                        :cubic-bezier-to ([] 30 40) ([] 130 40) ([] 30 240)
-                        :cubic-bezier-to ([] 70 40) ([] 130 80) ([] 20 40)
+                        :bezier3-to ([] 30 40) ([] 130 40) ([] 30 240)
+                        :bezier3-to ([] 70 40) ([] 130 80) ([] 20 40)
                       :position $ [] 100 0
                       :line-width 1
                       :line-color $ [] 300 80 80
