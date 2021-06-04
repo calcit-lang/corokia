@@ -4,17 +4,13 @@ Corokia in Calcit
 
 ### Usages
 
-Using `cr` binary built from [Calcit Runner](http://github.com/Cirru/calcit-runner.nim):
+To run:
 
 ```bash
-cr
+calcit_paint --event-entry=corokia.main/on-window-event
 ```
 
-Edit with [Calcit Editor](https://github.com/Cirru/calcit-editor):
-
-```bash
-ce
-```
+Notice that it would look for a `resources/SourceCodePro-Medium.ttf`(TODO) for font at current.
 
 ### Component
 
