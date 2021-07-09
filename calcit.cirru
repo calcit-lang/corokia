@@ -1429,7 +1429,7 @@
                       |D $ {} (:type :leaf) (:by |u0) (:at 1605772438306) (:text |defn)
                       |L $ {} (:type :leaf) (:by |u0) (:at 1608558209556) (:text |~comp-name)
                       |P $ {} (:type :leaf) (:by |u0) (:at 1608558213906) (:text |~args)
-                  |D $ {} (:type :leaf) (:by |u0) (:at 1605759868754) (:text |quote-replace)
+                  |D $ {} (:type :leaf) (:by |u0) (:at 1625807393236) (:text |quasiquote)
         :proc $ {} (:type :expr) (:by |u0) (:at 1605513215399)
           :data $ {}
         :configs $ {}
@@ -2015,7 +2015,7 @@
                                           |T $ {} (:type :leaf) (:by |u0) (:at 1606283238611) (:text |str)
                                           |r $ {} (:type :expr) (:by |u0) (:at 1606283238611)
                                             :data $ {}
-                                              |T $ {} (:type :leaf) (:by |u0) (:at 1606283238611) (:text |format-number)
+                                              |T $ {} (:type :leaf) (:by |u0) (:at 1625807449121) (:text |.format)
                                               |r $ {} (:type :expr) (:by |u0) (:at 1606400957115)
                                                 :data $ {}
                                                   |T $ {} (:type :leaf) (:by |u0) (:at 1606400957115) (:text |:precision)
@@ -2723,7 +2723,7 @@
                                                             :data $ {}
                                                               |T $ {} (:type :leaf) (:by |u0) (:at 1606843178510) (:text |str)
                                                               |j $ {} (:type :leaf) (:by |u0) (:at 1606843193774) (:text |info)
-                                                          |D $ {} (:type :leaf) (:by |u0) (:at 1606843260296) (:text |substr)
+                                                          |D $ {} (:type :leaf) (:by |u0) (:at 1625807441244) (:text |.slice)
                                                           |j $ {} (:type :leaf) (:by |u0) (:at 1606843254713) (:text |1)
                                                       |v $ {} (:type :expr) (:by |u0) (:at 1608705644025)
                                                         :data $ {}
@@ -4610,7 +4610,7 @@
                               |j $ {} (:type :leaf) (:by |u0) (:at 1608050109894) (:text ||cost)
                   |r $ {} (:type :expr) (:by |u0) (:at 1608050021472)
                     :data $ {}
-                      |T $ {} (:type :leaf) (:by |u0) (:at 1608050027333) (:text |quote-replace)
+                      |T $ {} (:type :leaf) (:by |u0) (:at 1625807360551) (:text |quasiquote)
                       |j $ {} (:type :expr) (:by |u0) (:at 1608050028220)
                         :data $ {}
                           |T $ {} (:type :leaf) (:by |u0) (:at 1608050031679) (:text |let)
@@ -4657,7 +4657,7 @@
                                   |x $ {} (:type :leaf) (:by |u0) (:at 1608050183280) (:text ||ms)
                                   |w $ {} (:type :expr) (:by |u0) (:at 1608050185166)
                                     :data $ {}
-                                      |T $ {} (:type :leaf) (:by |u0) (:at 1608050191367) (:text |format-number)
+                                      |T $ {} (:type :leaf) (:by |u0) (:at 1625807409126) (:text |.format)
                                       |j $ {} (:type :leaf) (:by |u0) (:at 1608557363805) (:text |~cost)
                                       |r $ {} (:type :leaf) (:by |u0) (:at 1608050203596) (:text |3)
                   |n $ {} (:type :expr) (:by |u0) (:at 1608050444429)

@@ -184,7 +184,7 @@
                 :line-width $ :line-width options
         |defcomp $ quote
           defmacro defcomp (comp-name args & body)
-            quote-replace $ defn ~comp-name ~args
+            quasiquote $ defn ~comp-name ~args
               merge
                 {} (:type :comp)
                   :name $ ~ (turn-keyword comp-name)
@@ -310,7 +310,7 @@
                       :position $ [] 20 20
                       :line-color $ [] 0 0 100
                     text
-                      str (:title options) "\": " $ format-number value (:precision options)
+                      str (:title options) "\": " $ .format value (:precision options)
                       {}
                         :color $ [] 0 0 100 0.7
                         :position $ [] 12 0
@@ -404,7 +404,7 @@
                           :fill-color $ :fill-color options
                           :line-color $ :line-color options
                         text
-                          substr (str info) 1
+                          .slice (str info) 1
                           {} (:align :center)
                             :position $ [] 0 0
                             :size $ :font-size options
@@ -665,12 +665,12 @@
                 result $ gensym |result
                 cost $ gensym |cost
               assert "\"expects number for threshold" $ number? threshold
-              quote-replace $ let
+              quasiquote $ let
                   ~started $ cpu-time
                   ~result ~expr
                   ~cost $ &- (cpu-time) ~started
                 if (&> ~cost ~threshold)
-                  echo "\"[corokia time]" (quote ~expr) |=> (format-number ~cost 3) |ms
+                  echo "\"[corokia time]" (quote ~expr) |=> (.format ~cost 3) |ms
                 , ~result
       :proc $ quote ()
       :configs $ {}
