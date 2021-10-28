@@ -1,13 +1,11 @@
-
-Corokia in Calcit
-----
+## Corokia in Calcit
 
 ### Usages
 
 To run:
 
 ```bash
-calcit_paint --event-entry=corokia.main/on-window-event
+cr
 ```
 
 Notice that it would look for a `resources/SourceCodePro-Medium.ttf`(TODO) for font at current.
