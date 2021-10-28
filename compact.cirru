@@ -1,8 +1,8 @@
 
 {} (:package |corokia)
   :configs $ {} (:init-fn |corokia.main/main!) (:reload-fn |corokia.main/reload!)
-    :modules $ [] |memof/compact.cirru |lilac/compact.cirru
-    :version |0.2.1
+    :modules $ [] |memof/compact.cirru |lilac/compact.cirru |calcit-paint/
+    :version |0.2.2
   :files $ {}
     |corokia.comp.container $ {}
       :ns $ quote
@@ -422,10 +422,11 @@
     |corokia.core $ {}
       :ns $ quote
         ns corokia.core $ :require
-          [] corokia.util :refer $ [] track-overcost
+          corokia.util :refer $ [] track-overcost
+          calcit-paint.core :refer $ push-drawing-data!
       :defs $ {}
         |handle-tree-event $ quote
-          defn handle-tree-event (e dispatch!) (; echo "\"get event:" e)
+          defn handle-tree-event (e dispatch!)
             let
                 path $ :path e
               cond
@@ -434,7 +435,7 @@
                     info $ track-overcost 40
                       get-shape-tree $ deref *tree-state
                     ; with-log info
-                    track-overcost 40 $ &ffi-message "\"render-canvas!" info
+                    track-overcost 40 $ push-drawing-data! "\"render-canvas!" info
                 (and (some? path) (some? (:action e)))
                   let
                       data-path $ concat &
@@ -456,8 +457,8 @@
               &let
                 info $ track-overcost 40 (get-shape-tree tree)
                 ; with-log info
-                &ffi-message "\"reset-canvas!" $ [] 200 80 30
-                track-overcost 40 $ &ffi-message "\"render-canvas!" info
+                push-drawing-data! "\"reset-canvas!" $ [] 200 80 30
+                track-overcost 40 $ push-drawing-data! "\"render-canvas!" info
         |defcomp $ quote
           defmacro defcomp (comp-name args & body)
             quasiquote $ defn ~comp-name ~args
@@ -591,6 +592,7 @@
           [] corokia.core :refer $ [] render-app! >> handle-tree-event update-states
           [] corokia.comp.container :refer $ [] comp-container
           [] memof.alias :refer $ [] tick-calling-loop! reset-calling-caches!
+          calcit-paint.core :refer $ launch-canvas!
       :defs $ {}
         |render-page $ quote
           defn render-page ()
@@ -600,6 +602,7 @@
           defn main! () (render-page)
             add-watch *store :change $ fn (v v0) (; println "\"rerender page") (render-page)
             echo "\"app started."
+            launch-canvas! $ fn (event) (handle-tree-event event dispatch!)
         |*store $ quote
           defatom *store $ {}
             :states $ {}
@@ -611,8 +614,6 @@
             if (list? op)
               recur :states $ [] op data
               swap! *store updater op data
-        |on-window-event $ quote
-          defn on-window-event (event) (handle-tree-event event dispatch!)
         |updater $ quote
           defn updater (store op data)
             case op
