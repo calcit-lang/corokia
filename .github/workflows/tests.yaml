@@ -22,6 +22,11 @@ jobs:
           deps-file: deps.cirru
           tools: calcit,caps
 
+      - name: Install calcit-paint system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes libfontconfig1-dev libfreetype6-dev
+
       - name: Install modules
         run: caps --strict --ci
 
