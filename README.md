@@ -12,7 +12,9 @@ an equivalent release tag is available.
 Install dependencies, validate the Snapshot, and run the pure test suite:
 
 ```bash
-caps --strict --ci
+# Temporary while calcit-paint is pinned to the reviewed 0.13.77 commit:
+caps --ci
+caps verify
 test "$(calcit -v)" = "0.13.77"
 calcit calcit.cirru edit format
 git diff --exit-code -- calcit.cirru
@@ -24,6 +26,9 @@ calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --for
 
 Run `calcit calcit.cirru` to launch the native canvas application in a graphical
 desktop session.
+
+Restore `caps --strict --ci` after switching calcit-paint back to a compatible
+SemVer release tag.
 
 Notice that it would look for a `resources/SourceCodePro-Medium.ttf` (TODO) for
 the current font.

@@ -28,7 +28,10 @@ jobs:
           sudo apt-get install --yes libfontconfig1-dev libfreetype6-dev
 
       - name: Install modules
-        run: caps --strict --ci
+        run: |
+          # calcit-paint is an exact reviewed commit until its 0.13.77 tag ships.
+          caps --ci
+          caps verify
 
       - name: Validate Calcit
         run: |
