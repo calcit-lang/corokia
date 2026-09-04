@@ -1,14 +1,32 @@
 ## Corokia in Calcit
 
+Status: experimental. This repository now targets Calcit 0.13.77. Its package
+version remains 0.2.3 because this migration does not publish a new release.
+
+The dependency on `calcit-lang/calcit-paint` temporarily uses exact commit
+`e4429f3310786a1a05dca5afbbd14e60b742527a`, the merged 0.13.77 upgrade, until
+an equivalent release tag is available.
+
 ### Usages
 
-To run:
+Install dependencies, validate the Snapshot, and run the pure test suite:
 
 ```bash
-cr
+caps --strict --ci
+test "$(calcit -v)" = "0.13.77"
+calcit calcit.cirru edit format
+git diff --exit-code -- calcit.cirru
+calcit calcit.cirru --check-only
+calcit calcit.cirru --warn-dyn-method --check-only
+calcit calcit.cirru test --summary-only --format json
+calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
 ```
 
-Notice that it would look for a `resources/SourceCodePro-Medium.ttf`(TODO) for font at current.
+Run `calcit calcit.cirru` to launch the native canvas application in a graphical
+desktop session.
+
+Notice that it would look for a `resources/SourceCodePro-Medium.ttf` (TODO) for
+the current font.
 
 ### Component
 
