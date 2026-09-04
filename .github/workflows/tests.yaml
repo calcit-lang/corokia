@@ -11,7 +11,11 @@ permissions:
 
 jobs:
   test:
+    name: Calcit 0.13.77 validation
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
