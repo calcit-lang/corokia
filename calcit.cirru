@@ -3,10 +3,7 @@
   :about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `calcit query` to inspect and `calcit edit`/`calcit tree` to modify. Run `calcit docs agents --contract` before mutations; use `--full` for first orientation or changed contract digest. Manual edits must follow format and schema conventions, then run `calcit edit format`."
   :package |corokia
   :entries $ {} $ :default
-    {} (:description |)
-      :init-fn 'corokia.main/main!
-      :mode :native
-      :reload-fn 'corokia.main/reload!
+    {} (:description |) (:init-fn 'corokia.main/main!) (:mode :native) (:reload-fn 'corokia.main/reload!)
       :feature-policy $ {}
       :modules $ [] |calcit-paint/ |memof/ |lilac/
       :type-slots $ {}
@@ -35,15 +32,15 @@
                   , .unwrap
               sqrt $ &+ (pow x 2) (pow y 2)
           :examples $ []
-          :schema $ :: 'Dynamic
-          :tests $ [] $ %{} 'TestEntry
-            :name |computes-three-four-five
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] $ :: 'List 'Number
+          :tests $ [] $ %{} 'TestEntry (:name |computes-three-four-five)
             :code $ quote $ assert= 5
               c-length $ [] 3 4
         'comp-arrow $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-arrow (states from to on-change ? arg)
+          :code $ quote $ defcomp comp-arrow (states from to on-change arg)
             let
-                options $ either arg $ {}
+                options $ .unwrap-or arg $ {}
                 cursor $ open-field states :cursor
                 defaults $ {} (:radius 6) (:render-text false)
                 state $ either (open-field states :data) ({})
@@ -58,10 +55,10 @@
                 :children $ {}
                   :from $ comp-drag-point (>> states :from) from
                     fn (point d!) (on-change point to d!)
-                    merge defaults options
+                    %some $ merge defaults options
                   :to $ comp-drag-point (>> states :to) to
                     fn (point d!) (on-change from point d!)
-                    merge defaults options
+                    %some $ merge defaults options
                 :actions $ {}
                 :render $ fn (dict)
                   g
@@ -77,14 +74,15 @@
                       [] :line-to to
                       [] :line-to $ c+ to branch-b
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+            :args $ [] 'Dynamic (:: 'List 'Number) (:: 'List 'Number) 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
         'comp-drag-point $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-drag-point (states position on-change ? arg)
+          :code $ quote $ defcomp comp-drag-point (states position on-change arg)
             let
                 cursor $ either (open-field states :cursor) ([])
                 state $ either (open-field states :data)
                   {} $ :initial-position position
-                options $ either arg $ {}
+                options $ .unwrap-or arg $ {}
               assert "|expects states" $ map? states
               assert "|expects position in a list" $ list? position
               assert "|expects on-change function" $ fn? on-change
@@ -93,7 +91,7 @@
                 :render $ fn (dict)
                   g
                     {} $ :position position
-                    touch-area :drag cursor $ merge
+                    touch-area :drag cursor $ %some $ merge
                       {} (:radius 8)
                         :fill-color $ [] 20 80 90
                       , options
@@ -105,9 +103,10 @@
                           (= renderer false) nil
                           true $ str "|(" (first position) |, (last position) "|)"
                       if (some? content)
-                        text content $ merge options $ {}
-                          :color $ either (open-field options :font-color) ([] 0 0 100 0.7)
-                          :position $ [] 16 0
+                        text content $ %some $ merge options
+                          {}
+                            :color $ either (open-field options :font-color) ([] 0 0 100 0.7)
+                            :position $ [] 16 0
                 :actions $ {} $ :drag
                   fn (e d!)
                     &let
@@ -116,22 +115,22 @@
                         d! cursor $ assoc state :initial-position position
                       when (= :mouse-move t)
                         on-change
-                          c+
-                            open-field state :initial-position
+                          c+ (open-field state :initial-position)
                             []
                               either (open-field e :dx) 0
                               either (open-field e :dy) 0
                           , d!
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+            :args $ [] 'Dynamic (:: 'List 'Number) 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
         'comp-slider $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-slider (states value on-change ? arg)
+          :code $ quote $ defcomp comp-slider (states value on-change arg)
             let
                 cursor $ open-field states :cursor
                 options $ merge-non-nil
                   {} (:precision 2) (:unit 1) (:title |Slider)
                     :position $ [] 0 0
-                  , arg
+                  .unwrap-or arg $ {}
                 position $ open-field options :position
                 state $ either (open-field states :data)
                   {} (:v0 nil) (:x0 nil)
@@ -143,13 +142,13 @@
                 :children $ {}
                 :render $ fn (dict)
                   g position
-                    touch-area :slide cursor $ {} (:radius 8)
+                    touch-area :slide cursor $ %some $ {} (:radius 8)
                       :fill-color $ [] 0 80 70
                       :position $ [] 20 20
                       :line-color $ [] 0 0 100
                     text
-                      str (open-field options :title) "|: " $ .format (assert-type value 'Number) (open-field options :precision)
-                      {}
+                      str (open-field options :title) "|: " $ &number:format (assert-type value 'Number) (open-field options :precision)
+                      %some $ {}
                         :color $ [] 0 0 100 0.7
                         :position $ [] 12 0
                 :actions $ {} $ :slide
@@ -164,9 +163,10 @@
                       :mouse-down $ d! cursor $ -> state (assoc :v0 value)
                         assoc :x0 $ open-field e :x
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+            :args $ [] 'Dynamic 'Number 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
         'comp-tabs $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-tabs (states tab tabs on-change ? arg)
+          :code $ quote $ defcomp comp-tabs (states tab tabs on-change arg)
             let
                 cursor $ open-field states :cursor
                 options $ merge
@@ -175,7 +175,7 @@
                     :fill-color $ [] 0 0 100 0.2
                     :line-color $ [] 0 0 50
                     :font-size 13
-                  either arg $ {}
+                  .unwrap-or arg $ {}
                 dx $ either (open-field options :dx) 40
                 dy $ either (open-field options :dy) 12
               {}
@@ -187,12 +187,12 @@
                         {} $ :position $ []
                           &+ dx $ &* idx $ &+ 12 (&* 2 dx)
                           , 20
-                        touch-area :select cursor $ {} (:data info) (:dx dx) (:dy dy)
+                        touch-area :select cursor $ %some $ {} (:data info) (:dx dx) (:dy dy)
                           :fill-color $ open-field options :fill-color
                           :line-color $ open-field options :line-color
                         text
-                          .slice (str info) 1
-                          {} (:align :center)
+                          &str:slice (str info) 1 $ count $ str info
+                          %some $ {} (:align :center)
                             :position $ [] 0 0
                             :size $ open-field options :font-size
                             :font-face $ open-field options :font-face
@@ -205,7 +205,8 @@
                         turn-tag $ open-field e :data
                         , d!
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+            :args $ [] 'Dynamic 'Dynamic (:: 'List 'Dynamic) 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.comp
           :require
@@ -232,8 +233,7 @@
                     fn (new-tab d!)
                       d! cursor $ assoc state :tab new-tab
                   :rotate $ if (= tab :rotate) (memof1-call comp-demo-rotate)
-                  :cycloid $ if (= tab :cycloid)
-                    memof1-call comp-demo-cycloid
+                  :cycloid $ if (= tab :cycloid) (memof1-call comp-demo-cycloid)
                   :drag-demo $ if (= tab :drag-demo)
                     comp-drag-demo $ >> states :drag-demo
                   :slider $ if (= tab :slider)
@@ -241,18 +241,13 @@
                       either (open-field state :slider-v) 10
                       fn (v d!) (; println "|slider change:" v)
                         d! cursor $ assoc state :slider-v v
-                      {} (:unit 0.1)
+                      %some $ {} (:unit 0.1)
                         :position $ [] 0 40
                         :title |demo
                   :keydown $ if (= tab :keydown)
                     comp-keydown $ >> states :keydown
                   :image $ if (= tab :image)
-                    image $ {}
-                      :file-path |assets/calcit.png
-                      :x 100
-                      :y 200
-                      :w 100
-                      :h 100
+                    image $ {} (:file-path |assets/calcit.png) (:x 100) (:y 200) (:w 100) (:h 100)
                 :render $ fn (dict)
                   g ({}) (get dict :tabs)
                     g
@@ -278,18 +273,18 @@
                 :render $ fn (dict)
                   g
                     {} $ :position $ [] 0 (* x 30)
-                    touch-area :dec cursor $ {} (:radius 10)
+                    touch-area :dec cursor $ %some $ {} (:radius 10)
                       :fill-color $ [] 200 80 90
-                    touch-area :inc cursor $ {} (:radius 10)
+                    touch-area :inc cursor $ %some $ {} (:radius 10)
                       :position $ [] 80 0
                       :fill-color $ [] 200 80 90
-                    text |- $ {} (:align :center)
+                    text |- $ %some $ {} (:align :center)
                       :position $ [] 0 0
                     text
                       str x |: $ open-field state :count
-                      {} (:align :center)
+                      %some $ {} (:align :center)
                         :position $ [] 40 0
-                    text |+ $ {} (:align :center)
+                    text |+ $ %some $ {} (:align :center)
                       :position $ [] 80 0
                 :actions $ {}
                   :inc $ fn (e d!)
@@ -299,7 +294,7 @@
                   :dec $ fn (e d!)
                     when
                       = (open-field e :type) :mouse-down
-                      d! cursor $ update state :count $ \ - % 1
+                      d! cursor $ update state :count dec
           :examples $ []
           :schema $ :: 'Dynamic
         'comp-data-list $ %{} 'CodeEntry (:doc |)
@@ -311,27 +306,28 @@
               {}
                 :children $ merge $ -> (range 3)
                   map $ fn (x)
-                    [] (str |task- x)
+                    []
+                      turn-tag $ str |task- x
                       comp-counter
-                        >> states $ str |task- x
+                        >> states $ turn-tag $ str |task- x
                         , x
                   pairs-map
                 :render $ fn (dict)
                   g ({})
                     text
                       str "|Size: " $ open-field state :size
-                      {} (:align :center)
+                      %some $ {} (:align :center)
                         :position $ [] 20 20
                     g ([] 40 60) & $ -> (range 3)
                       map $ fn (x)
-                        get dict $ str |task- x
+                        get dict $ turn-tag $ str |task- x
                     g ({})
-                      circle 20 $ {}
+                      circle 20 $ %some $ {}
                         :fill-color $ [] 0 0 100 0.4
                         :line-color $ [] 200 80 90
                         :position $ [] 100 200
                       rect ([] 40 40)
-                        {}
+                        %some $ {}
                           :position $ [] 100 150
                           :fill-color $ [] 0 0 100 0.4
                           :line-color $ [] 200 80 90
@@ -369,7 +365,7 @@
                               rad-point $ * v x
                             c* ([] r2 0)
                               rad-point $ * v2 x
-                      {}
+                      %some $ {}
                         :position $ [] 300 300
                         :color $ [] 0 80 60
                         :width 2
@@ -397,7 +393,7 @@
                               + b0 $ * r0 x
                               , 0
                             rad-point $ * &PI r1 x
-                      {}
+                      %some $ {}
                         :position $ [] 360 280
                         :color $ [] 0 30 80
                         :width 2
@@ -421,11 +417,11 @@
                     either (open-field state :p) ([] 0 0)
                     fn (new-position d!)
                       d! cursor $ assoc state :p new-position
-                    {}
+                    %some $ {}
                   :arrow $ comp-arrow (>> states :arrow) (open-field state :from) (open-field state :to)
                     fn (from to d!)
                       d! cursor $ -> state (assoc :from from) (assoc :to to)
-                    {}
+                    %some $ {}
                       :line-color $ [] 200 80 70
                       :line-width 2
                 :actions $ {}
@@ -448,7 +444,7 @@
                   g ({})
                     text
                       str "|press up times..: " $ open-field state :times
-                      {} $ :position $ [] 100 100
+                      %some $ {} $ :position ([] 100 100)
                     key-listener |Up :inc cursor
                     key-listener |Down :dec cursor
                 :actions $ {}
@@ -459,7 +455,7 @@
                   :dec $ fn (e d!)
                     if
                       = :key-down $ open-field e :type
-                      d! cursor $ update state :times $ \ &- % 1
+                      d! cursor $ update state :times dec
           :examples $ []
           :schema $ :: 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
@@ -493,9 +489,10 @@
                     , .unwrap
                   (first p2) .unwrap
           :examples $ []
-          :schema $ :: 'Dynamic
-          :tests $ [] $ %{} 'TestEntry
-            :name |multiplies-complex-pairs
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'List 'Number) (:: 'List 'Number)
+            :return $ :: 'List 'Number
+          :tests $ [] $ %{} 'TestEntry (:name |multiplies-complex-pairs)
             :code $ quote $ assert= ([] -5 10)
               c* ([] 1 2) ([] 3 4)
         'c+ $ %{} 'CodeEntry (:doc |)
@@ -510,7 +507,9 @@
                   , .unwrap
                 (last p2) .unwrap
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'List 'Number) (:: 'List 'Number)
+            :return $ :: 'List 'Number
           :tests $ [] $ %{} 'TestEntry (:name |adds-pairs)
             :code $ quote $ assert= ([] 4 6)
               c+ ([] 1 2) ([] 3 4)
@@ -526,7 +525,9 @@
                   , .unwrap
                 (last p2) .unwrap
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'List 'Number) (:: 'List 'Number)
+            :return $ :: 'List 'Number
           :tests $ [] $ %{} 'TestEntry (:name |subtracts-pairs)
             :code $ quote $ assert= ([] -2 -2)
               c- ([] 1 2) ([] 3 4)
@@ -534,7 +535,9 @@
           :code $ quote $ defn rad-point (x)
             [] (cos x) (sin x)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'Number
+            :return $ :: 'List 'Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.complex
     'corokia.core $ %{} 'FileEntry
@@ -542,7 +545,7 @@
         '*tree-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defatom *tree-state nil
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Ref 'Dynamic
         '>> $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn >> (states k)
             let
@@ -552,16 +555,18 @@
                 either branch $ {}
                 , :cursor $ append parent-cursor k
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Tag
+            :return $ :: 'Map 'Tag 'Dynamic
         'circle $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn circle (radius ? arg)
+          :code $ quote $ defn circle (radius arg)
             let
                 options $ merge
                   {}
                     :fill-color $ [] 0 0 100 0.3
                     :line-color $ [] 0 0 100 0.8
                     :line-width 1
-                  , arg
+                  .unwrap-or arg $ {}
               {} (:type :circle)
                 :position $ either (open-field options :position) ([] 0 0)
                 :radius radius
@@ -569,7 +574,9 @@
                 :line-color $ open-field options :line-color
                 :line-width $ open-field options :line-width
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'Number $ :: 'Option (:: 'Map 'Tag 'Dynamic)
+            :return $ :: 'Map 'Tag 'Dynamic
         'defcomp $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defmacro defcomp (comp-name args & body)
             quasiquote $ defn ~comp-name ~args $ merge
@@ -578,23 +585,18 @@
               let
                   ret $ do ~@body
                   c $ quote ~comp-name
-                assert
-                  str "|component returns a map for component: " c
-                  map? ret
-                assert
-                  str "|expects a :render field in function: " c
+                assert (str "|component returns a map for component: " c) (map? ret)
+                assert (str "|expects a :render field in function: " c)
                   and (contains? ret :render)
                     fn? $
                       get ret :render
                       , .unwrap
-                assert
-                  str "|expects a :children field in map in:" c
+                assert (str "|expects a :children field in map in:" c)
                   and (contains? ret :children)
                     map? $
                       get ret :children
                       , .unwrap
-                assert
-                  str "|expects an :actions field in map: " c
+                assert (str "|expects an :actions field in map: " c)
                   and (contains? ret :actions)
                     map? $
                       get ret :actions
@@ -619,20 +621,34 @@
           :code $ quote $ defn g (props & xs)
             if (list? props)
               {} (:type :group) (:position props) (:children xs)
-              merge props $ {} (:type :group) (:children xs)
+              merge
+                assert-type props $ :: 'Map 'Tag 'Dynamic
+                {} (:type :group) (:children xs)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:rest 'Dynamic)
+            :args $ [] 'Dynamic
+            :return $ :: 'Map 'Tag 'Dynamic
+        'get-in-dynamic $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn get-in-dynamic (data path)
+            if (empty? path) (%some data)
+              .and-then
+                get data $ .unwrap $ first path
+                fn (child)
+                  get-in-dynamic child $ rest path
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'Dynamic $ :: 'List 'Dynamic
+            :return $ :: 'Option 'Dynamic
         'get-shape-tree $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn get-shape-tree (tree)
             if (nil? tree) nil $ case-default (open-field tree :type) tree
-              nil $ do
-                echo "|nil type from tree:" tree
-                , nil
+              nil $ do (echo "|nil type from tree:" tree) nil
               :group $ if (open-field tree :pure-shape?) tree $ update tree :children
                 fn (xs) (map xs get-shape-tree)
               :component $ get-shape-tree $ open-field tree :tree
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Dynamic)
+            :args $ [] 'Dynamic
         'handle-tree-event $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn handle-tree-event (e dispatch!)
             let
@@ -646,14 +662,15 @@
                 (and (some? path) (some? (open-field e :action)))
                   let
                       data-path $ concat & $ -> path
-                        map $ \ [] :children %
+                        map $ fn (x) ([] :children x)
                       target-component $
-                        get-in (deref *tree-state) data-path
+                        get-in-dynamic (deref *tree-state) data-path
                         , .unwrap-or nil
-                      actions $ either (open-field target-component :actions) ({})
+                      actions $ assert-type
+                        either (open-field target-component :actions) ({})
+                        :: 'Map 'Tag 'Dynamic
                     ; echo e
-                    if (nil? target-component)
-                      echo "|WARNING: cannot find target component:" data-path
+                    if (nil? target-component) (echo "|WARNING: cannot find target component:" data-path)
                       let
                           listener $ open-field actions $ open-field e :action
                         if (nil? listener)
@@ -663,16 +680,21 @@
                         ; echo $ deref *tree-state
                 true &unit
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'Dynamic 'Dynamic
         'image $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn image (options) (assoc options :type :image)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] $ :: 'Map 'Tag 'Dynamic
+            :return $ :: 'Map 'Tag 'Dynamic
         'key-listener $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn key-listener (key action path ? arg)
+          :code $ quote $ defn key-listener (key action path arg)
             {} (:type :key-listener) (:key key) (:path path) (:action action) (:data arg)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'Dynamic 'Tag (:: 'List 'Dynamic) (:: 'Option 'Dynamic)
+            :return $ :: 'Map 'Tag 'Dynamic
         'open-field $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn open-field (data field)
             (get data field) .unwrap-or nil
@@ -680,14 +702,12 @@
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ [] 'Dynamic 'Tag
           :tests $ []
-            %{} 'TestEntry
-              :name |preserves-missing-as-nil
+            %{} 'TestEntry (:name |preserves-missing-as-nil)
               :code $ quote $ assert= nil
                 open-field
                   {} $ :x 1
                   , :missing
-            %{} 'TestEntry
-              :name |reads-present-value
+            %{} 'TestEntry (:name |reads-present-value)
               :code $ quote $ assert= 1
                 open-field
                   {} $ :x 1
@@ -702,28 +722,33 @@
                 {} (:type :ops) (:path xs) (:line-width 1)
                   :line-color $ [] 0 80 80
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:rest 'Dynamic)
+            :args $ []
+            :return $ :: 'Map 'Tag 'Dynamic
         'polyline $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn polyline (stops ? arg)
+          :code $ quote $ defn polyline (stops arg)
             assert "|expects stops in list of points" $ list? stops
             let
-                options $ either arg $ {}
+                options $ .unwrap-or arg $ {}
                 position $ either (open-field options :position) ([] 0 0)
               merge-non-nil
                 {} (:line-width 1) (:line-join :round)
                   :line-color $ [] 0 0 100
                 , options $ {} (:type :polyline) (:position position) (:stops stops)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'List 'Dynamic)
+              :: 'Option $ :: 'Map 'Tag 'Dynamic
+            :return $ :: 'Map 'Tag 'Dynamic
         'rect $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn rect (sizes ? arg)
+          :code $ quote $ defn rect (sizes arg)
             let
                 options $ merge
                   {}
                     :fill-color $ [] 0 0 100 0.3
                     :line-color $ [] 0 0 100 0.8
                     :line-width 1
-                  , arg
+                  .unwrap-or arg $ {}
                 position $ either (open-field options :position) ([] 0 0)
               {} (:type :rect) (:position position)
                 :width $ first sizes
@@ -732,7 +757,10 @@
                 :line-color $ open-field options :line-color
                 :line-width $ open-field options :line-width
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'List 'Number)
+              :: 'Option $ :: 'Map 'Tag 'Dynamic
+            :return $ :: 'Map 'Tag 'Dynamic
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! (comp-tree)
             &let (tree comp-tree) (reset! *tree-state tree) (; with-log tree)
@@ -742,11 +770,12 @@
                 push-drawing-data! |reset-canvas! $ [] 200 80 30
                 track-overcost 40 $ push-drawing-data! |render-canvas! info
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'Dynamic
         'text $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn text (content ? arg)
+          :code $ quote $ defn text (content arg)
             &let
-              options $ either arg $ {}
+              options $ .unwrap-or arg $ {}
               merge options $ {} (:type :text)
                 :position $ open-field options :position
                 :text content
@@ -754,11 +783,13 @@
                 :align $ either (open-field options :align) :center
                 :size $ either (open-field options :size) 14
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'String $ :: 'Option (:: 'Map 'Tag 'Dynamic)
+            :return $ :: 'Map 'Tag 'Dynamic
         'touch-area $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn touch-area (action path ? arg)
+          :code $ quote $ defn touch-area (action path arg)
             let
-                options $ either arg $ {}
+                options $ .unwrap-or arg $ {}
               merge
                 {} (:type :touch-area)
                   :position $ open-field options :position
@@ -766,13 +797,17 @@
                   :path path
                 , options
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'Tag (:: 'List 'Dynamic)
+              :: 'Option $ :: 'Map 'Tag 'Dynamic
+            :return $ :: 'Map 'Tag 'Dynamic
         'update-states $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn update-states (store op-data)
             let
-                cursor $
-                  first op-data
-                  , .unwrap
+                cursor $ assert-type
+                    first op-data
+                    , .unwrap
+                  :: 'List 'Tag
                 data $
                   last op-data
                   , .unwrap
@@ -780,7 +815,9 @@
                 concat ([] :states) cursor $ [] :data
                 , data
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'List 'Dynamic)
+            :return $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.core
           :require
@@ -793,46 +830,47 @@
             {} $ :states $ {}
               :cursor $ []
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Ref $ :: 'Map 'Tag 'Dynamic
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op data) (; echo |dispatching: op data)
             if (list? op)
               recur :states $ [] op data
               swap! *store updater op data
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'Dynamic 'Dynamic
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (render-page)
             add-watch *store :change $ fn (v v0) (; println "|rerender page") (render-page)
             echo "|app started."
-            launch-canvas! $ fn (event)
-              handle-tree-event event dispatch!
+            launch-canvas! $ fn (event) (handle-tree-event event dispatch!)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
         'on-error $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn on-error (message)
-            draw-error-message message
+          :code $ quote $ defn on-error (message) (draw-error-message message)
           :examples $ []
           :schema $ :: 'Dynamic
         'reload! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn reload! ()
-            reset-memof1-caches!
-            println |reloaded
-            render-page
+          :code $ quote $ defn reload! () (reset-memof1-caches!) (println |reloaded) (render-page)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
         'render-page $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-page ()
             render-app! $ comp-container $ deref *store
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
         'updater $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn updater (store op data)
             case op
               :states $ update-states store data
               op store
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Tag 'Dynamic
+            :return $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.main
           :require
@@ -854,7 +892,7 @@
                   ~result ~expr
                   ~cost $ &- (cpu-time) ~started
                 if (&> ~cost ~threshold)
-                  echo "|[corokia time]" (quote ~expr) |=> (.format ~cost 3) |ms
+                  echo "|[corokia time]" (quote ~expr) |=> (&number:format ~cost 3) |ms
                 , ~result
           :examples $ []
           :schema $ :: 'Macro $ {}

@@ -72,86 +72,41 @@
       :typeNotFull 1
       :unresolved 1
       :unsafeCoerce 0
-    |corokia.comp/c-length $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
-      :typeNotFull 1
-      :unresolved 1
-      :unsafeCoerce 0
     |corokia.comp/comp-arrow $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 4
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 1
+      :unresolved 4
       :unsafeCoerce 0
     |corokia.comp/comp-drag-point $ {} (:codeDynamic 0)
       :codeNil 1
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 4
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 2
+      :unresolved 5
       :unsafeCoerce 0
     |corokia.comp/comp-slider $ {} (:codeDynamic 0)
       :codeNil 2
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 4
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 3
+      :unresolved 6
       :unsafeCoerce 0
     |corokia.comp/comp-tabs $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 6
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 1
-      :unsafeCoerce 0
-    |corokia.complex/c* $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
-      :typeNotFull 1
-      :unresolved 1
-      :unsafeCoerce 0
-    |corokia.complex/c+ $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
-      :typeNotFull 1
-      :unresolved 1
-      :unsafeCoerce 0
-    |corokia.complex/c- $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
-      :typeNotFull 1
-      :unresolved 1
-      :unsafeCoerce 0
-    |corokia.complex/rad-point $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
-      :typeNotFull 1
-      :unresolved 1
+      :unresolved 6
       :unsafeCoerce 0
     |corokia.core/*tree-state $ {} (:codeDynamic 0)
       :codeNil 1
@@ -166,19 +121,19 @@
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 2
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 1
+      :unresolved 2
       :unsafeCoerce 0
     |corokia.core/circle $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 2
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 1
+      :unresolved 2
       :unsafeCoerce 0
     |corokia.core/defcomp $ {} (:codeDynamic 0)
       :codeNil 0
@@ -193,46 +148,55 @@
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 3
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 1
+      :unresolved 3
+      :unsafeCoerce 0
+    |corokia.core/get-in-dynamic $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 3
+      :typeNone 0
+      :typeNotFull 1
+      :unresolved 3
       :unsafeCoerce 0
     |corokia.core/get-shape-tree $ {} (:codeDynamic 0)
       :codeNil 3
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 2
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 4
+      :unresolved 5
       :unsafeCoerce 0
     |corokia.core/handle-tree-event $ {} (:codeDynamic 0)
       :codeNil 1
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 2
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 2
+      :unresolved 3
       :unsafeCoerce 0
     |corokia.core/image $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 2
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 1
+      :unresolved 2
       :unsafeCoerce 0
     |corokia.core/key-listener $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 4
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 1
+      :unresolved 4
       :unsafeCoerce 0
     |corokia.core/open-field $ {} (:codeDynamic 0)
       :codeNil 1
@@ -247,35 +211,35 @@
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 2
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 1
+      :unresolved 2
       :unsafeCoerce 0
     |corokia.core/polyline $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 3
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 1
+      :unresolved 3
       :unsafeCoerce 0
     |corokia.core/rect $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 2
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 1
+      :unresolved 2
       :unsafeCoerce 0
     |corokia.core/render-app! $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
       :schemaDynamic 1
-      :typeNone 1
+      :typeNone 0
       :typeNotFull 1
       :unresolved 1
       :unsafeCoerce 0
@@ -283,28 +247,28 @@
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 2
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 1
+      :unresolved 2
       :unsafeCoerce 0
     |corokia.core/touch-area $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 3
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 1
+      :unresolved 3
       :unsafeCoerce 0
     |corokia.core/update-states $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 3
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 1
+      :unresolved 3
       :unsafeCoerce 0
     |corokia.main/*store $ {} (:codeDynamic 0)
       :codeNil 0
@@ -319,39 +283,12 @@
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 2
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 1
-      :unsafeCoerce 0
-    |corokia.main/main! $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
-      :typeNotFull 1
-      :unresolved 1
+      :unresolved 2
       :unsafeCoerce 0
     |corokia.main/on-error $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
-      :typeNotFull 1
-      :unresolved 1
-      :unsafeCoerce 0
-    |corokia.main/reload! $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
-      :typeNotFull 1
-      :unresolved 1
-      :unsafeCoerce 0
-    |corokia.main/render-page $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
@@ -364,10 +301,10 @@
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
-      :schemaDynamic 1
-      :typeNone 1
+      :schemaDynamic 3
+      :typeNone 0
       :typeNotFull 1
-      :unresolved 1
+      :unresolved 3
       :unsafeCoerce 0
     |corokia.util/track-overcost $ {} (:codeDynamic 0)
       :codeNil 0
@@ -382,10 +319,10 @@
     :codeNil 9
     :declaredOptional 0
     :deprecatedCalls 0
-    :schemaDynamic 44
-    :typeNone 37
-    :typeNotFull 42
-    :unresolved 51
+    :schemaDynamic 75
+    :typeNone 9
+    :typeNotFull 35
+    :unresolved 82
     :unsafeCoerce 0
   :scope $ {} (:includeDependencies false)
     :namespace nil
