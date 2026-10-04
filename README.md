@@ -7,15 +7,14 @@ Dependencies use published tags: calcit-paint 0.2.0, Memof 0.0.36, and Lilac
 0.5.9. The Snapshot explicitly targets native; this is a desktop canvas project,
 not a web frontend, so it has no COS/CDN deployment.
 
-Migration validation is still in progress. A successful pure test run does not
-prove that the graphical application or every public definition is validated.
-
 Current local validation on Calcit 0.28.0: strict module installation and
 toolchain verification pass; both entry functions, 43 public definitions, and
-the original six tests pass. Deprecated calls are zero. The unchanged quality
-baseline still rejects 14 regressions in open component maps and Option
-fallbacks, so this candidate is not ready to merge. The graphical canvas and
-font resource have not been smoke-tested.
+seven tests pass. The added test covers a real Option lookup regression in the
+seven tab rendering paths. Deprecated calls are zero, and the unchanged quality
+baseline passes. State maps retain their generic value type; component outputs
+remain heterogeneous open maps. There are still 72 unresolved dynamic slots
+across 33 definitions, not a claim of fully concrete application types. The
+graphical canvas and font resource have not been smoke-tested.
 
 ### Usages
 
@@ -44,6 +43,10 @@ Notice that it would look for a `resources/SourceCodePro-Medium.ttf` (TODO) for
 the current font.
 
 ### Component
+
+Templates containing `TODO`, `Color`, `cursor`, or `states` are schematic; they
+are not standalone executable tests. Optional shape options use `Option :some`
+or `Option :none`, not raw maps or nil.
 
 Corokia use a data structure to represent a component.
 Unlikely normal virual DOM solutions, child components are collectted in `:children` field,
@@ -128,7 +131,7 @@ Circle:
 
 ```cirru
 corokia.core/circle 10
-  {}
+  Option :some $ {}
     :position $ [] 100 20
     :fill-color Color
     :line-color Color
@@ -139,7 +142,7 @@ Rect:
 
 ```cirru
 corokia.core/rect ([] 10 10)
-  {}
+  Option :some $ {}
     :position $ [] 100 20
     :fill-color Color
     :line-color Color
@@ -150,7 +153,7 @@ Text:
 
 ```cirru
 corokia.core/text "|Demo"
-  {}
+  Option :some $ {}
     :position $ [] 100 20
     :color Color
     :align :left
@@ -159,7 +162,7 @@ corokia.core/text "|Demo"
 Touch area:
 
 ```cirru
-corokia.core/touch-area :action cursor $ {} (:radius 8)
+corokia.core/touch-area :action cursor $ Option :some $ {} (:radius 8)
 ```
 
 Polyline:
@@ -169,7 +172,7 @@ corokia.core/polyline
   []
     [] 1 1
     [] 2 2
-  {}
+  Option :some $ {}
     :position $ [] 1 1
     :line-color Color
     :line-width 1
@@ -197,15 +200,15 @@ corokia.core/ops
 Key listener:
 
 ```cirru
-corokia.core/key-listener "a" :action cursor nil
+corokia.core/key-listener |a :action cursor $ Option :none
 ```
 
 Component for slide value:
 
 ```cirru
 corokia.comp/comp-slider (>> states :k) 10
-  fn (new-value) (do)
-  {} (:precision 2) (:unit 1)
+  fn (new-value d!) (&unit)
+  Option :some $ {} (:precision 2) (:unit 1)
     :title |Slider
     :position ([] 1 2)
 ```
@@ -214,11 +217,11 @@ Component for dragging position:
 
 ```cirru
 corokia.comp/comp-drag-point (>> states :k) ([] 1 2)
-  fn (new-position d!) (do)
-  {}
+  fn (new-position d!) (&unit)
+  Option :some $ {}
     :font-color $ [] 0 0 80
     :render-text $ fn (position)
-      join-str |, position
+      join-str |, $ map position turn-string
     :font-size 14
     :font-face "|Arial"
 ```
@@ -227,8 +230,8 @@ Arrow:
 
 ```cirru
 corokia.comp/comp-arrow (>> states :k) ([] 0 0) ([] 10 10)
-  fn (from to d!) (do)
-  {}
+  fn (from to d!) (&unit)
+  Option :some $ {}
     :line-color $ [] 0 0 100
     :line-width 1
 ```
@@ -238,7 +241,7 @@ Tabs:
 ```cirru
 corokia.comp/comp-tabs (>> states :k) :a ([] :a :b :c)
   fn (tab d!) (echo tab)
-  {}
+  Option :some $ {}
     :font-size 13
     :font-face |Arial
     :font-color $ [] 0 0 100

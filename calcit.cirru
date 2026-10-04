@@ -63,8 +63,8 @@
                 :render $ fn (dict)
                   g
                     {} $ :position $ open-field options :position
-                    get dict :from
-                    get dict :to
+                    .unwrap $ get dict :from
+                    .unwrap $ get dict :to
                     ops
                       {} (:line-width 1)
                         :line-color $ [] 0 0 100
@@ -253,21 +253,32 @@
                   :image $ if (= tab :image)
                     image $ {} (:file-path |assets/calcit.png) (:x 100) (:y 200) (:w 100) (:h 100)
                 :render $ fn (dict)
-                  g ({}) (get dict :tabs)
+                  g ({})
+                    .unwrap $ get dict :tabs
                     g
                       {} $ :position $ [] 80 80
-                      get dict :main
-                      get dict :rotate
-                      get dict :cycloid
-                      get dict :slider
-                      get dict :drag-demo
-                      get dict :keydown
-                      get dict :image
+                      .unwrap $ get dict :main
+                      .unwrap $ get dict :rotate
+                      .unwrap $ get dict :cycloid
+                      .unwrap $ get dict :slider
+                      .unwrap $ get dict :drag-demo
+                      .unwrap $ get dict :keydown
+                      .unwrap $ get dict :image
                 :actions $ {}
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] $ :: 'Map 'Tag 'Dynamic
+            :args $ [] $ :: 'Map 'Tag 'T
+            :generics $ [] 'T
             :return $ :: 'Map 'Tag 'Dynamic
+          :tests $ [] $ %{} 'TestEntry (:name |render-tabs-with-option-lookups)
+            :code $ quote $ each ([] :main :rotate :cycloid :drag-demo :slider :keydown :image)
+              fn (tab)
+                let
+                    tree $ corokia.core/get-shape-tree $ comp-container
+                      {} $ :states $ {}
+                        :data $ {} $ :tab tab
+                    tabs $ .unwrap $ first (open-field tree :children)
+                  assert= :group $ open-field tabs :type
         'comp-counter $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-counter (states x)
             let
@@ -303,7 +314,8 @@
                       d! cursor $ update state :count dec
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Number
+            :args $ [] (:: 'Map 'Tag 'T) 'Number
+            :generics $ [] 'T
             :return $ :: 'Map 'Tag 'Dynamic
         'comp-data-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-data-list (states)
@@ -328,7 +340,7 @@
                         :position $ [] 20 20
                     g ([] 40 60) & $ -> (range 3)
                       map $ fn (x)
-                        get dict $ turn-tag $ str |task- x
+                        .unwrap $ get dict $ turn-tag (str |task- x)
                     g ({})
                       circle 20 $ Option :some $ {}
                         :fill-color $ [] 0 0 100 0.4
@@ -350,7 +362,8 @@
                 :actions $ {}
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] $ :: 'Map 'Tag 'Dynamic
+            :args $ [] $ :: 'Map 'Tag 'T
+            :generics $ [] 'T
             :return $ :: 'Map 'Tag 'Dynamic
         'comp-demo-cycloid $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-demo-cycloid ()
@@ -440,13 +453,15 @@
                       :line-width 2
                 :actions $ {}
                 :render $ fn (dict)
-                  g ({}) (get dict :p)
+                  g ({})
+                    .unwrap $ get dict :p
                     g
                       {} $ :position $ [] 0 100
-                      get dict :arrow
+                      .unwrap $ get dict :arrow
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] $ :: 'Map 'Tag 'Dynamic
+            :args $ [] $ :: 'Map 'Tag 'T
+            :generics $ [] 'T
             :return $ :: 'Map 'Tag 'Dynamic
         'comp-keydown $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-keydown (states)
@@ -474,7 +489,8 @@
                       d! cursor $ update state :times dec
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] $ :: 'Map 'Tag 'Dynamic
+            :args $ [] $ :: 'Map 'Tag 'T
+            :generics $ [] 'T
             :return $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.comp.container
@@ -568,7 +584,7 @@
           :code $ quote $ defn >> (states k)
             let
                 parent-cursor $ either (open-field states :cursor) ([])
-                branch $ .unwrap-or (get states k) nil
+                branch $ .unwrap-or (get states k) ({})
               assoc
                 either branch $ {}
                 , :cursor $ append parent-cursor k
@@ -734,7 +750,7 @@
         'ops $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn ops (& xs)
             let
-                options $ .unwrap-or (first xs) nil
+                options $ .unwrap-or (first xs) false
               if (map? options)
                 merge options $ {} (:type :ops)
                   :path $ either (open-field options :path) (rest xs)
