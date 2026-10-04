@@ -9,8 +9,9 @@ desktop canvas project, not a web frontend, so it has no COS/CDN deployment.
 
 Current local validation on Calcit 0.28.0: strict module installation and
 toolchain verification pass; both entry functions, 43 public definitions, and
-seven tests pass. The added test covers a real Option lookup regression in the
-seven tab rendering paths. Deprecated calls are zero, and the unchanged quality
+seven tests pass. The added test covers real Option lookup and rectangle size
+regressions in the seven tab rendering paths, using Paint's existing native
+scene validator without opening a window. Deprecated calls are zero, and the unchanged quality
 baseline passes. State maps retain their generic value type; component outputs
 remain heterogeneous open maps. There are still 72 unresolved dynamic slots
 across 33 definitions, not a claim of fully concrete application types. The

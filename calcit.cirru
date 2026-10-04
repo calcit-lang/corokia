@@ -279,6 +279,7 @@
                         :data $ {} $ :tab tab
                     tabs $ .unwrap $ first (open-field tree :children)
                   assert= :group $ open-field tabs :type
+                  assert= ([]) (calcit-paint.core/validate-scene tree)
         'comp-counter $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-counter (states x)
             let
@@ -786,8 +787,8 @@
                   .unwrap-or arg $ {}
                 position $ either (open-field options :position) ([] 0 0)
               {} (:type :rect) (:position position)
-                :width $ first sizes
-                :height $ last sizes
+                :width $ .unwrap $ first sizes
+                :height $ .unwrap $ last sizes
                 :fill-color $ open-field options :fill-color
                 :line-color $ open-field options :line-color
                 :line-width $ open-field options :line-width
