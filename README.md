@@ -1,34 +1,44 @@
 ## Corokia in Calcit
 
-Status: experimental. This repository now targets Calcit 0.13.77. Its package
+Status: experimental. This migration targets formal Calcit 0.28.0. Its package
 version remains 0.2.3 because this migration does not publish a new release.
 
-The dependency on `calcit-lang/calcit-paint` temporarily uses exact commit
-`e4429f3310786a1a05dca5afbbd14e60b742527a`, the merged 0.13.77 upgrade, until
-an equivalent release tag is available.
+Dependencies use published tags: calcit-paint 0.2.0, Memof 0.0.36, and Lilac
+0.5.9. The Snapshot explicitly targets native; this is a desktop canvas project,
+not a web frontend, so it has no COS/CDN deployment.
+
+Migration validation is still in progress. A successful pure test run does not
+prove that the graphical application or every public definition is validated.
+
+Current local validation on Calcit 0.28.0: strict module installation and
+toolchain verification pass; both entry functions, 43 public definitions, and
+the original six tests pass. Deprecated calls are zero. The unchanged quality
+baseline still rejects 14 regressions in open component maps and Option
+fallbacks, so this candidate is not ready to merge. The graphical canvas and
+font resource have not been smoke-tested.
 
 ### Usages
 
 Install dependencies, validate the Snapshot, and run the pure test suite:
 
 ```bash
-# Temporary while calcit-paint is pinned to the reviewed 0.13.77 commit:
-caps --ci
-caps verify
-test "$(calcit -v)" = "0.13.77"
+caps --strict --ci
+caps verify --toolchain
+test "$(calcit -v)" = "0.28.0"
 calcit calcit.cirru edit format
 git diff --exit-code -- calcit.cirru
-calcit calcit.cirru --check-only
 calcit calcit.cirru --warn-dyn-method --check-only
-calcit calcit.cirru test --summary-only --format json
+calcit calcit.cirru analyze check-public --ns corokia.core --ns corokia.complex --ns corokia.comp --ns corokia.comp.container --ns corokia.main --ns corokia.util --summary-only --format json
+calcit calcit.cirru test --require-match --summary-only --format json
 calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
 ```
 
 Run `calcit calcit.cirru` to launch the native canvas application in a graphical
 desktop session.
 
-Restore `caps --strict --ci` after switching calcit-paint back to a compatible
-SemVer release tag.
+Building calcit-paint requires its native system libraries and a native build
+toolchain. If a Skia prebuilt binary is unavailable, its source build also needs
+Ninja on PATH. CI installs Fontconfig and FreeType development libraries.
 
 Notice that it would look for a `resources/SourceCodePro-Medium.ttf` (TODO) for
 the current font.
