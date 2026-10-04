@@ -5,7 +5,7 @@
   :entries $ {} $ :default
     {} (:description |) (:init-fn 'corokia.main/main!) (:mode :native) (:reload-fn 'corokia.main/reload!) (:target :native)
       :feature-policy $ {}
-      :modules $ [] |calcit-paint/ |memof/ |lilac/
+      :modules $ [] |calcit-paint/ |memof/
       :type-slots $ {}
   :files $ {}
     'corokia.comp $ %{} 'FileEntry

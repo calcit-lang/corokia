@@ -3,9 +3,9 @@
 Status: experimental. This migration targets formal Calcit 0.28.0. Its package
 version remains 0.2.3 because this migration does not publish a new release.
 
-Dependencies use published tags: calcit-paint 0.2.0, Memof 0.0.36, and Lilac
-0.5.9. The Snapshot explicitly targets native; this is a desktop canvas project,
-not a web frontend, so it has no COS/CDN deployment.
+Dependencies use published tags: calcit-paint 0.2.0 and Memof 0.0.36. The unused
+Lilac dependency is removed. The Snapshot explicitly targets native; this is a
+desktop canvas project, not a web frontend, so it has no COS/CDN deployment.
 
 Current local validation on Calcit 0.28.0: strict module installation and
 toolchain verification pass; both entry functions, 43 public definitions, and
