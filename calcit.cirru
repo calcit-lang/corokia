@@ -278,7 +278,15 @@
                       {} $ :states $ {}
                         :data $ {} $ :tab tab
                     tabs $ .unwrap $ first (open-field tree :children)
+                    content $ .unwrap $ nth (open-field tree :children) 1
+                    index $ .unwrap $ get
+                      {} (:main 0) (:rotate 1) (:cycloid 2) (:slider 3) (:drag-demo 4) (:keydown 5) (:image 6)
+                      , tab
+                    selected $ .unwrap $ nth (open-field content :children) index
                   assert= :group $ open-field tabs :type
+                  assert=
+                    if (= tab :image) :image :group
+                    open-field selected :type
                   assert= ([]) (calcit-paint.core/validate-scene tree)
         'comp-counter $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-counter (states x)
