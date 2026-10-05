@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   test:
-    name: Calcit 0.15.1 validation
+    name: Calcit 0.28.0 validation
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
@@ -29,23 +29,21 @@ jobs:
       - name: Install calcit-paint system libraries
         run: |
           sudo apt-get update
-          sudo apt-get install --yes libfontconfig1-dev libfreetype6-dev
+          sudo apt-get install --yes libfontconfig1-dev libfreetype6-dev ninja-build
 
       - name: Install modules
         run: |
-          # calcit-paint remains pinned to the reviewed commit used by this module.
-          caps --ci
-          caps verify
+          caps --strict --ci
+          caps verify --toolchain
 
       - name: Validate Calcit
         run: |
-          test "$(calcit -v)" = "0.15.1"
+          test "$(calcit -v)" = "0.28.0"
           calcit calcit.cirru edit format
           git diff --exit-code -- calcit.cirru
-          calcit calcit.cirru --check-only
           calcit calcit.cirru --warn-dyn-method --check-only
-          calcit calcit.cirru analyze check-types --summary-only --format json
+          calcit calcit.cirru analyze check-public --ns corokia.core --ns corokia.complex --ns corokia.comp --ns corokia.comp.container --ns corokia.main --ns corokia.util --summary-only --format json
           calcit calcit.cirru analyze weak-types --only schema-dynamic,unresolved-type-slot,code-dynamic --intent unresolved --summary-only --format json
           calcit calcit.cirru analyze deprecated --summary-only --format json
           calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
-          calcit calcit.cirru test --summary-only --format json
+          calcit calcit.cirru test --require-match --summary-only --format json

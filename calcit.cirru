@@ -3,9 +3,9 @@
   :about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `calcit query` to inspect and `calcit edit`/`calcit tree` to modify. Run `calcit docs agents --contract` before mutations; use `--full` for first orientation or changed contract digest. Manual edits must follow format and schema conventions, then run `calcit edit format`."
   :package |corokia
   :entries $ {} $ :default
-    {} (:description |) (:init-fn 'corokia.main/main!) (:mode :native) (:reload-fn 'corokia.main/reload!)
+    {} (:description |) (:init-fn 'corokia.main/main!) (:mode :native) (:reload-fn 'corokia.main/reload!) (:target :native)
       :feature-policy $ {}
-      :modules $ [] |calcit-paint/ |memof/ |lilac/
+      :modules $ [] |calcit-paint/ |memof/
       :type-slots $ {}
   :files $ {}
     'corokia.comp $ %{} 'FileEntry
@@ -55,16 +55,16 @@
                 :children $ {}
                   :from $ comp-drag-point (>> states :from) from
                     fn (point d!) (on-change point to d!)
-                    %some $ merge defaults options
+                    Option :some $ merge defaults options
                   :to $ comp-drag-point (>> states :to) to
                     fn (point d!) (on-change from point d!)
-                    %some $ merge defaults options
+                    Option :some $ merge defaults options
                 :actions $ {}
                 :render $ fn (dict)
                   g
                     {} $ :position $ open-field options :position
-                    get dict :from
-                    get dict :to
+                    .unwrap $ get dict :from
+                    .unwrap $ get dict :to
                     ops
                       {} (:line-width 1)
                         :line-color $ [] 0 0 100
@@ -91,7 +91,7 @@
                 :render $ fn (dict)
                   g
                     {} $ :position position
-                    touch-area :drag cursor $ %some $ merge
+                    touch-area :drag cursor $ Option :some $ merge
                       {} (:radius 8)
                         :fill-color $ [] 20 80 90
                       , options
@@ -101,9 +101,13 @@
                             fn? renderer
                             (open-field options :render-text) position
                           (= renderer false) nil
-                          true $ str "|(" (first position) |, (last position) "|)"
+                          true $ str "|("
+                            .unwrap $ first position
+                            , |,
+                              .unwrap $ last position
+                              , "|)"
                       if (some? content)
-                        text content $ %some $ merge options
+                        text content $ Option :some $ merge options
                           {}
                             :color $ either (open-field options :font-color) ([] 0 0 100 0.7)
                             :position $ [] 16 0
@@ -142,13 +146,13 @@
                 :children $ {}
                 :render $ fn (dict)
                   g position
-                    touch-area :slide cursor $ %some $ {} (:radius 8)
+                    touch-area :slide cursor $ Option :some $ {} (:radius 8)
                       :fill-color $ [] 0 80 70
                       :position $ [] 20 20
                       :line-color $ [] 0 0 100
                     text
                       str (open-field options :title) "|: " $ &number:format (assert-type value 'Number) (open-field options :precision)
-                      %some $ {}
+                      Option :some $ {}
                         :color $ [] 0 0 100 0.7
                         :position $ [] 12 0
                 :actions $ {} $ :slide
@@ -187,12 +191,12 @@
                         {} $ :position $ []
                           &+ dx $ &* idx $ &+ 12 (&* 2 dx)
                           , 20
-                        touch-area :select cursor $ %some $ {} (:data info) (:dx dx) (:dy dy)
+                        touch-area :select cursor $ Option :some $ {} (:data info) (:dx dx) (:dy dy)
                           :fill-color $ open-field options :fill-color
                           :line-color $ open-field options :line-color
                         text
                           &str:slice (str info) 1 $ count $ str info
-                          %some $ {} (:align :center)
+                          Option :some $ {} (:align :center)
                             :position $ [] 0 0
                             :size $ open-field options :font-size
                             :font-face $ open-field options :font-face
@@ -241,7 +245,7 @@
                       either (open-field state :slider-v) 10
                       fn (v d!) (; println "|slider change:" v)
                         d! cursor $ assoc state :slider-v v
-                      %some $ {} (:unit 0.1)
+                      Option :some $ {} (:unit 0.1)
                         :position $ [] 0 40
                         :title |demo
                   :keydown $ if (= tab :keydown)
@@ -249,19 +253,41 @@
                   :image $ if (= tab :image)
                     image $ {} (:file-path |assets/calcit.png) (:x 100) (:y 200) (:w 100) (:h 100)
                 :render $ fn (dict)
-                  g ({}) (get dict :tabs)
+                  g ({})
+                    .unwrap $ get dict :tabs
                     g
                       {} $ :position $ [] 80 80
-                      get dict :main
-                      get dict :rotate
-                      get dict :cycloid
-                      get dict :slider
-                      get dict :drag-demo
-                      get dict :keydown
-                      get dict :image
+                      .unwrap $ get dict :main
+                      .unwrap $ get dict :rotate
+                      .unwrap $ get dict :cycloid
+                      .unwrap $ get dict :slider
+                      .unwrap $ get dict :drag-demo
+                      .unwrap $ get dict :keydown
+                      .unwrap $ get dict :image
                 :actions $ {}
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] $ :: 'Map 'Tag 'T
+            :generics $ [] 'T
+            :return $ :: 'Map 'Tag 'Dynamic
+          :tests $ [] $ %{} 'TestEntry (:name |render-tabs-with-option-lookups)
+            :code $ quote $ each ([] :main :rotate :cycloid :drag-demo :slider :keydown :image)
+              fn (tab)
+                let
+                    tree $ corokia.core/get-shape-tree $ comp-container
+                      {} $ :states $ {}
+                        :data $ {} $ :tab tab
+                    tabs $ .unwrap $ first (open-field tree :children)
+                    content $ .unwrap $ nth (open-field tree :children) 1
+                    index $ .unwrap $ get
+                      {} (:main 0) (:rotate 1) (:cycloid 2) (:slider 3) (:drag-demo 4) (:keydown 5) (:image 6)
+                      , tab
+                    selected $ .unwrap $ nth (open-field content :children) index
+                  assert= :group $ open-field tabs :type
+                  assert=
+                    if (= tab :image) :image :group
+                    open-field selected :type
+                  assert= ([]) (calcit-paint.core/validate-scene tree)
         'comp-counter $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-counter (states x)
             let
@@ -273,18 +299,18 @@
                 :render $ fn (dict)
                   g
                     {} $ :position $ [] 0 (* x 30)
-                    touch-area :dec cursor $ %some $ {} (:radius 10)
+                    touch-area :dec cursor $ Option :some $ {} (:radius 10)
                       :fill-color $ [] 200 80 90
-                    touch-area :inc cursor $ %some $ {} (:radius 10)
+                    touch-area :inc cursor $ Option :some $ {} (:radius 10)
                       :position $ [] 80 0
                       :fill-color $ [] 200 80 90
-                    text |- $ %some $ {} (:align :center)
+                    text |- $ Option :some $ {} (:align :center)
                       :position $ [] 0 0
                     text
                       str x |: $ open-field state :count
-                      %some $ {} (:align :center)
+                      Option :some $ {} (:align :center)
                         :position $ [] 40 0
-                    text |+ $ %some $ {} (:align :center)
+                    text |+ $ Option :some $ {} (:align :center)
                       :position $ [] 80 0
                 :actions $ {}
                   :inc $ fn (e d!)
@@ -296,7 +322,10 @@
                       = (open-field e :type) :mouse-down
                       d! cursor $ update state :count dec
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'Map 'Tag 'T) 'Number
+            :generics $ [] 'T
+            :return $ :: 'Map 'Tag 'Dynamic
         'comp-data-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-data-list (states)
             let
@@ -316,18 +345,18 @@
                   g ({})
                     text
                       str "|Size: " $ open-field state :size
-                      %some $ {} (:align :center)
+                      Option :some $ {} (:align :center)
                         :position $ [] 20 20
                     g ([] 40 60) & $ -> (range 3)
                       map $ fn (x)
-                        get dict $ turn-tag $ str |task- x
+                        .unwrap $ get dict $ turn-tag (str |task- x)
                     g ({})
-                      circle 20 $ %some $ {}
+                      circle 20 $ Option :some $ {}
                         :fill-color $ [] 0 0 100 0.4
                         :line-color $ [] 200 80 90
                         :position $ [] 100 200
                       rect ([] 40 40)
-                        %some $ {}
+                        Option :some $ {}
                           :position $ [] 100 150
                           :fill-color $ [] 0 0 100 0.4
                           :line-color $ [] 200 80 90
@@ -341,7 +370,10 @@
                       :fill-color $ [] 0 0 100 0.2
                 :actions $ {}
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] $ :: 'Map 'Tag 'T
+            :generics $ [] 'T
+            :return $ :: 'Map 'Tag 'Dynamic
         'comp-demo-cycloid $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-demo-cycloid ()
             {}
@@ -365,7 +397,7 @@
                               rad-point $ * v x
                             c* ([] r2 0)
                               rad-point $ * v2 x
-                      %some $ {}
+                      Option :some $ {}
                         :position $ [] 300 300
                         :color $ [] 0 80 60
                         :width 2
@@ -373,7 +405,9 @@
                         :cap :round
               :actions $ {}
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ []
+            :return $ :: 'Map 'Tag 'Dynamic
         'comp-demo-rotate $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-demo-rotate ()
             {}
@@ -393,7 +427,7 @@
                               + b0 $ * r0 x
                               , 0
                             rad-point $ * &PI r1 x
-                      %some $ {}
+                      Option :some $ {}
                         :position $ [] 360 280
                         :color $ [] 0 30 80
                         :width 2
@@ -401,7 +435,9 @@
                         :join :round
               :actions $ {}
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ []
+            :return $ :: 'Map 'Tag 'Dynamic
         'comp-drag-demo $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-drag-demo (states)
             let
@@ -417,21 +453,25 @@
                     either (open-field state :p) ([] 0 0)
                     fn (new-position d!)
                       d! cursor $ assoc state :p new-position
-                    %some $ {}
+                    Option :some $ {}
                   :arrow $ comp-arrow (>> states :arrow) (open-field state :from) (open-field state :to)
                     fn (from to d!)
                       d! cursor $ -> state (assoc :from from) (assoc :to to)
-                    %some $ {}
+                    Option :some $ {}
                       :line-color $ [] 200 80 70
                       :line-width 2
                 :actions $ {}
                 :render $ fn (dict)
-                  g ({}) (get dict :p)
+                  g ({})
+                    .unwrap $ get dict :p
                     g
                       {} $ :position $ [] 0 100
-                      get dict :arrow
+                      .unwrap $ get dict :arrow
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] $ :: 'Map 'Tag 'T
+            :generics $ [] 'T
+            :return $ :: 'Map 'Tag 'Dynamic
         'comp-keydown $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-keydown (states)
             let
@@ -444,7 +484,7 @@
                   g ({})
                     text
                       str "|press up times..: " $ open-field state :times
-                      %some $ {} $ :position ([] 100 100)
+                      Option :some $ {} $ :position ([] 100 100)
                     key-listener |Up :inc cursor
                     key-listener |Down :dec cursor
                 :actions $ {}
@@ -457,7 +497,10 @@
                       = :key-down $ open-field e :type
                       d! cursor $ update state :times dec
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] $ :: 'Map 'Tag 'T
+            :generics $ [] 'T
+            :return $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.comp.container
           :require
@@ -550,7 +593,7 @@
           :code $ quote $ defn >> (states k)
             let
                 parent-cursor $ either (open-field states :cursor) ([])
-                branch $ get states k
+                branch $ .unwrap-or (get states k) ({})
               assoc
                 either branch $ {}
                 , :cursor $ append parent-cursor k
@@ -630,7 +673,7 @@
             :return $ :: 'Map 'Tag 'Dynamic
         'get-in-dynamic $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn get-in-dynamic (data path)
-            if (empty? path) (%some data)
+            if (empty? path) (Option :some data)
               .and-then
                 get data $ .unwrap $ first path
                 fn (child)
@@ -661,7 +704,8 @@
                     track-overcost 40 $ push-drawing-data! |render-canvas! info
                 (and (some? path) (some? (open-field e :action)))
                   let
-                      data-path $ concat & $ -> path
+                      data-path $ concat & $ ->
+                        assert-type path $ :: 'List 'Dynamic
                         map $ fn (x) ([] :children x)
                       target-component $
                         get-in-dynamic (deref *tree-state) data-path
@@ -715,7 +759,7 @@
         'ops $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn ops (& xs)
             let
-                options $ first xs
+                options $ .unwrap-or (first xs) false
               if (map? options)
                 merge options $ {} (:type :ops)
                   :path $ either (open-field options :path) (rest xs)
@@ -751,8 +795,8 @@
                   .unwrap-or arg $ {}
                 position $ either (open-field options :position) ([] 0 0)
               {} (:type :rect) (:position position)
-                :width $ first sizes
-                :height $ last sizes
+                :width $ .unwrap $ first sizes
+                :height $ .unwrap $ last sizes
                 :fill-color $ open-field options :fill-color
                 :line-color $ open-field options :line-color
                 :line-width $ open-field options :line-width
@@ -841,16 +885,26 @@
             :args $ [] 'Dynamic 'Dynamic
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (render-page)
-            add-watch *store :change $ fn (v v0) (; println "|rerender page") (render-page)
+            add-watch *store :change $ fn (v v0)
+              hint-fn $ {}
+                :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'Map 'Tag 'Dynamic)
+                :return 'Unit
+              render-page
             echo "|app started."
             launch-canvas! $ fn (event) (handle-tree-event event dispatch!)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
         'on-error $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn on-error (message) (draw-error-message message)
+          :code $ quote $ defn on-error (message)
+            calcit-paint.core/push-drawing-data! |render-canvas! $ {} (:type :text) (:text message)
+              :position $ [] 20 40
+              :align :left
+              :size 16
+              :color $ [] 0 80 60
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! () (reset-memof1-caches!) (println |reloaded) (render-page)
           :examples $ []
