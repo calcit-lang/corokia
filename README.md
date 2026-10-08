@@ -216,13 +216,15 @@ corokia.comp/comp-slider (>> states :k) 10
 
 Component for dragging position:
 
+文本连接使用首选名称 `join-string`，参数顺序是列表在前、分隔符在后。
+
 ```cirru
 corokia.comp/comp-drag-point (>> states :k) ([] 1 2)
   fn (new-position d!) (&unit)
   Option :some $ {}
     :font-color $ [] 0 0 80
     :render-text $ fn (position)
-      join-str |, $ map position turn-string
+      join-string (map position turn-string) |,
     :font-size 14
     :font-face "|Arial"
 ```
