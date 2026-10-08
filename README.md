@@ -222,7 +222,7 @@ corokia.comp/comp-drag-point (>> states :k) ([] 1 2)
   Option :some $ {}
     :font-color $ [] 0 0 80
     :render-text $ fn (position)
-      join-str |, $ map position turn-string
+      join-string (map position turn-string) |,
     :font-size 14
     :font-face "|Arial"
 ```
