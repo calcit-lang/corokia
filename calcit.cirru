@@ -106,7 +106,7 @@
                             , |,
                               .unwrap $ last position
                               , "|)"
-                      if (some? content)
+                      if (non-nil? content)
                         text content $ Option :some $ merge options
                           {}
                             :color $ either (open-field options :font-color) ([] 0 0 100 0.7)
@@ -702,7 +702,7 @@
                     info $ track-overcost 40 $ get-shape-tree (deref *tree-state)
                     ; with-log info
                     track-overcost 40 $ push-drawing-data! |render-canvas! info
-                (and (some? path) (some? (open-field e :action)))
+                (and (non-nil? path) (non-nil? (open-field e :action)))
                   let
                       data-path $ concat & $ ->
                         assert-type path $ :: 'List 'Dynamic
@@ -885,7 +885,7 @@
             :args $ [] 'Dynamic 'Dynamic
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (render-page)
-            add-watch *store :change $ fn (v v0)
+            add-watch! *store :change $ fn (v v0)
               hint-fn $ {}
                 :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'Map 'Tag 'Dynamic)
                 :return 'Unit
@@ -942,9 +942,9 @@
                 cost $ gensym |cost
               assert "|expects number for threshold" $ number? threshold
               quasiquote $ let
-                  ~started $ cpu-time
+                  ~started $ monotonic-time-ms
                   ~result ~expr
-                  ~cost $ &- (cpu-time) ~started
+                  ~cost $ &- (monotonic-time-ms) ~started
                 if (&> ~cost ~threshold)
                   echo "|[corokia time]" (quote ~expr) |=> (&number:format ~cost 3) |ms
                 , ~result
