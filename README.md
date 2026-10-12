@@ -1,21 +1,28 @@
 ## Corokia in Calcit
 
-Status: experimental. This migration targets formal Calcit 0.28.0. Its package
+Status: experimental. This migration targets formal Calcit 0.29.0. Its package
 version remains 0.2.3 because this migration does not publish a new release.
 
-Dependencies use published tags: calcit-paint 0.2.0 and Memof 0.0.36. The unused
+Dependencies use published tags: calcit-paint 0.2.5 and Memof 0.0.37. The unused
 Lilac dependency is removed. The Snapshot explicitly targets native; this is a
 desktop canvas project, not a web frontend, so it has no COS/CDN deployment.
 
-Current local validation on Calcit 0.28.0: strict module installation and
-toolchain verification pass; both entry functions, 43 public definitions, and
-seven tests pass. The added test covers real Option lookup and rectangle size
+Current local validation on Calcit 0.29.0: strict module installation and
+toolchain verification pass; all 61 reachable definitions, 43 project definitions,
+and the original seven tests pass. The scene test covers real Option lookup and rectangle size
 regressions in the seven tab rendering paths, using Paint's existing native
 scene validator without opening a window. Deprecated calls are zero, and the unchanged quality
 baseline passes. State maps retain their generic value type; component outputs
 remain heterogeneous open maps. There are still 72 unresolved dynamic slots
 across 33 definitions, not a claim of fully concrete application types. The
 graphical canvas and font resource have not been smoke-tested.
+
+State declarations use `defref`, and literal dispatch uses `match`. The four
+basic components now declare Map state and result contracts. Open cursor,
+numeric event/drag-position and label fields are checked before concrete use;
+invalid values raise rather than being coerced or silently replaced. Native
+callback replays preserve slider mouse-down/move (10 to 25) and drag (3,4 to
+5,3) behavior. These replays are not graphical desktop interaction tests.
 
 ### Usages
 
@@ -24,11 +31,11 @@ Install dependencies, validate the Snapshot, and run the pure test suite:
 ```bash
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.28.0"
+test "$(calcit -v)" = "0.29.0"
 calcit calcit.cirru edit format
 git diff --exit-code -- calcit.cirru
-calcit calcit.cirru --warn-dyn-method --check-only
-calcit calcit.cirru analyze check-public --ns corokia.core --ns corokia.complex --ns corokia.comp --ns corokia.comp.container --ns corokia.main --ns corokia.util --summary-only --format json
+calcit calcit.cirru --check-only --all-defs
+calcit calcit.cirru --check-only --ns corokia.core --ns corokia.complex --ns corokia.comp --ns corokia.comp.container --ns corokia.main --ns corokia.util --summary-only --format json
 calcit calcit.cirru test --require-match --summary-only --format json
 calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
 ```

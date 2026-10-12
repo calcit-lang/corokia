@@ -74,12 +74,15 @@
                       [] :line-to to
                       [] :line-to $ c+ to branch-b
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic (:: 'List 'Number) (:: 'List 'Number) 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'List 'Number) (:: 'List 'Number) 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
+            :return $ :: 'Map 'Tag 'Dynamic
         'comp-drag-point $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-drag-point (states position on-change arg)
             let
-                cursor $ either (open-field states :cursor) ([])
+                cursor $ &let
+                  cursor-value $ either (open-field states :cursor) ([])
+                  if (list? cursor-value) cursor-value $ raise "|expects cursor in a list"
                 state $ either (open-field states :data)
                   {} $ :initial-position position
                 options $ .unwrap-or arg $ {}
@@ -107,10 +110,12 @@
                               .unwrap $ last position
                               , "|)"
                       if (non-nil? content)
-                        text content $ Option :some $ merge options
-                          {}
-                            :color $ either (open-field options :font-color) ([] 0 0 100 0.7)
-                            :position $ [] 16 0
+                        if (string? content)
+                          text content $ Option :some $ merge options
+                            {}
+                              :color $ either (open-field options :font-color) ([] 0 0 100 0.7)
+                              :position $ [] 16 0
+                          raise "|expects drag label renderer to return String or nil"
                 :actions $ {} $ :drag
                   fn (e d!)
                     &let
@@ -119,18 +124,34 @@
                         d! cursor $ assoc state :initial-position position
                       when (= :mouse-move t)
                         on-change
-                          c+ (open-field state :initial-position)
-                            []
-                              either (open-field e :dx) 0
-                              either (open-field e :dy) 0
+                          c+
+                            &let
+                              initial $ open-field state :initial-position
+                              if (list? initial)
+                                map initial $ fn (v)
+                                  match (data-view v)
+                                    (:number n) n
+                                    _ $ raise "|expects numeric drag position"
+                                raise "|expects initial drag position List"
+                            map
+                              []
+                                either (open-field e :dx) 0
+                                either (open-field e :dy) 0
+                              fn (v)
+                                match (data-view v)
+                                  (:number n) n
+                                  _ $ raise "|expects numeric drag position"
                           , d!
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic (:: 'List 'Number) 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'List 'Number) 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
+            :return $ :: 'Map 'Tag 'Dynamic
         'comp-slider $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-slider (states value on-change arg)
             let
-                cursor $ open-field states :cursor
+                cursor $ &let
+                  cursor-value $ open-field states :cursor
+                  if (list? cursor-value) cursor-value $ raise "|expects cursor in a list"
                 options $ merge-non-nil
                   {} (:precision 2) (:unit 1) (:title |Slider)
                     :position $ [] 0 0
@@ -157,22 +178,40 @@
                         :position $ [] 12 0
                 :actions $ {} $ :slide
                   fn (e d!)
-                    case (open-field e :type)
+                    match (open-field e :type)
                       :mouse-move $ on-change
-                        + (open-field state :v0)
+                        +
+                          match
+                            data-view $ open-field state :v0
+                            (:number n) n
+                            _ $ raise "|expects numeric slider field"
                           *
-                            - (open-field e :x) (open-field state :x0)
-                            open-field options :unit
+                            -
+                              match
+                                data-view $ open-field e :x
+                                (:number n) n
+                                _ $ raise "|expects numeric slider field"
+                              match
+                                data-view $ open-field state :x0
+                                (:number n) n
+                                _ $ raise "|expects numeric slider field"
+                            match
+                              data-view $ open-field options :unit
+                              (:number n) n
+                              _ $ raise "|expects numeric slider field"
                         , d!
                       :mouse-down $ d! cursor $ -> state (assoc :v0 value)
                         assoc :x0 $ open-field e :x
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Number 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Number 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
+            :return $ :: 'Map 'Tag 'Dynamic
         'comp-tabs $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-tabs (states tab tabs on-change arg)
             let
-                cursor $ open-field states :cursor
+                cursor $ &let
+                  cursor-value $ open-field states :cursor
+                  if (list? cursor-value) cursor-value $ raise "|expects cursor in a list"
                 options $ merge
                   {}
                     :font-color $ [] 0 0 100
@@ -209,8 +248,9 @@
                         turn-tag $ open-field e :data
                         , d!
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Dynamic (:: 'List 'Dynamic) 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
+          :schema $ :: 'Fn $ {}
+            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Dynamic (:: 'List 'Dynamic) 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
+            :return $ :: 'Map 'Tag 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.comp
           :require
@@ -586,7 +626,7 @@
     'corokia.core $ %{} 'FileEntry
       :defs $ {}
         '*tree-state $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *tree-state nil
+          :code $ quote $ defref *tree-state nil
           :examples $ []
           :schema $ :: 'Ref 'Dynamic
         '>> $ %{} 'CodeEntry (:doc |)
@@ -684,11 +724,13 @@
             :return $ :: 'Option 'Dynamic
         'get-shape-tree $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn get-shape-tree (tree)
-            if (nil? tree) nil $ case-default (open-field tree :type) tree
+            if (nil? tree) nil $ match (open-field tree :type)
               nil $ do (echo "|nil type from tree:" tree) nil
               :group $ if (open-field tree :pure-shape?) tree $ update tree :children
-                fn (xs) (map xs get-shape-tree)
+                fn (xs)
+                  if (list? xs) (map xs get-shape-tree) (raise "|expects group children in a list")
               :component $ get-shape-tree $ open-field tree :tree
+              _ tree
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Dynamic)
             :args $ [] 'Dynamic
@@ -716,7 +758,9 @@
                     ; echo e
                     if (nil? target-component) (echo "|WARNING: cannot find target component:" data-path)
                       let
-                          listener $ open-field actions $ open-field e :action
+                          listener $ &let
+                            action $ open-field e :action
+                            if (tag? action) (open-field actions action) (raise "|expects event action Tag")
                         if (nil? listener)
                           echo "|WARNING: cannot find comp listener" (open-field e :action) |among (keys actions) "|with path" path
                           listener e dispatch!
@@ -870,7 +914,7 @@
     'corokia.main $ %{} 'FileEntry
       :defs $ {}
         '*store $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *store
+          :code $ quote $ defref *store
             {} $ :states $ {}
               :cursor $ []
           :examples $ []
@@ -879,7 +923,9 @@
           :code $ quote $ defn dispatch! (op data) (; echo |dispatching: op data)
             if (list? op)
               recur :states $ [] op data
-              swap! *store updater op data
+              if (tag? op)
+                do (swap! *store updater op data) &unit
+                raise "|expects dispatch operation Tag or cursor List"
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'Dynamic 'Dynamic
@@ -918,9 +964,9 @@
             :args $ []
         'updater $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn updater (store op data)
-            case op
-              :states $ update-states store data
-              op store
+            match op
+              :states $ if (list? data) (update-states store data) (raise "|expects state update in a list")
+              _ store
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Map 'Tag 'Dynamic) 'Tag 'Dynamic
