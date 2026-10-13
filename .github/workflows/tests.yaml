@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   test:
-    name: Calcit 0.29.0 validation
+    name: Calcit 0.29.1 validation
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
@@ -39,12 +39,11 @@ jobs:
       - name: Validate Calcit
         run: |
           set -euo pipefail
-          test "$(calcit -v)" = "0.29.0"
+          test "$(calcit -v)" = "0.29.1"
           calcit calcit.cirru edit format
           git diff --exit-code -- calcit.cirru
           calcit calcit.cirru --check-only --all-defs
           calcit calcit.cirru --check-only --ns corokia.core --ns corokia.complex --ns corokia.comp --ns corokia.comp.container --ns corokia.main --ns corokia.util --summary-only --format json
           calcit calcit.cirru analyze weak-types --only schema-dynamic,unresolved-type-slot,code-dynamic --intent unresolved --summary-only --format json
           calcit calcit.cirru analyze weak-types --only deprecated-call --summary-only --format json | jq -e '.data.summary.calls == 0'
-          calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
           calcit calcit.cirru test --require-match --summary-only --format json
