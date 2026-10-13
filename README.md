@@ -1,21 +1,15 @@
 ## Corokia in Calcit
 
-Status: experimental. This migration targets formal Calcit 0.29.0. Its package
-version remains 0.2.3 because this migration does not publish a new release.
+状态：experimental。当前使用正式 Calcit 0.29.1、calcit-paint 0.2.5 与 Memof 0.0.38；
+模块版本保持 0.2.3，本次迁移不发布新版本。Snapshot 明确使用 native target；
+这是桌面画布项目，不是 Web 前端，因此不配置 COS/CDN。
 
-Dependencies use published tags: calcit-paint 0.2.5 and Memof 0.0.37. The unused
-Lilac dependency is removed. The Snapshot explicitly targets native; this is a
-desktop canvas project, not a web frontend, so it has no COS/CDN deployment.
-
-Current local validation on Calcit 0.29.0: strict module installation and
-toolchain verification pass; all 61 reachable definitions, 43 project definitions,
-and the original seven tests pass. The scene test covers real Option lookup and rectangle size
-regressions in the seven tab rendering paths, using Paint's existing native
-scene validator without opening a window. Deprecated calls are zero, and the unchanged quality
-baseline passes. State maps retain their generic value type; component outputs
-remain heterogeneous open maps. There are still 72 unresolved dynamic slots
-across 33 definitions, not a claim of fully concrete application types. The
-graphical canvas and font resource have not been smoke-tested.
+本地验证：严格依赖安装、0.29.1 原生 realization 与工具链验证通过；61/61 定义检查、
+43/43 项目公开定义检查、原有七项测试通过。场景测试使用 Paint 原生 scene validator，
+覆盖七个 tab 渲染路径的 Option lookup 与 rectangle size，不打开窗口。deprecated calls
+为 0。CI 使用严格检查与原有测试，不再使用已弃用的 `analyze quality` 数字预算基线。
+状态 Map 保留泛型值类型，组件输出仍是异构开放 Map；33 个定义仍有 72 个 unresolved
+dynamic slots，不宣称类型债务清零。图形交互及字体资源尚未 smoke-test。
 
 State declarations use `defref`, and literal dispatch uses `match`. The four
 basic components now declare Map state and result contracts. Open cursor,
@@ -31,13 +25,12 @@ Install dependencies, validate the Snapshot, and run the pure test suite:
 ```bash
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.29.0"
+test "$(calcit -v)" = "0.29.1"
 calcit calcit.cirru edit format
 git diff --exit-code -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs
 calcit calcit.cirru --check-only --ns corokia.core --ns corokia.complex --ns corokia.comp --ns corokia.comp.container --ns corokia.main --ns corokia.util --summary-only --format json
 calcit calcit.cirru test --require-match --summary-only --format json
-calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
 ```
 
 Run `calcit calcit.cirru` to launch the native canvas application in a graphical
@@ -46,6 +39,12 @@ desktop session.
 Building calcit-paint requires its native system libraries and a native build
 toolchain. If a Skia prebuilt binary is unavailable, its source build also needs
 Ninja on PATH. CI installs Fontconfig and FreeType development libraries.
+
+如果继承的 Skia 镜像不可用，可按 Paint README 仅对本次安装使用官方 Release 产物：
+`env -u SKIA_BINARIES_URL caps --strict --ci`。这不修改全局镜像配置，也不复用其他
+Calcit 工具链的原生库。本地 0.29.1 验证使用此路径；源码 fallback 在 macOS 27 /
+Apple clang 21 下可能遇到上游 [rust-skia #1335](https://github.com/rust-skia/rust-skia/pull/1335)
+所述的 bindings 问题。
 
 Notice that it would look for a `resources/SourceCodePro-Medium.ttf` (TODO) for
 the current font.
