@@ -172,7 +172,8 @@
                       :position $ [] 20 20
                       :line-color $ [] 0 0 100
                     text
-                      str (open-field options :title) "|: " $ &number:format (assert-type value 'Number) (open-field options :precision)
+                      str (open-field options :title) "|: " $ &number:format (assert-type value 'Number)
+                        decode-map-as (open-field options :precision) 'Number
                       Option :some $ {}
                         :color $ [] 0 0 100 0.7
                         :position $ [] 12 0
@@ -219,7 +220,9 @@
                     :line-color $ [] 0 0 50
                     :font-size 13
                   .unwrap-or arg $ {}
-                dx $ either (open-field options :dx) 40
+                dx $ decode-map-as
+                  either (open-field options :dx) 40
+                  , 'Number
                 dy $ either (open-field options :dy) 12
               {}
                 :children $ {}
@@ -254,15 +257,17 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.comp
           :require
-            [] corokia.core :refer $ [] defcomp g touch-area text ops >> open-field
-            [] corokia.complex :refer $ [] c+ c- c*
+            corokia.core :refer $ defcomp g touch-area text ops >> open-field
+            corokia.complex :refer $ c+ c- c*
     'corokia.comp.container $ %{} 'FileEntry
       :defs $ {}
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (store)
             let
-                states $ open-field store :states
-                cursor $ either (open-field states :cursor) ([])
+                states $ decode-map-as (open-field store :states) (:: 'Map 'Tag 'Dynamic)
+                cursor $ decode-map-as
+                  either (open-field states :cursor) ([])
+                  :: 'List 'Tag
                 state $ either (open-field states :data)
                   {} (:tab :slider)
                     :point-d $ [] 20 20
@@ -282,7 +287,9 @@
                     comp-drag-demo $ >> states :drag-demo
                   :slider $ if (= tab :slider)
                     comp-slider (>> states :slider)
-                      either (open-field state :slider-v) 10
+                      decode-map-as
+                        either (open-field state :slider-v) 10
+                        , 'Number
                       fn (v d!) (; println "|slider change:" v)
                         d! cursor $ assoc state :slider-v v
                       Option :some $ {} (:unit 0.1)
@@ -331,7 +338,7 @@
         'comp-counter $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-counter (states x)
             let
-                cursor $ open-field states :cursor
+                cursor $ decode-map-as (open-field states :cursor) (:: 'List 'Tag)
                 state $ either (open-field states :data)
                   {} $ :count 0
               {}
@@ -356,11 +363,13 @@
                   :inc $ fn (e d!)
                     when
                       = (open-field e :type) :mouse-down
-                      d! cursor $ update state :count inc
+                      d! cursor $ update state :count $ fn (n)
+                        inc $ decode-map-as n 'Number
                   :dec $ fn (e d!)
                     when
                       = (open-field e :type) :mouse-down
-                      d! cursor $ update state :count dec
+                      d! cursor $ update state :count $ fn (n)
+                        dec $ decode-map-as n 'Number
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Map 'Tag 'T) 'Number
@@ -490,11 +499,15 @@
               {}
                 :children $ {}
                   :p $ comp-drag-point (>> states :p)
-                    either (open-field state :p) ([] 0 0)
+                    decode-map-as
+                      either (open-field state :p) ([] 0 0)
+                      :: 'List 'Number
                     fn (new-position d!)
                       d! cursor $ assoc state :p new-position
                     Option :some $ {}
-                  :arrow $ comp-arrow (>> states :arrow) (open-field state :from) (open-field state :to)
+                  :arrow $ comp-arrow (>> states :arrow)
+                    decode-map-as (open-field state :from) (:: 'List 'Number)
+                    decode-map-as (open-field state :to) (:: 'List 'Number)
                     fn (from to d!)
                       d! cursor $ -> state (assoc :from from) (assoc :to to)
                     Option :some $ {}
@@ -515,7 +528,7 @@
         'comp-keydown $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-keydown (states)
             let
-                cursor $ open-field states :cursor
+                cursor $ decode-map-as (open-field states :cursor) (:: 'List 'Tag)
                 state $ either (open-field states :data)
                   {} $ :times 0
               {}
@@ -531,11 +544,13 @@
                   :inc $ fn (e d!)
                     if
                       = :key-down $ open-field e :type
-                      d! cursor $ update state :times inc
+                      d! cursor $ update state :times $ fn (n)
+                        inc $ decode-map-as n 'Number
                   :dec $ fn (e d!)
                     if
                       = :key-down $ open-field e :type
-                      d! cursor $ update state :times dec
+                      d! cursor $ update state :times $ fn (n)
+                        dec $ decode-map-as n 'Number
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] $ :: 'Map 'Tag 'T
@@ -632,10 +647,14 @@
         '>> $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn >> (states k)
             let
-                parent-cursor $ either (open-field states :cursor) ([])
+                parent-cursor $ decode-map-as
+                  either (open-field states :cursor) ([])
+                  :: 'List 'Tag
                 branch $ .unwrap-or (get states k) ({})
               assoc
-                either branch $ {}
+                decode-map-as
+                  either branch $ {}
+                  :: 'Map 'Tag 'Dynamic
                 , :cursor $ append parent-cursor k
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -705,7 +724,7 @@
             if (list? props)
               {} (:type :group) (:position props) (:children xs)
               merge
-                assert-type props $ :: 'Map 'Tag 'Dynamic
+                decode-map-as props $ :: 'Map 'Tag 'Dynamic
                 {} (:type :group) (:children xs)
           :examples $ []
           :schema $ :: 'Fn $ {} (:rest 'Dynamic)
@@ -747,12 +766,12 @@
                 (and (non-nil? path) (non-nil? (open-field e :action)))
                   let
                       data-path $ concat & $ ->
-                        assert-type path $ :: 'List 'Dynamic
+                        decode-map-as path $ :: 'List 'Dynamic
                         map $ fn (x) ([] :children x)
                       target-component $
                         get-in-dynamic (deref *tree-state) data-path
                         , .unwrap-or nil
-                      actions $ assert-type
+                      actions $ decode-map-as
                         either (open-field target-component :actions) ({})
                         :: 'Map 'Tag 'Dynamic
                     ; echo e
@@ -767,6 +786,7 @@
                         ; echo target-component
                         ; echo $ deref *tree-state
                 true &unit
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'Dynamic 'Dynamic
@@ -805,8 +825,10 @@
             let
                 options $ .unwrap-or (first xs) false
               if (map? options)
-                merge options $ {} (:type :ops)
-                  :path $ either (open-field options :path) (rest xs)
+                merge
+                  decode-map-as options $ :: 'Map 'Tag 'Dynamic
+                  {} (:type :ops)
+                    :path $ either (open-field options :path) (rest xs)
                 {} (:type :ops) (:path xs) (:line-width 1)
                   :line-color $ [] 0 80 80
           :examples $ []
@@ -892,16 +914,18 @@
         'update-states $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn update-states (store op-data)
             let
-                cursor $ assert-type
+                cursor $ decode-map-as
                     first op-data
                     , .unwrap
                   :: 'List 'Tag
                 data $
                   last op-data
                   , .unwrap
-              assoc-in store
-                concat ([] :states) cursor $ [] :data
-                , data
+              decode-map-as
+                assoc-in store
+                  concat ([] :states) cursor $ [] :data
+                  , data
+                :: 'Map 'Tag 'Dynamic
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'List 'Dynamic)
@@ -909,7 +933,7 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.core
           :require
-            corokia.util :refer $ [] track-overcost
+            corokia.util :refer $ track-overcost
             calcit-paint.core :refer $ push-drawing-data!
     'corokia.main $ %{} 'FileEntry
       :defs $ {}
