@@ -755,41 +755,66 @@
             :args $ [] 'Dynamic
         'handle-tree-event $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn handle-tree-event (e dispatch!)
-            let
-                path $ open-field e :path
-              cond
-                  = :window-resized $ open-field e :type
-                  &let
-                    info $ track-overcost 40 $ get-shape-tree (deref *tree-state)
-                    ; with-log info
-                    track-overcost 40 $ push-drawing-data! |render-canvas! info
-                (and (non-nil? path) (non-nil? (open-field e :action)))
-                  let
-                      data-path $ concat & $ ->
-                        decode-map-as path $ :: 'List 'Dynamic
-                        map $ fn (x) ([] :children x)
-                      target-component $
-                        get-in-dynamic (deref *tree-state) data-path
-                        , .unwrap-or nil
-                      actions $ decode-map-as
-                        either (open-field target-component :actions) ({})
-                        :: 'Map 'Tag 'Dynamic
-                    ; echo e
-                    if (nil? target-component) (echo "|WARNING: cannot find target component:" data-path)
+            cond
+                nil? e
+                , &unit
+              (map? e)
+                let
+                    path $ open-field e :path
+                  cond
+                      = :window-resized $ open-field e :type
+                      &let
+                        info $ track-overcost 40 $ get-shape-tree (deref *tree-state)
+                        ; with-log info
+                        track-overcost 40 $ push-drawing-data! |render-canvas! info
+                    (and (non-nil? path) (non-nil? (open-field e :action)))
                       let
-                          listener $ &let
-                            action $ open-field e :action
-                            if (tag? action) (open-field actions action) (raise "|expects event action Tag")
-                        if (nil? listener)
-                          echo "|WARNING: cannot find comp listener" (open-field e :action) |among (keys actions) "|with path" path
-                          listener e dispatch!
-                        ; echo target-component
-                        ; echo $ deref *tree-state
-                true &unit
+                          data-path $ concat & $ ->
+                            decode-map-as path $ :: 'List 'Dynamic
+                            map $ fn (x) ([] :children x)
+                          target-component $
+                            get-in-dynamic (deref *tree-state) data-path
+                            , .unwrap-or nil
+                        ; echo e
+                        if (nil? target-component) (echo "|WARNING: cannot find target component:" data-path)
+                          let
+                              actions $ decode-map-as
+                                either (open-field target-component :actions) ({})
+                                :: 'Map 'Tag 'Dynamic
+                              listener $ &let
+                                action $ open-field e :action
+                                if (tag? action) (open-field actions action) (raise "|expects event action Tag")
+                            if (nil? listener)
+                              echo "|WARNING: cannot find comp listener" (open-field e :action) |among (keys actions) "|with path" path
+                              listener e dispatch!
+                            ; echo target-component
+                            ; echo $ deref *tree-state
+                    true &unit
+              true $ raise "|Expected Paint event Map or ready nil"
             , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'Dynamic 'Dynamic
+          :tests $ [] $ %{} 'TestEntry (:name |ready-and-malformed-host-events)
+            :code $ quote $ let
+                dispatch! $ fn (cursor data) (raise |unexpected-dispatch)
+              assert= &unit $ handle-tree-event nil dispatch!
+              assert= &unit $ handle-tree-event ({}) dispatch!
+              assert= "|Expected Paint event Map or ready nil" $ try (handle-tree-event |wrong dispatch!)
+                fn (message) message
+              let
+                  tree @*tree-state
+                reset! *tree-state $ {} $ :children ({})
+                let
+                    result $ try
+                      handle-tree-event
+                        {}
+                          :path $ [] :missing
+                          :action :click
+                        , dispatch!
+                      fn (message) (reset! *tree-state tree) (raise message)
+                  reset! *tree-state tree
+                  assert= &unit result
         'image $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn image (options) (assoc options :type :image)
           :examples $ []
