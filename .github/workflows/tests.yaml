@@ -11,20 +11,21 @@ permissions:
 
 jobs:
   test:
-    name: Calcit 0.29.1 validation
-    runs-on: ubuntu-latest
+    name: Calcit 0.30.1-alpha.4 validation
+    runs-on: ubuntu-24.04
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
-      - uses: calcit-lang/setup-calcit@704b3f5cd6f9ce3bd1e0c926dbdd1d181adb8180 # v1
+      - uses: calcit-lang/setup-calcit@v1.5.0
         with:
           deps-file: deps.cirru
           tools: calcit,caps
+          caps-version: "0.1.1"
 
       - name: Install calcit-paint system libraries
         run: |
@@ -39,11 +40,12 @@ jobs:
       - name: Validate Calcit
         run: |
           set -euo pipefail
-          test "$(calcit -v)" = "0.29.1"
+          test "$(calcit -v)" = "0.30.1-alpha.4"
           calcit calcit.cirru edit format
           git diff --exit-code -- calcit.cirru
           calcit calcit.cirru --check-only --all-defs
+          calcit calcit.cirru fix --workflow strict --verify --format json
           calcit calcit.cirru --check-only --ns corokia.core --ns corokia.complex --ns corokia.comp --ns corokia.comp.container --ns corokia.main --ns corokia.util --summary-only --format json
-          calcit calcit.cirru analyze weak-types --only schema-dynamic,unresolved-type-slot,code-dynamic --intent unresolved --summary-only --format json
+          calcit calcit.cirru analyze weak-types --only dynamic-method --summary-only --format json | jq -e '.data.summary.findings == 0'
           calcit calcit.cirru analyze weak-types --only deprecated-call --summary-only --format json | jq -e '.data.summary.calls == 0'
           calcit calcit.cirru test --require-match --summary-only --format json

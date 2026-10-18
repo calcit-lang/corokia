@@ -1,15 +1,29 @@
 ## Corokia in Calcit
 
-状态：experimental。当前使用正式 Calcit 0.29.1、calcit-paint 0.2.5 与 Memof 0.0.38；
-模块版本保持 0.2.3，本次迁移不发布新版本。Snapshot 明确使用 native target；
+状态：experimental。当前迁移候选使用 Calcit **0.30.1-alpha.4**（预发布，不是正式 0.30.1）、
+正式 tag calcit-paint 0.2.6 与 Memof 0.0.39；
+模块版本 0.2.4，发布状态以 GitHub Releases 和正式 tag 为准。Snapshot 明确使用 native target；
 这是桌面画布项目，不是 Web 前端，因此不配置 COS/CDN。
 
-本地验证：严格依赖安装、0.29.1 原生 realization 与工具链验证通过；61/61 定义检查、
-43/43 项目公开定义检查、原有七项测试通过。场景测试使用 Paint 原生 scene validator，
+本地验证：61/61 定义检查、
+43/43 项目公开定义检查、原有七项测试及一项真实启动回归通过。场景测试使用 Paint 原生 scene validator，
 覆盖七个 tab 渲染路径的 Option lookup 与 rectangle size，不打开窗口。deprecated calls
-为 0。CI 使用严格检查与原有测试，不再使用已弃用的 `analyze quality` 数字预算基线。
-状态 Map 保留泛型值类型，组件输出仍是异构开放 Map；33 个定义仍有 72 个 unresolved
-dynamic slots，不宣称类型债务清零。图形交互及字体资源尚未 smoke-test。
+为 0。CI 增加完整 strict workflow，并保留原有检查与测试，不再使用已弃用的 `analyze quality` 数字预算基线。
+正式 Memof 0.0.39 已消除旧 singleton cache 内部合同问题，完整 strict 现已通过，
+不再使用临时候选覆盖。相关证据沿用 [Memof #48](https://github.com/calcit-lang/memof/issues/48)。
+正式依赖已通过干净 Linux CI 的构建与完整门禁，不把 CI 通过当成已发布。
+Memof Anchor `.deref` 现返回 Option；
+本项目使用缓存 API，没有 Anchor 调用，后续新增调用必须处理缺失值。
+状态 Map 保留泛型值类型，组件输出仍是异构开放 Map；43 个公开定义的 schema 覆盖为
+9 full / 33 partial / 1 none，不宣称类型债务清零。实际原生启动/首帧/自动关闭 smoke test
+通过；窗口未暴露给桌面自动化工具，因此尚未完成视觉和点击交互验收，不能冒称通过。
+
+使用者影响：公开组件继续使用原 Map 事件合同，Paint 初始 ready nil 现在正确忽略，
+其他非 Map 输入明确拒绝；没有把 nil 伪造成空 Map，也没有重写为新的 nominal 事件 API。
+过期事件找不到目标组件时，沿用已有警告并停止派发，不在空值判断前读取 actions。
+升级需重启原生进程。状态 Map、游标路径、缺字段不更新、布局默认值和派发顺序不变；
+本项目不处理远端存储或前后端协议。CI 使用精确正式 Action tag（接受可移动风险），
+只替换没有失败条件的类型计数输出为实际零动态方法门禁，不新增检查脚本或数量基线。
 
 State declarations use `defref`, and literal dispatch uses `match`. The four
 basic components now declare Map state and result contracts. Open cursor,
@@ -17,6 +31,9 @@ numeric event/drag-position and label fields are checked before concrete use;
 invalid values raise rather than being coerced or silently replaced. Native
 callback replays preserve slider mouse-down/move (10 to 25) and drag (3,4 to
 5,3) behavior. These replays are not graphical desktop interaction tests.
+本轮另行回放计数器、键盘、slider move 和 drag 回调；数值更新保留原 `update` 的
+缺字段不修改语义。precision、布局 dx、状态 cursor 和坐标在进入具体运算前检查，
+不增加新的业务默认值；事件处理完成后显式返回 Unit。
 
 ### Usages
 
@@ -25,10 +42,11 @@ Install dependencies, validate the Snapshot, and run the pure test suite:
 ```bash
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.29.1"
+test "$(calcit -v)" = "0.30.1-alpha.4"
 calcit calcit.cirru edit format
 git diff --exit-code -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs
+calcit calcit.cirru fix --workflow strict --verify --format json
 calcit calcit.cirru --check-only --ns corokia.core --ns corokia.complex --ns corokia.comp --ns corokia.comp.container --ns corokia.main --ns corokia.util --summary-only --format json
 calcit calcit.cirru test --require-match --summary-only --format json
 ```
@@ -41,8 +59,10 @@ toolchain. If a Skia prebuilt binary is unavailable, its source build also needs
 Ninja on PATH. CI installs Fontconfig and FreeType development libraries.
 
 如果继承的 Skia 镜像不可用，可按 Paint README 仅对本次安装使用官方 Release 产物：
-`env -u SKIA_BINARIES_URL caps --strict --ci`。这不修改全局镜像配置，也不复用其他
-Calcit 工具链的原生库。本地 0.29.1 验证使用此路径；源码 fallback 在 macOS 27 /
+`env -u SKIA_BINARIES_URL caps --strict --ci`。这不修改全局镜像配置。原生库须对应精确
+源码和 ABI，干净 CI 通过 Caps 按当前工具链构建。本地先用与正式 tag 的 Rust 源码、
+Cargo manifest/lock 完全相同的既有构建验证实际 ABI，不称为全新 Caps realization。
+此前 0.29.1 验证使用官方产物路径；源码 fallback 在 macOS 27 /
 Apple clang 21 下可能遇到上游 [rust-skia #1335](https://github.com/rust-skia/rust-skia/pull/1335)
 所述的 bindings 问题。
 
