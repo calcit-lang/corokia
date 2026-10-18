@@ -2,7 +2,7 @@
 
 状态：experimental。当前迁移候选使用 Calcit **0.30.1-alpha.4**（预发布，不是正式 0.30.1）、
 正式 tag calcit-paint 0.2.6 与 Memof 0.0.39；
-模块版本 0.2.4 尚未发布。Snapshot 明确使用 native target；
+模块版本 0.2.4，发布状态以 GitHub Releases 和正式 tag 为准。Snapshot 明确使用 native target；
 这是桌面画布项目，不是 Web 前端，因此不配置 COS/CDN。
 
 本地验证：61/61 定义检查、
@@ -11,7 +11,8 @@
 为 0。CI 增加完整 strict workflow，并保留原有检查与测试，不再使用已弃用的 `analyze quality` 数字预算基线。
 正式 Memof 0.0.39 已消除旧 singleton cache 内部合同问题，完整 strict 现已通过，
 不再使用临时候选覆盖。相关证据沿用 [Memof #48](https://github.com/calcit-lang/memof/issues/48)。
-本模块仍待 PR 干净 CI，不把本地通过当成已发布。Memof Anchor `.deref` 现返回 Option；
+正式依赖已通过干净 Linux CI 的构建与完整门禁，不把 CI 通过当成已发布。
+Memof Anchor `.deref` 现返回 Option；
 本项目使用缓存 API，没有 Anchor 调用，后续新增调用必须处理缺失值。
 状态 Map 保留泛型值类型，组件输出仍是异构开放 Map；43 个公开定义的 schema 覆盖为
 9 full / 33 partial / 1 none，不宣称类型债务清零。实际原生启动/首帧/自动关闭 smoke test
