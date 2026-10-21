@@ -52,4 +52,5 @@ jobs:
           calcit calcit.cirru test --require-match --summary-only --format json
 
       - name: Run native canvas lifecycle
+        timeout-minutes: 1
         run: xvfb-run -a env CALCIT_PAINT_SMOKE_ONCE=1 calcit calcit.cirru
