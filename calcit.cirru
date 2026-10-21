@@ -13,7 +13,7 @@
         'angle-45 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def angle-45 (&/ &PI 5)
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Number
         'c-length $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn c-length (point)
             assert "|point in a list" $ and (list? point)
