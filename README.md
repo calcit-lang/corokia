@@ -1,28 +1,23 @@
 ## Corokia in Calcit
 
 状态：experimental。候选模块 **0.2.5** 配对正式 Calcit **0.30.1**、
-正式 tag calcit-paint **0.2.7** 与 Memof **0.0.40**，不再混用 alpha 工具链。
+正式 tag calcit-paint **0.2.8** 与 Memof **0.0.40**，不再混用 alpha 工具链。
 升级需同步 CLI/依赖并重启原生进程，原生库重新按精确依赖解析/构建；旧 tag 不移动。
 发布状态以 GitHub Releases 和正式 tag 为准。Snapshot 明确使用 native target；
 这是桌面画布项目，不是 Web 前端，因此不配置 COS/CDN。
 
-本轮只补全 `corokia.comp/angle-45` 的 Number schema，原值及箭头几何公式不变；
+本轮只补全 `corokia.comp/angle-45` 的 Number schema，原值 `PI/5` 及箭头几何公式不变；
 开放 Map 事件/状态、组件回调、默认值及存储合同不改，不新增强转或类型预算。
-原匹配 alpha.4 图的修改前后 61 个定义与原八项测试通过，不冒充正式版本验收；
-正式 0.30.1、Caps strict/toolchain 与真实窗口生命周期以本轮 CI 为准。
-CI 复用 Paint 自带的一帧退出模式在隔离 Xvfb 中启动/绘制/退出，不新增验收脚本。
-下述为此前 alpha 迁移证据，不代表本轮正式图已完成视觉或点击验收：61/61 定义检查、
-43/43 项目公开定义检查、原有七项测试及一项真实启动回归通过。场景测试使用 Paint 原生 scene validator，
-覆盖七个 tab 渲染路径的 Option lookup 与 rectangle size，不打开窗口。deprecated calls
-为 0。CI 增加完整 strict workflow，并保留原有检查与测试，不再使用已弃用的 `analyze quality` 数字预算基线。
-正式 Memof 0.0.39 已消除旧 singleton cache 内部合同问题，完整 strict 现已通过，
-不再使用临时候选覆盖。相关证据沿用 [Memof #48](https://github.com/calcit-lang/memof/issues/48)。
-正式依赖已通过干净 Linux CI 的构建与完整门禁，不把 CI 通过当成已发布。
-Memof Anchor `.deref` 现返回 Option；
+README 的 Unit 返回示例使用值 `&unit`，不把它写成函数调用 `(&unit)`。
+Memof Anchor `.deref` 返回 Option；
 本项目使用缓存 API，没有 Anchor 调用，后续新增调用必须处理缺失值。
-状态 Map 保留泛型值类型，组件输出仍是异构开放 Map；43 个公开定义的 schema 覆盖为
-9 full / 33 partial / 1 none，不宣称类型债务清零。实际原生启动/首帧/自动关闭 smoke test
-通过；窗口未暴露给桌面自动化工具，因此尚未完成视觉和点击交互验收，不能冒称通过。
+状态 Map 保留泛型值类型，组件输出仍是异构开放 Map，不宣称类型债务清零。
+
+CI 执行正式 0.30.1、Caps strict/toolchain、全部定义、完整 strict、动态方法/弃用调用为零及
+原八项测试。场景测试使用真正的 Paint validator，覆盖七个 tab 的 Option lookup 与 rectangle size。
+窗口步骤有一分钟超时，复用 Paint0.2.8 的 smoke 结果合同，不再把旧版本的零退出码当作首帧证明；
+不新增消费者日志验证脚本。正式消费者验收结果以本轮 PR 为准，不沿用 alpha 或 Paint0.2.7 的旧结论。
+视觉和鼠标/点击交互尚未完成验收，不能冒称通过；本项目不使用已弃用的质量数字预算基线。
 
 使用者影响：公开组件继续使用原 Map 事件合同，Paint 初始 ready nil 现在正确忽略，
 其他非 Map 输入明确拒绝；没有把 nil 伪造成空 Map，也没有重写为新的 nominal 事件 API。
@@ -31,15 +26,10 @@ Memof Anchor `.deref` 现返回 Option；
 本项目不处理远端存储或前后端协议。CI 使用精确正式 Action tag（接受可移动风险），
 只替换没有失败条件的类型计数输出为实际零动态方法门禁，不新增检查脚本或数量基线。
 
-State declarations use `defref`, and literal dispatch uses `match`. The four
-basic components now declare Map state and result contracts. Open cursor,
+State declarations use `defref`, and literal dispatch uses `match`. Open cursor,
 numeric event/drag-position and label fields are checked before concrete use;
-invalid values raise rather than being coerced or silently replaced. Native
-callback replays preserve slider mouse-down/move (10 to 25) and drag (3,4 to
-5,3) behavior. These replays are not graphical desktop interaction tests.
-本轮另行回放计数器、键盘、slider move 和 drag 回调；数值更新保留原 `update` 的
-缺字段不修改语义。precision、布局 dx、状态 cursor 和坐标在进入具体运算前检查，
-不增加新的业务默认值；事件处理完成后显式返回 Unit。
+invalid values raise rather than being coerced or silently replaced.
+数值更新保留原 `update` 的缺字段不修改语义；不增加新的业务默认值，事件处理后返回 Unit。
 
 ### Usages
 
@@ -239,7 +229,7 @@ Component for slide value:
 
 ```cirru
 corokia.comp/comp-slider (>> states :k) 10
-  fn (new-value d!) (&unit)
+  fn (new-value d!) &unit
   Option :some $ {} (:precision 2) (:unit 1)
     :title |Slider
     :position ([] 1 2)
@@ -251,7 +241,7 @@ Component for dragging position:
 
 ```cirru
 corokia.comp/comp-drag-point (>> states :k) ([] 1 2)
-  fn (new-position d!) (&unit)
+  fn (new-position d!) &unit
   Option :some $ {}
     :font-color $ [] 0 0 80
     :render-text $ fn (position)
@@ -264,7 +254,7 @@ Arrow:
 
 ```cirru
 corokia.comp/comp-arrow (>> states :k) ([] 0 0) ([] 10 10)
-  fn (from to d!) (&unit)
+  fn (from to d!) &unit
   Option :some $ {}
     :line-color $ [] 0 0 100
     :line-width 1
