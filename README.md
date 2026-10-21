@@ -1,11 +1,17 @@
 ## Corokia in Calcit
 
-状态：experimental。当前迁移候选使用 Calcit **0.30.1-alpha.4**（预发布，不是正式 0.30.1）、
-正式 tag calcit-paint 0.2.6 与 Memof 0.0.39；
-模块版本 0.2.4，发布状态以 GitHub Releases 和正式 tag 为准。Snapshot 明确使用 native target；
+状态：experimental。候选模块 **0.2.5** 配对正式 Calcit **0.30.1**、
+正式 tag calcit-paint **0.2.7** 与 Memof **0.0.40**，不再混用 alpha 工具链。
+升级需同步 CLI/依赖并重启原生进程，原生库重新按精确依赖解析/构建；旧 tag 不移动。
+发布状态以 GitHub Releases 和正式 tag 为准。Snapshot 明确使用 native target；
 这是桌面画布项目，不是 Web 前端，因此不配置 COS/CDN。
 
-本地验证：61/61 定义检查、
+本轮只补全 `corokia.comp/angle-45` 的 Number schema，原值及箭头几何公式不变；
+开放 Map 事件/状态、组件回调、默认值及存储合同不改，不新增强转或类型预算。
+原匹配 alpha.4 图的修改前后 61 个定义与原八项测试通过，不冒充正式版本验收；
+正式 0.30.1、Caps strict/toolchain 与真实窗口生命周期以本轮 CI 为准。
+CI 复用 Paint 自带的一帧退出模式在隔离 Xvfb 中启动/绘制/退出，不新增验收脚本。
+下述为此前 alpha 迁移证据，不代表本轮正式图已完成视觉或点击验收：61/61 定义检查、
 43/43 项目公开定义检查、原有七项测试及一项真实启动回归通过。场景测试使用 Paint 原生 scene validator，
 覆盖七个 tab 渲染路径的 Option lookup 与 rectangle size，不打开窗口。deprecated calls
 为 0。CI 增加完整 strict workflow，并保留原有检查与测试，不再使用已弃用的 `analyze quality` 数字预算基线。
@@ -42,12 +48,11 @@ Install dependencies, validate the Snapshot, and run the pure test suite:
 ```bash
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.30.1-alpha.4"
+test "$(calcit -v)" = "0.30.1"
 calcit calcit.cirru edit format
 git diff --exit-code -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs
 calcit calcit.cirru fix --workflow strict --verify --format json
-calcit calcit.cirru --check-only --ns corokia.core --ns corokia.complex --ns corokia.comp --ns corokia.comp.container --ns corokia.main --ns corokia.util --summary-only --format json
 calcit calcit.cirru test --require-match --summary-only --format json
 ```
 
