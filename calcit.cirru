@@ -55,10 +55,10 @@
                 :children $ {}
                   :from $ comp-drag-point (>> states :from) from
                     fn (point d!) (on-change point to d!)
-                    Option :some $ merge defaults options
+                    Option :some $ .merge defaults options
                   :to $ comp-drag-point (>> states :to) to
                     fn (point d!) (on-change from point d!)
-                    Option :some $ merge defaults options
+                    Option :some $ .merge defaults options
                 :actions $ {}
                 :render $ fn (dict)
                   g
@@ -94,7 +94,7 @@
                 :render $ fn (dict)
                   g
                     {} $ :position position
-                    touch-area :drag cursor $ Option :some $ merge
+                    touch-area :drag cursor $ Option :some $ .merge
                       {} (:radius 8)
                         :fill-color $ [] 20 80 90
                       , options
@@ -111,7 +111,7 @@
                               , "|)"
                       if (non-nil? content)
                         if (string? content)
-                          text content $ Option :some $ merge options
+                          text content $ Option :some $ .merge options
                             {}
                               :color $ either (open-field options :font-color) ([] 0 0 100 0.7)
                               :position $ [] 16 0
@@ -128,12 +128,12 @@
                             &let
                               initial $ open-field state :initial-position
                               if (list? initial)
-                                map initial $ fn (v)
+                                .map initial $ fn (v)
                                   match (data-view v)
                                     (:number n) n
                                     _ $ raise "|expects numeric drag position"
                                 raise "|expects initial drag position List"
-                            map
+                            .map
                               []
                                 either (open-field e :dx) 0
                                 either (open-field e :dy) 0
@@ -213,7 +213,7 @@
                 cursor $ &let
                   cursor-value $ open-field states :cursor
                   if (list? cursor-value) cursor-value $ raise "|expects cursor in a list"
-                options $ merge
+                options $ .merge
                   {}
                     :font-color $ [] 0 0 100
                     :fill-color $ [] 0 0 100 0.2
@@ -237,7 +237,7 @@
                           :fill-color $ open-field options :fill-color
                           :line-color $ open-field options :line-color
                         text
-                          &str:slice (str info) 1 $ count $ str info
+                          &str:slice (str info) 1 $ .len $ str info
                           Option :some $ {} (:align :center)
                             :position $ [] 0 0
                             :size $ open-field options :font-size
@@ -382,8 +382,8 @@
                 state $ either (open-field states :data)
                   {} $ :size 0
               {}
-                :children $ merge $ -> (range 3)
-                  map $ fn (x)
+                :children $ .merge $ -> (range 3)
+                  .map $ fn (x)
                     []
                       turn-tag $ str |task- x
                       comp-counter
@@ -397,7 +397,7 @@
                       Option :some $ {} (:align :center)
                         :position $ [] 20 20
                     g ([] 40 60) & $ -> (range 3)
-                      map $ fn (x)
+                      .map $ fn (x)
                         .unwrap $ get dict $ turn-tag (str |task- x)
                     g ({})
                       circle 20 $ Option :some $ {}
@@ -440,7 +440,7 @@
                     {} $ :pure-shape? true
                     polyline
                       -> (range n)
-                        map $ fn (x)
+                        .map $ fn (x)
                           c+
                             c* ([] radius 0)
                               rad-point $ * v x
@@ -470,7 +470,7 @@
                     {} $ :pure-shape? true
                     polyline
                       -> (range 200)
-                        map $ fn (x)
+                        .map $ fn (x)
                           c*
                             []
                               + b0 $ * r0 x
@@ -663,7 +663,7 @@
         'circle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn circle (radius arg)
             let
-                options $ merge
+                options $ .merge
                   {}
                     :fill-color $ [] 0 0 100 0.3
                     :line-color $ [] 0 0 100 0.8
@@ -681,39 +681,37 @@
             :return $ :: 'Map 'Tag 'Dynamic
         'defcomp $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defmacro defcomp (comp-name args & body)
-            quasiquote $ defn ~comp-name ~args $ merge
-              {} (:type :comp)
-                :name $ ~ $ turn-tag comp-name
-              let
-                  ret $ do ~@body
-                  c $ quote ~comp-name
-                assert (str "|component returns a map for component: " c) (map? ret)
-                assert (str "|expects a :render field in function: " c)
-                  and (contains? ret :render)
-                    fn? $
-                      get ret :render
-                      , .unwrap
-                assert (str "|expects a :children field in map in:" c)
-                  and (contains? ret :children)
-                    map? $
-                      get ret :children
-                      , .unwrap
-                assert (str "|expects an :actions field in map: " c)
-                  and (contains? ret :actions)
-                    map? $
-                      get ret :actions
-                      , .unwrap
-                {} (:type :component)
-                  :children $
+            quasiquote $ defn ~comp-name ~args $ let
+                ret $ do ~@body
+                c $ quote ~comp-name
+              assert (str "|component returns a map for component: " c) (map? ret)
+              assert (str "|expects a :render field in function: " c)
+                and (contains? ret :render)
+                  fn? $
+                    get ret :render
+                    , .unwrap
+              assert (str "|expects a :children field in map in:" c)
+                and (contains? ret :children)
+                  map? $
                     get ret :children
                     , .unwrap
-                  :tree $
-                      get ret :render
-                      , .unwrap
-                    (get ret :children) .unwrap
-                  :actions $
+              assert (str "|expects an :actions field in map: " c)
+                and (contains? ret :actions)
+                  map? $
                     get ret :actions
                     , .unwrap
+              {} (:type :component)
+                :name $ ~ $ turn-tag comp-name
+                :children $
+                  get ret :children
+                  , .unwrap
+                :tree $
+                    get ret :render
+                    , .unwrap
+                  (get ret :children) .unwrap
+                :actions $
+                  get ret :actions
+                  , .unwrap
           :examples $ []
           :schema $ :: 'Macro $ {} (:rest 'Syntax)
             :capabilities $ #{}
@@ -723,7 +721,7 @@
           :code $ quote $ defn g (props & xs)
             if (list? props)
               {} (:type :group) (:position props) (:children xs)
-              merge
+              .merge
                 decode-map-as props $ :: 'Map 'Tag 'Dynamic
                 {} (:type :group) (:children xs)
           :examples $ []
@@ -747,7 +745,7 @@
               nil $ do (echo "|nil type from tree:" tree) nil
               :group $ if (open-field tree :pure-shape?) tree $ update tree :children
                 fn (xs)
-                  if (list? xs) (map xs get-shape-tree) (raise "|expects group children in a list")
+                  if (list? xs) (.map xs get-shape-tree) (raise "|expects group children in a list")
               :component $ get-shape-tree $ open-field tree :tree
               _ tree
           :examples $ []
@@ -769,9 +767,11 @@
                         track-overcost 40 $ push-drawing-data! |render-canvas! info
                     (and (non-nil? path) (non-nil? (open-field e :action)))
                       let
-                          data-path $ concat & $ ->
-                            decode-map-as path $ :: 'List 'Dynamic
-                            map $ fn (x) ([] :children x)
+                          data-path $ decode-map-as
+                            .concat ([]) & $ ->
+                              decode-map-as path $ :: 'List 'Dynamic
+                              .map $ fn (x) ([] :children x)
+                            :: 'List 'Dynamic
                           target-component $
                             get-in-dynamic (deref *tree-state) data-path
                             , .unwrap-or nil
@@ -815,6 +815,28 @@
                       fn (message) (reset! *tree-state tree) (raise message)
                   reset! *tree-state tree
                   assert= &unit result
+                let
+                    result $ try
+                      do
+                        reset! *tree-state $ {} $ :children
+                          {} $ :target $ {}
+                            :actions $ {} $ :click
+                              fn (e d!)
+                                reset! *tree-state $ assoc @*tree-state :test-dispatched e
+                                , &unit
+                        handle-tree-event
+                          {}
+                            :path $ [] :target
+                            :action :click
+                          , dispatch!
+                        open-field @*tree-state :test-dispatched
+                      fn (message) (reset! *tree-state tree) (raise message)
+                  reset! *tree-state tree
+                  assert=
+                    {}
+                      :path $ [] :target
+                      :action :click
+                    , result
         'image $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn image (options) (assoc options :type :image)
           :examples $ []
@@ -850,7 +872,7 @@
             let
                 options $ .unwrap-or (first xs) false
               if (map? options)
-                merge
+                .merge
                   decode-map-as options $ :: 'Map 'Tag 'Dynamic
                   {} (:type :ops)
                     :path $ either (open-field options :path) (rest xs)
@@ -878,7 +900,7 @@
         'rect $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rect (sizes arg)
             let
-                options $ merge
+                options $ .merge
                   {}
                     :fill-color $ [] 0 0 100 0.3
                     :line-color $ [] 0 0 100 0.8
@@ -911,7 +933,7 @@
           :code $ quote $ defn text (content arg)
             &let
               options $ .unwrap-or arg $ {}
-              merge options $ {} (:type :text)
+              .merge options $ {} (:type :text)
                 :position $ open-field options :position
                 :text content
                 :color $ either (open-field options :color) ([] 0 0 100)
@@ -925,7 +947,7 @@
           :code $ quote $ defn touch-area (action path arg)
             let
                 options $ .unwrap-or arg $ {}
-              merge
+              .merge
                 {} (:type :touch-area)
                   :position $ open-field options :position
                   :action action
@@ -948,7 +970,7 @@
                   , .unwrap
               decode-map-as
                 assoc-in store
-                  concat ([] :states) cursor $ [] :data
+                  .concat ([] :states) cursor $ [] :data
                   , data
                 :: 'Map 'Tag 'Dynamic
           :examples $ []
