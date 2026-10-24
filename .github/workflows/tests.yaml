@@ -46,9 +46,7 @@ jobs:
           calcit calcit.cirru edit format
           test "$(git hash-object calcit.cirru)" = "$(cat acceptance/snapshot-blob.txt)"
           calcit calcit.cirru --check-only --all-defs
-          report="$(calcit calcit.cirru fix --workflow strict --verify --format json)"
-          printf '%s\n' "$report"
-          jq -e '.data.workflow.status? == "passed" and .diagnostics? == []' <<< "$report"
+          calcit calcit.cirru fix --workflow strict --verify --format json | jq -e 'if .data.workflow.status? == "passed" and .diagnostics? == [] then true else ., false end'
           calcit calcit.cirru analyze weak-types --only dynamic-method --summary-only --format json | jq -e '.data.summary.findings == 0'
           calcit calcit.cirru analyze weak-types --only deprecated-call --summary-only --format json | jq -e '.data.summary.calls == 0'
           calcit calcit.cirru test --require-match --summary-only --format json
