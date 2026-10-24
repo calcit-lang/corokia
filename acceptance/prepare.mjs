@@ -35,6 +35,17 @@ function normalize(node,id){
 }
 for(const d of expected)d.code=normalize(d.code,d.id);
 assert.deepEqual(counts,{merge:13,map:8,count:1,concat:2});
+const componentMacro=expected.find(d=>d.id==='corokia.core/defcomp');
+assert.equal(componentMacro.code[3][0],'quasiquote');
+const expansion=componentMacro.code[3][1],wrapper=expansion[3];
+assert.equal(wrapper[0],'.merge');assert.equal(wrapper.length,3);
+assert.deepEqual(wrapper[1],['{}',[':type',':comp'],[':name',['~',['turn-tag','comp-name']]]]);
+assert.equal(wrapper[2][0],'let');
+const componentShape=wrapper[2].at(-1);
+assert.deepEqual(componentShape.slice(0,2),['{}',[':type',':component']]);
+assert.deepEqual(componentShape.slice(2).map(p=>p[0]),[':children',':tree',':actions']);
+componentShape.splice(2,0,structuredClone(wrapper[1][2]));
+expansion[3]=wrapper[2];
 const events=expected.find(d=>d.id==='corokia.core/handle-tree-event');
 const pathBindings=[];
 function findPathBinding(n){if(!Array.isArray(n))return;if(n[0]==='data-path'&&n.length===2)pathBindings.push(n);n.forEach(findPathBinding);}
@@ -60,7 +71,7 @@ const args=['edit','transaction','--file','acceptance/operations.json','--format
 const preview=JSON.parse(run(...args,'--dry-run'));assert.ok(preview.scoped_revision);
 writeFileSync('acceptance/preview.json',JSON.stringify(preview,null,2));
 writeFileSync('acceptance/applied.json',run(...args,'--expect-revision',preview.scoped_revision));
-assert.deepEqual(inventory(),expected,'All45views:only24MapListheads+checkedconcatenatedpath+onepositivepathdispatchassertion;allpublicschema/FFI/geometry/defaults/ready-nil/originaltestassertions+8names preserved');
+assert.deepEqual(inventory(),expected,'All45views:24MapListsitesincludingeliminatedredundantmacroMerge+checkedconcatenatedpath+onepositivepathdispatchassertion;allpublicschema/FFI/geometry/defaults/ready-nil/originaltestassertions+8names preserved');
 assert.deepEqual(q('config'),config);
 writeFileSync('acceptance/after.json',JSON.stringify(expected,null,2));
 writeFileSync('acceptance/snapshot-blob.txt',execFileSync('git',['hash-object','calcit.cirru'],{encoding:'utf8'}));
