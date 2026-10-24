@@ -1,12 +1,16 @@
 ## Corokia in Calcit
 
-状态：experimental。候选模块 **0.2.5** 配对正式 Calcit **0.30.1**、
+状态：experimental。模块 **0.2.5** 配对正式 Calcit **0.30.1**、
 正式 tag calcit-paint **0.2.8** 与 Memof **0.0.40**，不再混用 alpha 工具链。
 升级需同步 CLI/依赖并重启原生进程，原生库重新按精确依赖解析/构建；旧 tag 不移动。
 发布状态以 GitHub Releases 和正式 tag 为准。Snapshot 明确使用 native target；
 这是桌面画布项目，不是 Web 前端，因此不配置 COS/CDN。
 
-本轮只补全 `corokia.comp/angle-45` 的 Number schema，原值 `PI/5` 及箭头几何公式不变；
+本轮处理 13 处 Map 合并、8 处 List `.map`、两处 `.concat` 和一处字符串 `.len` 写法。
+12 处合并使用 `.merge`；组件宏剩余的一处直接在最终 Map 中写入原 `:name`，
+移除先设 `:type :comp` 再被 `:component` 覆盖的冗余合并，最终字段和值保持不变。
+保留原线程表达式、参数顺序和其余 Map 覆盖优先级。
+已有 `corokia.comp/angle-45` 的 Number schema、原值 `PI/5` 及箭头几何公式不变；
 开放 Map 事件/状态、组件回调、默认值及存储合同不改，不新增强转或类型预算。
 README 的 Unit 返回示例使用值 `&unit`，不把它写成函数调用 `(&unit)`。
 Memof Anchor `.deref` 返回 Option；
@@ -18,6 +22,11 @@ CI 执行正式 0.30.1、Caps strict/toolchain、全部定义、完整 strict、
 窗口步骤有一分钟超时，复用 Paint0.2.8 的 smoke 结果合同，不再把旧版本的零退出码当作首帧证明；
 不新增消费者日志验证脚本。正式消费者验收结果以本轮 PR 为准，不沿用 alpha 或 Paint0.2.7 的旧结论。
 视觉和鼠标/点击交互尚未完成验收，不能冒称通过；本项目不使用已弃用的质量数字预算基线。
+本轮仍保留这项验收缺口，不把 headless 首帧 smoke 当成原生视觉/鼠标交互通过。
+concat spread 以空 List 为接收者，保留原路径拼接与空列表语义；原事件测试组只补充一项
+正常路径派发断言，仍为八组测试。不宣称所有源码写法或开放类型边界已清零。
+拼接结果在交给路径读取函数前受检为 `List<Dynamic>`，不把当前 concat spread 推断
+未保留的类型关系冒充已证明，也不收窄原来允许异构 key 的路径合同。
 
 使用者影响：公开组件继续使用原 Map 事件合同，Paint 初始 ready nil 现在正确忽略，
 其他非 Map 输入明确拒绝；没有把 nil 伪造成空 Map，也没有重写为新的 nominal 事件 API。
@@ -40,7 +49,7 @@ caps --strict --ci
 caps verify --toolchain
 test "$(calcit -v)" = "0.30.1"
 calcit calcit.cirru edit format
-git diff --exit-code -- calcit.cirru
+git diff --exit-code --quiet -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs
 calcit calcit.cirru fix --workflow strict --verify --format json
 calcit calcit.cirru test --require-match --summary-only --format json
@@ -245,7 +254,7 @@ corokia.comp/comp-drag-point (>> states :k) ([] 1 2)
   Option :some $ {}
     :font-color $ [] 0 0 80
     :render-text $ fn (position)
-      join-string (map position turn-string) |,
+      join-string (.map position turn-string) |,
     :font-size 14
     :font-face "|Arial"
 ```
