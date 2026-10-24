@@ -36,6 +36,11 @@ function normalize(node,id){
 for(const d of expected)d.code=normalize(d.code,d.id);
 assert.deepEqual(counts,{merge:13,map:8,count:1,concat:2});
 const events=expected.find(d=>d.id==='corokia.core/handle-tree-event');
+const pathBindings=[];
+function findPathBinding(n){if(!Array.isArray(n))return;if(n[0]==='data-path'&&n.length===2)pathBindings.push(n);n.forEach(findPathBinding);}
+findPathBinding(events.code);assert.equal(pathBindings.length,1);
+assert.deepEqual(pathBindings[0][1],['.concat',['[]'],'&',['->',['decode-map-as','path',['::',"'List","'Dynamic"]],['.map',['fn',['x'],['[]',':children','x']]]]]);
+pathBindings[0][1]=['decode-map-as',pathBindings[0][1],['::',"'List","'Dynamic"]];
 assert.equal(events.tests.length,1);assert.equal(events.tests[0].name,'ready-and-malformed-host-events');
 const test=events.tests[0].code;
 assert.equal(test[0],'let');assert.equal(test.at(-1)[0],'let');
@@ -55,7 +60,7 @@ const args=['edit','transaction','--file','acceptance/operations.json','--format
 const preview=JSON.parse(run(...args,'--dry-run'));assert.ok(preview.scoped_revision);
 writeFileSync('acceptance/preview.json',JSON.stringify(preview,null,2));
 writeFileSync('acceptance/applied.json',run(...args,'--expect-revision',preview.scoped_revision));
-assert.deepEqual(inventory(),expected,'All45views:only24MapListheads+onepositivepathdispatchassertion;allpublicschema/FFI/geometry/defaults/ready-nil/originaltestassertions+8names preserved');
+assert.deepEqual(inventory(),expected,'All45views:only24MapListheads+checkedconcatenatedpath+onepositivepathdispatchassertion;allpublicschema/FFI/geometry/defaults/ready-nil/originaltestassertions+8names preserved');
 assert.deepEqual(q('config'),config);
 writeFileSync('acceptance/after.json',JSON.stringify(expected,null,2));
 writeFileSync('acceptance/snapshot-blob.txt',execFileSync('git',['hash-object','calcit.cirru'],{encoding:'utf8'}));
