@@ -1,12 +1,17 @@
 ## Corokia in Calcit
 
-状态：experimental。模块 **0.2.5** 配对正式 Calcit **0.30.1**、
-正式 tag calcit-paint **0.2.8** 与 Memof **0.0.40**，不再混用 alpha 工具链。
+状态：experimental。模块 **0.2.5** 配对正式 Calcit **0.31.0**、
+正式 tag calcit-paint **0.2.8** 与 Memof **0.0.41**，不再混用 alpha 工具链。
 升级需同步 CLI/依赖并重启原生进程，原生库重新按精确依赖解析/构建；旧 tag 不移动。
 发布状态以 GitHub Releases 和正式 tag 为准。Snapshot 明确使用 native target；
 这是桌面画布项目，不是 Web 前端，因此不配置 COS/CDN。
 
-本轮处理 13 处 Map 合并、8 处 List `.map`、两处 `.concat` 和一处字符串 `.len` 写法。
+本次 0.31.0 升级保留 Map 事件/状态及回调参数合同。标签、箭头和事件 listener
+在实际调用前检查 `fn?`；非法非函数值会得到明确错误。拖动标签直接调用已经检查过的
+`renderer`，不再重新从开放 Map 读取同一字段。有效回调的参数、次数和派发顺序不变。
+Memof 同步到正式 0.0.41；本次不发布新的 Corokia tag，不放宽类型门禁。
+
+此前源码迁移处理 13 处 Map 合并、8 处 List `.map`、两处 `.concat` 和一处字符串 `.len` 写法。
 12 处合并使用 `.merge`；组件宏剩余的一处直接在最终 Map 中写入原 `:name`，
 移除先设 `:type :comp` 再被 `:component` 覆盖的冗余合并，最终字段和值保持不变。
 保留原线程表达式、参数顺序和其余 Map 覆盖优先级。
@@ -17,7 +22,7 @@ Memof Anchor `.deref` 返回 Option；
 本项目使用缓存 API，没有 Anchor 调用，后续新增调用必须处理缺失值。
 状态 Map 保留泛型值类型，组件输出仍是异构开放 Map，不宣称类型债务清零。
 
-CI 执行正式 0.30.1、Caps strict/toolchain、全部定义、完整 strict、动态方法/弃用调用为零及
+CI 执行正式 0.31.0、Caps strict/toolchain、全部定义、完整 strict、动态方法/弃用调用为零及
 原八项测试。场景测试使用真正的 Paint validator，覆盖七个 tab 的 Option lookup 与 rectangle size。
 窗口步骤有一分钟超时，复用 Paint0.2.8 的 smoke 结果合同，不再把旧版本的零退出码当作首帧证明；
 不新增消费者日志验证脚本。正式消费者验收结果以本轮 PR 为准，不沿用 alpha 或 Paint0.2.7 的旧结论。
@@ -47,7 +52,7 @@ Install dependencies, validate the Snapshot, and run the pure test suite:
 ```bash
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.30.1"
+test "$(calcit -v)" = "0.31.0"
 calcit calcit.cirru edit format
 git diff --exit-code --quiet -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs

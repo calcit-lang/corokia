@@ -54,10 +54,12 @@
               {}
                 :children $ {}
                   :from $ comp-drag-point (>> states :from) from
-                    fn (point d!) (on-change point to d!)
+                    fn (point d!)
+                      if (fn? on-change) (on-change point to d!) (raise "|expects arrow on-change function")
                     Option :some $ .merge defaults options
                   :to $ comp-drag-point (>> states :to) to
-                    fn (point d!) (on-change from point d!)
+                    fn (point d!)
+                      if (fn? on-change) (on-change from point d!) (raise "|expects arrow on-change function")
                     Option :some $ .merge defaults options
                 :actions $ {}
                 :render $ fn (dict)
@@ -102,7 +104,7 @@
                         renderer $ open-field options :render-text
                         content $ cond
                             fn? renderer
-                            (open-field options :render-text) position
+                            renderer position
                           (= renderer false) nil
                           true $ str "|("
                             .unwrap $ first position
@@ -247,9 +249,11 @@
                   fn (e d!)
                     when
                       = :mouse-down $ open-field e :type
-                      on-change
-                        turn-tag $ open-field e :data
-                        , d!
+                      if (fn? on-change)
+                        on-change
+                          turn-tag $ open-field e :data
+                          , d!
+                        raise "|expects tab on-change function"
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] (:: 'Map 'Tag 'Dynamic) 'Dynamic (:: 'List 'Dynamic) 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
@@ -786,7 +790,7 @@
                                 if (tag? action) (open-field actions action) (raise "|expects event action Tag")
                             if (nil? listener)
                               echo "|WARNING: cannot find comp listener" (open-field e :action) |among (keys actions) "|with path" path
-                              listener e dispatch!
+                              if (fn? listener) (listener e dispatch!) (raise "|expects component event listener function")
                             ; echo target-component
                             ; echo $ deref *tree-state
                     true &unit
