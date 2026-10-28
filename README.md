@@ -1,5 +1,9 @@
 ## Corokia in Calcit
 
+使用者影响：本候选配对正式 Calcit **0.32.0**、Paint **0.2.9** 与 Memof **0.0.42**，需重新安装精确依赖并重启原生进程。本轮不发布新的 Corokia tag；这是原生桌面项目，不配置 COS/CDN。
+
+通过官方 format 更新类型表示，43 个定义的语义 schema 保持不变。正式 tag 的 Caps strict 安装及工具链验证、全部 61 个定义、完整 strict、零动态方法/弃用调用、原八项测试均通过。正式依赖的原生窗口首帧生命周期 smoke 以零退出码完成；首帧 smoke 不代表完整视觉或鼠标交互验收，原有这项缺口仍保留。以下为 0.31.0 历史迁移说明。
+
 状态：experimental。模块 **0.2.5** 配对正式 Calcit **0.31.0**、
 正式 tag calcit-paint **0.2.8** 与 Memof **0.0.41**，不再混用 alpha 工具链。
 升级需同步 CLI/依赖并重启原生进程，原生库重新按精确依赖解析/构建；旧 tag 不移动。
@@ -52,7 +56,7 @@ Install dependencies, validate the Snapshot, and run the pure test suite:
 ```bash
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.31.0"
+test "$(calcit -v)" = "0.32.0"
 calcit calcit.cirru edit format
 git diff --exit-code --quiet -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs

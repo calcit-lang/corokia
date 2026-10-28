@@ -13,7 +13,7 @@
         'angle-45 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def angle-45 (&/ &PI 5)
           :examples $ []
-          :schema $ :: 'Number
+          :schema $ quote Number
         'c-length $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn c-length (point)
             assert "|point in a list" $ and (list? point)
@@ -32,8 +32,7 @@
                   , .unwrap
               sqrt $ &+ (pow x 2) (pow y 2)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] $ :: 'List 'Number
+          :schema $ quote $ Fn (List Number) (-> Number)
           :tests $ [] $ %{} 'TestEntry (:name |computes-three-four-five)
             :code $ quote $ assert= 5
               c-length $ [] 3 4
@@ -76,9 +75,9 @@
                       [] :line-to to
                       [] :line-to $ c+ to branch-b
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'List 'Number) (:: 'List 'Number) 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) (List Number) (List Number) Dynamic
+            Option $ Map Tag Dynamic
+            -> $ Map Tag Dynamic
         'comp-drag-point $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-drag-point (states position on-change arg)
             let
@@ -145,9 +144,9 @@
                                   _ $ raise "|expects numeric drag position"
                           , d!
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'List 'Number) 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) (List Number) Dynamic
+            Option $ Map Tag Dynamic
+            -> $ Map Tag Dynamic
         'comp-slider $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-slider (states value on-change arg)
             let
@@ -206,9 +205,9 @@
                       :mouse-down $ d! cursor $ -> state (assoc :v0 value)
                         assoc :x0 $ open-field e :x
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Number 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) Number Dynamic
+            Option $ Map Tag Dynamic
+            -> $ Map Tag Dynamic
         'comp-tabs $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-tabs (states tab tabs on-change arg)
             let
@@ -255,9 +254,9 @@
                           , d!
                         raise "|expects tab on-change function"
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Dynamic (:: 'List 'Dynamic) 'Dynamic $ :: 'Option (:: 'Map 'Tag 'Dynamic)
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) Dynamic (List Dynamic) Dynamic
+            Option $ Map Tag Dynamic
+            -> $ Map Tag Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.comp
           :require
@@ -317,10 +316,9 @@
                       .unwrap $ get dict :image
                 :actions $ {}
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] $ :: 'Map 'Tag 'T
-            :generics $ [] 'T
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag T)
+            -> $ Map Tag Dynamic
+            :generics T
           :tests $ [] $ %{} 'TestEntry (:name |render-tabs-with-option-lookups)
             :code $ quote $ each ([] :main :rotate :cycloid :drag-demo :slider :keydown :image)
               fn (tab)
@@ -375,10 +373,9 @@
                       d! cursor $ update state :count $ fn (n)
                         dec $ decode-map-as n 'Number
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'T) 'Number
-            :generics $ [] 'T
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag T) Number
+            -> $ Map Tag Dynamic
+            :generics T
         'comp-data-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-data-list (states)
             let
@@ -423,10 +420,9 @@
                       :fill-color $ [] 0 0 100 0.2
                 :actions $ {}
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] $ :: 'Map 'Tag 'T
-            :generics $ [] 'T
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag T)
+            -> $ Map Tag Dynamic
+            :generics T
         'comp-demo-cycloid $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-demo-cycloid ()
             {}
@@ -458,9 +454,8 @@
                         :cap :round
               :actions $ {}
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ []
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn
+            -> $ Map Tag Dynamic
         'comp-demo-rotate $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-demo-rotate ()
             {}
@@ -488,9 +483,8 @@
                         :join :round
               :actions $ {}
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ []
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn
+            -> $ Map Tag Dynamic
         'comp-drag-demo $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-drag-demo (states)
             let
@@ -525,10 +519,9 @@
                       {} $ :position $ [] 0 100
                       .unwrap $ get dict :arrow
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] $ :: 'Map 'Tag 'T
-            :generics $ [] 'T
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag T)
+            -> $ Map Tag Dynamic
+            :generics T
         'comp-keydown $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-keydown (states)
             let
@@ -556,10 +549,9 @@
                       d! cursor $ update state :times $ fn (n)
                         dec $ decode-map-as n 'Number
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] $ :: 'Map 'Tag 'T
-            :generics $ [] 'T
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag T)
+            -> $ Map Tag Dynamic
+            :generics T
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.comp.container
           :require
@@ -591,9 +583,8 @@
                     , .unwrap
                   (first p2) .unwrap
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'Number) (:: 'List 'Number)
-            :return $ :: 'List 'Number
+          :schema $ quote $ Fn (List Number) (List Number)
+            -> $ List Number
           :tests $ [] $ %{} 'TestEntry (:name |multiplies-complex-pairs)
             :code $ quote $ assert= ([] -5 10)
               c* ([] 1 2) ([] 3 4)
@@ -609,9 +600,8 @@
                   , .unwrap
                 (last p2) .unwrap
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'Number) (:: 'List 'Number)
-            :return $ :: 'List 'Number
+          :schema $ quote $ Fn (List Number) (List Number)
+            -> $ List Number
           :tests $ [] $ %{} 'TestEntry (:name |adds-pairs)
             :code $ quote $ assert= ([] 4 6)
               c+ ([] 1 2) ([] 3 4)
@@ -627,9 +617,8 @@
                   , .unwrap
                 (last p2) .unwrap
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'Number) (:: 'List 'Number)
-            :return $ :: 'List 'Number
+          :schema $ quote $ Fn (List Number) (List Number)
+            -> $ List Number
           :tests $ [] $ %{} 'TestEntry (:name |subtracts-pairs)
             :code $ quote $ assert= ([] -2 -2)
               c- ([] 1 2) ([] 3 4)
@@ -637,9 +626,8 @@
           :code $ quote $ defn rad-point (x)
             [] (cos x) (sin x)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Number
-            :return $ :: 'List 'Number
+          :schema $ quote $ Fn Number
+            -> $ List Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.complex
     'corokia.core $ %{} 'FileEntry
@@ -647,7 +635,7 @@
         '*tree-state $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *tree-state nil
           :examples $ []
-          :schema $ :: 'Ref 'Dynamic
+          :schema $ quote $ Ref Dynamic
         '>> $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn >> (states k)
             let
@@ -661,9 +649,8 @@
                   :: 'Map 'Tag 'Dynamic
                 , :cursor $ append parent-cursor k
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Tag
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) Tag
+            -> $ Map Tag Dynamic
         'circle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn circle (radius arg)
             let
@@ -680,9 +667,9 @@
                 :line-color $ open-field options :line-color
                 :line-width $ open-field options :line-width
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Number $ :: 'Option (:: 'Map 'Tag 'Dynamic)
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn Number
+            Option $ Map Tag Dynamic
+            -> $ Map Tag Dynamic
         'defcomp $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defmacro defcomp (comp-name args & body)
             quasiquote $ defn ~comp-name ~args $ let
@@ -717,10 +704,8 @@
                   get ret :actions
                   , .unwrap
           :examples $ []
-          :schema $ :: 'Macro $ {} (:rest 'Syntax)
-            :capabilities $ #{}
-            :expansion $ :: 'Definition 'Dynamic
-            :required $ [] 'SyntaxSymbol 'SyntaxList
+          :schema $ quote $ Macro SyntaxSymbol SyntaxList & Syntax
+            -> $ Definition Dynamic
         'g $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn g (props & xs)
             if (list? props)
@@ -729,9 +714,8 @@
                 decode-map-as props $ :: 'Map 'Tag 'Dynamic
                 {} (:type :group) (:children xs)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:rest 'Dynamic)
-            :args $ [] 'Dynamic
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn Dynamic & Dynamic
+            -> $ Map Tag Dynamic
         'get-in-dynamic $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn get-in-dynamic (data path)
             if (empty? path) (Option :some data)
@@ -740,9 +724,8 @@
                 fn (child)
                   get-in-dynamic child $ rest path
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic $ :: 'List 'Dynamic
-            :return $ :: 'Option 'Dynamic
+          :schema $ quote $ Fn Dynamic (List Dynamic)
+            -> $ Option Dynamic
         'get-shape-tree $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn get-shape-tree (tree)
             if (nil? tree) nil $ match (open-field tree :type)
@@ -753,8 +736,7 @@
               :component $ get-shape-tree $ open-field tree :tree
               _ tree
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> Dynamic)
         'handle-tree-event $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn handle-tree-event (e dispatch!)
             cond
@@ -797,8 +779,7 @@
               true $ raise "|Expected Paint event Map or ready nil"
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Dynamic 'Dynamic
+          :schema $ quote $ Fn Dynamic Dynamic (-> Unit)
           :tests $ [] $ %{} 'TestEntry (:name |ready-and-malformed-host-events)
             :code $ quote $ let
                 dispatch! $ fn (cursor data) (raise |unexpected-dispatch)
@@ -844,22 +825,19 @@
         'image $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn image (options) (assoc options :type :image)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] $ :: 'Map 'Tag 'Dynamic
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic)
+            -> $ Map Tag Dynamic
         'key-listener $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn key-listener (key action path arg)
             {} (:type :key-listener) (:key key) (:path path) (:action action) (:data arg)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Dynamic 'Tag (:: 'List 'Dynamic) (:: 'Option 'Dynamic)
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn Dynamic Tag (List Dynamic) (Option Dynamic)
+            -> $ Map Tag Dynamic
         'open-field $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn open-field (data field)
             (get data field) .unwrap-or nil
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic 'Tag
+          :schema $ quote $ Fn Dynamic Tag (-> Dynamic)
           :tests $ []
             %{} 'TestEntry (:name |preserves-missing-as-nil)
               :code $ quote $ assert= nil
@@ -883,9 +861,8 @@
                 {} (:type :ops) (:path xs) (:line-width 1)
                   :line-color $ [] 0 80 80
           :examples $ []
-          :schema $ :: 'Fn $ {} (:rest 'Dynamic)
-            :args $ []
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn & Dynamic
+            -> $ Map Tag Dynamic
         'polyline $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn polyline (stops arg)
             assert "|expects stops in list of points" $ list? stops
@@ -897,10 +874,9 @@
                   :line-color $ [] 0 0 100
                 , options $ {} (:type :polyline) (:position position) (:stops stops)
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'Dynamic)
-              :: 'Option $ :: 'Map 'Tag 'Dynamic
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (List Dynamic)
+            Option $ Map Tag Dynamic
+            -> $ Map Tag Dynamic
         'rect $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rect (sizes arg)
             let
@@ -918,10 +894,9 @@
                 :line-color $ open-field options :line-color
                 :line-width $ open-field options :line-width
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'List 'Number)
-              :: 'Option $ :: 'Map 'Tag 'Dynamic
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (List Number)
+            Option $ Map Tag Dynamic
+            -> $ Map Tag Dynamic
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! (comp-tree)
             &let (tree comp-tree) (reset! *tree-state tree) (; with-log tree)
@@ -931,8 +906,7 @@
                 push-drawing-data! |reset-canvas! $ [] 200 80 30
                 track-overcost 40 $ push-drawing-data! |render-canvas! info
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> Unit)
         'text $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn text (content arg)
             &let
@@ -944,9 +918,9 @@
                 :align $ either (open-field options :align) :center
                 :size $ either (open-field options :size) 14
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'String $ :: 'Option (:: 'Map 'Tag 'Dynamic)
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn String
+            Option $ Map Tag Dynamic
+            -> $ Map Tag Dynamic
         'touch-area $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn touch-area (action path arg)
             let
@@ -958,10 +932,9 @@
                   :path path
                 , options
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] 'Tag (:: 'List 'Dynamic)
-              :: 'Option $ :: 'Map 'Tag 'Dynamic
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn Tag (List Dynamic)
+            Option $ Map Tag Dynamic
+            -> $ Map Tag Dynamic
         'update-states $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn update-states (store op-data)
             let
@@ -978,9 +951,8 @@
                   , data
                 :: 'Map 'Tag 'Dynamic
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'List 'Dynamic)
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) (List Dynamic)
+            -> $ Map Tag Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.core
           :require
@@ -993,7 +965,7 @@
             {} $ :states $ {}
               :cursor $ []
           :examples $ []
-          :schema $ :: 'Ref $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Ref (Map Tag Dynamic)
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op data) (; echo |dispatching: op data)
             if (list? op)
@@ -1002,20 +974,16 @@
                 do (swap! *store updater op data) &unit
                 raise "|expects dispatch operation Tag or cursor List"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Dynamic 'Dynamic
+          :schema $ quote $ Fn Dynamic Dynamic (-> Unit)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (render-page)
             add-watch! *store :change $ fn (v v0)
-              hint-fn $ {}
-                :args $ [] (:: 'Map 'Tag 'Dynamic) (:: 'Map 'Tag 'Dynamic)
-                :return 'Unit
+              hint-fn $ Fn (Map Tag Dynamic) (Map Tag Dynamic) (-> Unit)
               render-page
             echo "|app started."
             launch-canvas! $ fn (event) (handle-tree-event event dispatch!)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'on-error $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn on-error (message)
             calcit-paint.core/push-drawing-data! |render-canvas! $ {} (:type :text) (:text message)
@@ -1024,28 +992,24 @@
               :size 16
               :color $ [] 0 80 60
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'String
+          :schema $ quote $ Fn String (-> Unit)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! () (reset-memof1-caches!) (println |reloaded) (render-page)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'render-page $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-page ()
             render-app! $ comp-container $ deref *store
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'updater $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn updater (store op data)
             match op
               :states $ if (list? data) (update-states store data) (raise "|expects state update in a list")
               _ store
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] (:: 'Map 'Tag 'Dynamic) 'Tag 'Dynamic
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) Tag Dynamic
+            -> $ Map Tag Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.main
           :require
@@ -1070,9 +1034,7 @@
                   echo "|[corokia time]" (quote ~expr) |=> (&number:format ~cost 3) |ms
                 , ~result
           :examples $ []
-          :schema $ :: 'Macro $ {}
-            :capabilities $ #{}
-            :expansion $ :: 'Expr 'Dynamic
-            :required $ [] (:: 'Expr 'Number) (:: 'Expr 'Dynamic)
+          :schema $ quote $ Macro (Expr Number) (Expr Dynamic)
+            -> $ Expr Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.util
