@@ -5,6 +5,8 @@
 ## 对使用者的影响
 
 需按精确依赖重新安装并重启原生进程，Paint 原生库必须对应当前平台和 ABI。
+Paint 0.2.9 的发布清单仍声明 Calcit 0.32.0；这里采用经过实际构建与运行验证的 0.32.1 patch 配对，不修改已发布依赖清单或跳过门禁。
+`caps verify --toolchain` 核对工具链与模块解析；本轮 ABI 运行证据来自本机真实原生构建/测试/首帧，以及 Linux CI 的同组检查和 Xvfb 生命周期。其他平台仍须重新构建并实际验收，不据此承诺全部 ABI 或交互路径。
 这是 native target 的桌面项目，不是 Web 前端，不添加 COS/CDN，也不发布新的 Corokia tag。
 本轮只对齐 patch 工具链；Snapshot、43 个定义的 schema、八项原测试、Map 事件/状态及公开回调合同不变。
 0.32 类型语法已在前轮由官方 format 迁移，不重复改写源码或增加验证脚本。
@@ -19,20 +21,25 @@ Memof 在这里用于缓存，没有 Anchor 调用；不将开放 Map 状态或�
 ```sh
 caps --strict --ci
 caps verify --toolchain
+test "$(calcit -v)" = "0.32.1"
 calcit calcit.cirru edit format
 git diff --exit-code --quiet -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs
-calcit calcit.cirru fix --workflow strict --verify --format json
+calcit calcit.cirru fix --workflow strict --verify --format json | jq -e 'if .data.workflow.status? == "passed" and .diagnostics? == [] then true else ., false end'
+calcit calcit.cirru analyze weak-types --only dynamic-method --summary-only --format json | jq -e '.data.summary.findings == 0'
+calcit calcit.cirru analyze weak-types --only deprecated-call --summary-only --format json | jq -e '.data.summary.calls == 0'
 calcit calcit.cirru test --require-match --summary-only --format json
 ```
 
+Linux CI 在上述检查外，通过 `xvfb-run -a env CALCIT_PAINT_SMOKE_ONCE=1 calcit calcit.cirru` 执行首帧生命周期，并由工作流设置一分钟超时。
 原 CI 保留完整 strict、零动态方法/弃用调用、原八项测试和 Paint 首帧生命周期 smoke。
 本地已通过发布依赖原生构建、61 个定义、完整 strict、零动态/弃用调用、原八项测试及首帧生命周期 smoke。首帧不代表完整视觉或鼠标交互验收；正常窗口进程已启动，但当前 UI 工具未能连接无应用 bundle 的 calcit 窗口，随后停止该进程。本轮不把这一既有交互缺口称为已完成，也不通过数字基线替代类型检查。
 运行 `calcit calcit.cirru` 可在图形桌面启动画布，最终 Linux 结果以 PR CI 为准。
 
 ## 原生构建
 
-Paint 需要系统字体/FreeType 等原生库和构建工具；没有可用 Skia 预构建时，源码构建还需 Ninja。
+Linux CI 安装 `libfontconfig1-dev`、`libfreetype6-dev`、`ninja-build`、`libgl1-mesa-dev`、`libgl1-mesa-dri`、`libxkbcommon-x11-0`；headless 生命周期还需要 `xvfb` 和 `xauth`。
+完整命令见 [原工作流](.github/workflows/tests.yaml)。没有可用 Skia 预构建时，源码构建需 Ninja；目标平台的系统库不能由 Calcit 版本检查替代。
 若继承的 Skia 镜像不可用，可依 Paint README 仅对本次安装使用官方 Release：`env -u SKIA_BINARIES_URL caps --strict --ci`，不修改全局镜像配置。
 macOS 27 / Apple clang 21 的源码 fallback 曾涉及上游 [rust-skia #1335](https://github.com/rust-skia/rust-skia/pull/1335)，构建失败不能直接算作应用算法失败。
 原 `resources/SourceCodePro-Medium.ttf` 字体路径仍需目标环境准备。
