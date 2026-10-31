@@ -1,62 +1,24 @@
-## Corokia in Calcit
+# Corokia in Calcit
 
-使用者影响：本候选配对正式 Calcit **0.32.0**、Paint **0.2.9** 与 Memof **0.0.42**，需重新安装精确依赖并重启原生进程。本轮不发布新的 Corokia tag；这是原生桌面项目，不配置 COS/CDN。
+原生桌面画布实验，使用正式 Calcit **0.32.1**、已发布 Paint **0.2.9** 和 Memof **0.0.42**。
 
-通过官方 format 更新类型表示，43 个定义的语义 schema 保持不变。正式 tag 的 Caps strict 安装及工具链验证、全部 61 个定义、完整 strict、零动态方法/弃用调用、原八项测试均通过。正式依赖的原生窗口首帧生命周期 smoke 以零退出码完成；首帧 smoke 不代表完整视觉或鼠标交互验收，原有这项缺口仍保留。以下为 0.31.0 历史迁移说明。
+## 对使用者的影响
 
-状态：experimental。模块 **0.2.5** 配对正式 Calcit **0.31.0**、
-正式 tag calcit-paint **0.2.8** 与 Memof **0.0.41**，不再混用 alpha 工具链。
-升级需同步 CLI/依赖并重启原生进程，原生库重新按精确依赖解析/构建；旧 tag 不移动。
-发布状态以 GitHub Releases 和正式 tag 为准。Snapshot 明确使用 native target；
-这是桌面画布项目，不是 Web 前端，因此不配置 COS/CDN。
+需按精确依赖重新安装并重启原生进程，Paint 原生库必须对应当前平台和 ABI。
+这是 native target 的桌面项目，不是 Web 前端，不添加 COS/CDN，也不发布新的 Corokia tag。
+本轮只对齐 patch 工具链；Snapshot、43 个定义的 schema、八项原测试、Map 事件/状态及公开回调合同不变。
+0.32 类型语法已在前轮由官方 format 迁移，不重复改写源码或增加验证脚本。
 
-本次 0.31.0 升级保留 Map 事件/状态及回调参数合同。标签、箭头和事件 listener
-在实际调用前检查 `fn?`；非法非函数值会得到明确错误。拖动标签直接调用已经检查过的
-`renderer`，不再重新从开放 Map 读取同一字段。有效回调的参数、次数和派发顺序不变。
-Memof 同步到正式 0.0.41；本次不发布新的 Corokia tag，不放宽类型门禁。
+已有受检边界保持：初始 ready nil 忽略，其他非 Map 事件拒绝；过期目标只警告并停止派发。
+组件回调调用前检查 fn?，数值与布局字段在具体使用前检查，不用强转、伪空 Map 或新增默认值替代错误。
+旧 Map 状态、混合游标、缺字段不修改、派发顺序及原箭头几何公式保持。
+Memof 在这里用于缓存，没有 Anchor 调用；不将开放 Map 状态或组件输出称作类型债务清零。
 
-此前源码迁移处理 13 处 Map 合并、8 处 List `.map`、两处 `.concat` 和一处字符串 `.len` 写法。
-12 处合并使用 `.merge`；组件宏剩余的一处直接在最终 Map 中写入原 `:name`，
-移除先设 `:type :comp` 再被 `:component` 覆盖的冗余合并，最终字段和值保持不变。
-保留原线程表达式、参数顺序和其余 Map 覆盖优先级。
-已有 `corokia.comp/angle-45` 的 Number schema、原值 `PI/5` 及箭头几何公式不变；
-开放 Map 事件/状态、组件回调、默认值及存储合同不改，不新增强转或类型预算。
-README 的 Unit 返回示例使用值 `&unit`，不把它写成函数调用 `(&unit)`。
-Memof Anchor `.deref` 返回 Option；
-本项目使用缓存 API，没有 Anchor 调用，后续新增调用必须处理缺失值。
-状态 Map 保留泛型值类型，组件输出仍是异构开放 Map，不宣称类型债务清零。
+## 开发与门禁
 
-CI 执行正式 0.31.0、Caps strict/toolchain、全部定义、完整 strict、动态方法/弃用调用为零及
-原八项测试。场景测试使用真正的 Paint validator，覆盖七个 tab 的 Option lookup 与 rectangle size。
-窗口步骤有一分钟超时，复用 Paint0.2.8 的 smoke 结果合同，不再把旧版本的零退出码当作首帧证明；
-不新增消费者日志验证脚本。正式消费者验收结果以本轮 PR 为准，不沿用 alpha 或 Paint0.2.7 的旧结论。
-视觉和鼠标/点击交互尚未完成验收，不能冒称通过；本项目不使用已弃用的质量数字预算基线。
-本轮仍保留这项验收缺口，不把 headless 首帧 smoke 当成原生视觉/鼠标交互通过。
-concat spread 以空 List 为接收者，保留原路径拼接与空列表语义；原事件测试组只补充一项
-正常路径派发断言，仍为八组测试。不宣称所有源码写法或开放类型边界已清零。
-拼接结果在交给路径读取函数前受检为 `List<Dynamic>`，不把当前 concat spread 推断
-未保留的类型关系冒充已证明，也不收窄原来允许异构 key 的路径合同。
-
-使用者影响：公开组件继续使用原 Map 事件合同，Paint 初始 ready nil 现在正确忽略，
-其他非 Map 输入明确拒绝；没有把 nil 伪造成空 Map，也没有重写为新的 nominal 事件 API。
-过期事件找不到目标组件时，沿用已有警告并停止派发，不在空值判断前读取 actions。
-升级需重启原生进程。状态 Map、游标路径、缺字段不更新、布局默认值和派发顺序不变；
-本项目不处理远端存储或前后端协议。CI 使用精确正式 Action tag（接受可移动风险），
-只替换没有失败条件的类型计数输出为实际零动态方法门禁，不新增检查脚本或数量基线。
-
-State declarations use `defref`, and literal dispatch uses `match`. Open cursor,
-numeric event/drag-position and label fields are checked before concrete use;
-invalid values raise rather than being coerced or silently replaced.
-数值更新保留原 `update` 的缺字段不修改语义；不增加新的业务默认值，事件处理后返回 Unit。
-
-### Usages
-
-Install dependencies, validate the Snapshot, and run the pure test suite:
-
-```bash
+```sh
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.32.0"
 calcit calcit.cirru edit format
 git diff --exit-code --quiet -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs
@@ -64,23 +26,16 @@ calcit calcit.cirru fix --workflow strict --verify --format json
 calcit calcit.cirru test --require-match --summary-only --format json
 ```
 
-Run `calcit calcit.cirru` to launch the native canvas application in a graphical
-desktop session.
+原 CI 保留完整 strict、零动态方法/弃用调用、原八项测试和 Paint 首帧生命周期 smoke。
+本地已通过发布依赖原生构建、61 个定义、完整 strict、零动态/弃用调用、原八项测试及首帧生命周期 smoke。首帧不代表完整视觉或鼠标交互验收；正常窗口进程已启动，但当前 UI 工具未能连接无应用 bundle 的 calcit 窗口，随后停止该进程。本轮不把这一既有交互缺口称为已完成，也不通过数字基线替代类型检查。
+运行 `calcit calcit.cirru` 可在图形桌面启动画布，最终 Linux 结果以 PR CI 为准。
 
-Building calcit-paint requires its native system libraries and a native build
-toolchain. If a Skia prebuilt binary is unavailable, its source build also needs
-Ninja on PATH. CI installs Fontconfig and FreeType development libraries.
+## 原生构建
 
-如果继承的 Skia 镜像不可用，可按 Paint README 仅对本次安装使用官方 Release 产物：
-`env -u SKIA_BINARIES_URL caps --strict --ci`。这不修改全局镜像配置。原生库须对应精确
-源码和 ABI，干净 CI 通过 Caps 按当前工具链构建。本地先用与正式 tag 的 Rust 源码、
-Cargo manifest/lock 完全相同的既有构建验证实际 ABI，不称为全新 Caps realization。
-此前 0.29.1 验证使用官方产物路径；源码 fallback 在 macOS 27 /
-Apple clang 21 下可能遇到上游 [rust-skia #1335](https://github.com/rust-skia/rust-skia/pull/1335)
-所述的 bindings 问题。
-
-Notice that it would look for a `resources/SourceCodePro-Medium.ttf` (TODO) for
-the current font.
+Paint 需要系统字体/FreeType 等原生库和构建工具；没有可用 Skia 预构建时，源码构建还需 Ninja。
+若继承的 Skia 镜像不可用，可依 Paint README 仅对本次安装使用官方 Release：`env -u SKIA_BINARIES_URL caps --strict --ci`，不修改全局镜像配置。
+macOS 27 / Apple clang 21 的源码 fallback 曾涉及上游 [rust-skia #1335](https://github.com/rust-skia/rust-skia/pull/1335)，构建失败不能直接算作应用算法失败。
+原 `resources/SourceCodePro-Medium.ttf` 字体路径仍需目标环境准备。
 
 ### Component
 
