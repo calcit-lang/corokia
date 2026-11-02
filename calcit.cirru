@@ -300,18 +300,24 @@
                 tab $ open-field state :tab
               {}
                 :children $ {}
-                  :main $ if
+                  :main $ match
                     or (= tab :main) (nil? tab)
-                    memof1-call comp-data-list $ >> states :main
+                    true $ memof1-call comp-data-list $ >> states :main
+                    false nil
                   :tabs $ comp-tabs (>> states :tabs) tab ([] :main :rotate :cycloid :drag-demo :slider :keydown :image)
                     fn (new-tab d!)
                       d! cursor $ assoc state :tab new-tab
-                  :rotate $ if (= tab :rotate) (memof1-call comp-demo-rotate)
-                  :cycloid $ if (= tab :cycloid) (memof1-call comp-demo-cycloid)
-                  :drag-demo $ if (= tab :drag-demo)
-                    comp-drag-demo $ >> states :drag-demo
-                  :slider $ if (= tab :slider)
-                    comp-slider (>> states :slider)
+                  :rotate $ match (= tab :rotate)
+                    true $ memof1-call comp-demo-rotate
+                    false nil
+                  :cycloid $ match (= tab :cycloid)
+                    true $ memof1-call comp-demo-cycloid
+                    false nil
+                  :drag-demo $ match (= tab :drag-demo)
+                    true $ comp-drag-demo $ >> states :drag-demo
+                    false nil
+                  :slider $ match (= tab :slider)
+                    true $ comp-slider (>> states :slider)
                       decode-map-as
                         either (open-field state :slider-v) 10
                         , 'Number
@@ -320,10 +326,13 @@
                       Option :some $ {} (:unit 0.1)
                         :position $ [] 0 40
                         :title |demo
-                  :keydown $ if (= tab :keydown)
-                    comp-keydown $ >> states :keydown
-                  :image $ if (= tab :image)
-                    image $ {} (:file-path |assets/calcit.png) (:x 100) (:y 200) (:w 100) (:h 100)
+                    false nil
+                  :keydown $ match (= tab :keydown)
+                    true $ comp-keydown $ >> states :keydown
+                    false nil
+                  :image $ match (= tab :image)
+                    true $ image $ {} (:file-path |assets/calcit.png) (:x 100) (:y 200) (:w 100) (:h 100)
+                    false nil
                 :render $ fn (dict)
                   g ({})
                     .unwrap $ get dict :tabs
