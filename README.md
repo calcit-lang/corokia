@@ -1,15 +1,13 @@
 # Corokia in Calcit
 
-原生桌面画布实验，使用正式 Calcit **0.32.1**、已发布 Paint **0.2.9** 和 Memof **0.0.42**。
+原生桌面画布实验，使用正式 Calcit **0.34.1**、已发布 Paint **0.2.11** 和 Memof **0.0.44**。
 
 ## 对使用者的影响
 
 需按精确依赖重新安装并重启原生进程，Paint 原生库必须对应当前平台和 ABI。
-Paint 0.2.9 的发布清单仍声明 Calcit 0.32.0；这里采用经过实际构建与运行验证的 0.32.1 patch 配对，不修改已发布依赖清单或跳过门禁。
-`caps verify --toolchain` 核对工具链与模块解析；本轮 ABI 运行证据来自本机真实原生构建/测试/首帧，以及 Linux CI 的同组检查和 Xvfb 生命周期。其他平台仍须重新构建并实际验收，不据此承诺全部 ABI 或交互路径。
-这是 native target 的桌面项目，不是 Web 前端，不添加 COS/CDN，也不发布新的 Corokia tag。
-本轮只对齐 patch 工具链；Snapshot、43 个定义的 schema、八项原测试、Map 事件/状态及公开回调合同不变。
-0.32 类型语法已在前轮由官方 format 迁移，不重复改写源码或增加验证脚本。
+依赖使用正式 Paint 0.2.11 与 Memof 0.0.44，需重新构建对应平台的原生库。本轮 macOS 原生构建被 skia-bindings 0.97.2 生成的 `_Traits` 未定义错误阻塞。Linux CI 已完成原生依赖构建、完整类型检查和首帧生命周期验收，结果见下方记录。
+
+本次通过官方 formatter 更新旧类型表达式，保留原测试和全部类型门禁。现有状态游标只接受 Tag，事件及组件 Map 接收开放数据，尚未引入新的 union 合同。
 
 已有受检边界保持：初始 ready nil 忽略，其他非 Map 事件拒绝；过期目标只警告并停止派发。
 组件回调调用前检查 fn?，数值与布局字段在具体使用前检查，不用强转、伪空 Map 或新增默认值替代错误。
@@ -21,7 +19,7 @@ Memof 在这里用于缓存，没有 Anchor 调用；不将开放 Map 状态或�
 ```sh
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.32.1"
+test "$(calcit -v)" = "0.34.1"
 calcit calcit.cirru edit format
 git diff --exit-code --quiet -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs
@@ -32,9 +30,9 @@ calcit calcit.cirru test --require-match --summary-only --format json
 ```
 
 Linux CI 在上述检查外，通过 `xvfb-run -a env CALCIT_PAINT_SMOKE_ONCE=1 calcit calcit.cirru` 执行首帧生命周期，并由工作流设置一分钟超时。
-原 CI 保留完整 strict、零动态方法/弃用调用、原八项测试和 Paint 首帧生命周期 smoke。
-本地已通过发布依赖原生构建、61 个定义、完整 strict、零动态/弃用调用、原八项测试及首帧生命周期 smoke。首帧不代表完整视觉或鼠标交互验收；正常窗口进程已启动，但当前 UI 工具未能连接无应用 bundle 的 calcit 窗口，随后停止该进程。本轮不把这一既有交互缺口称为已完成，也不通过数字基线替代类型检查。
-运行 `calcit calcit.cirru` 可在图形桌面启动画布，最终 Linux 结果以 PR CI 为准。
+Linux CI 已通过 61 个定义、完整 strict、零动态方法/弃用调用、原八项测试加拖拽标签回归共九项，以及 Paint 首帧生命周期。验收对应提交 `a37bb7f`，见 [成功工作流](https://github.com/calcit-lang/corokia/actions/runs/41443481496)。
+
+本轮 macOS 仅完成发布依赖源码的类型预检和拖拽标签测试，原生库构建失败，尚未验收本机原生窗口。Linux 首帧检查也未覆盖完整视觉或鼠标交互。运行 `calcit calcit.cirru` 可在具备原生依赖的图形桌面启动画布。
 
 ## 原生构建
 
