@@ -103,20 +103,22 @@
                         renderer $ open-field options :render-text
                         content $ cond
                             fn? renderer
-                            renderer position
-                          (= renderer false) nil
-                          true $ str "|("
+                            nil->option $ renderer position
+                          (= renderer false) (Option :none)
+                          true $ Option :some $ str "|("
                             .unwrap $ first position
                             , |,
                               .unwrap $ last position
                               , "|)"
-                      if (non-nil? content)
-                        if (string? content)
-                          text content $ Option :some $ .merge options
-                            {}
-                              :color $ either (open-field options :font-color) ([] 0 0 100 0.7)
-                              :position $ [] 16 0
-                          raise "|expects drag label renderer to return String or nil"
+                      match content
+                        (:none) nil
+                        (:some label)
+                          if (string? label)
+                            text label $ Option :some $ .merge options
+                              {}
+                                :color $ either (open-field options :font-color) ([] 0 0 100 0.7)
+                                :position $ [] 16 0
+                            raise "|expects drag label renderer to return String or nil"
                 :actions $ {} $ :drag
                   fn (e d!)
                     &let
