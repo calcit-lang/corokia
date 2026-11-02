@@ -267,10 +267,11 @@
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (store)
             let
-                states $ decode-map-as (open-field store :states) (:: 'Map 'Tag 'Dynamic)
+                states $ decode-map-as (open-field store :states)
+                  quote $ Map Tag Dynamic
                 cursor $ decode-map-as
                   either (open-field states :cursor) ([])
-                  :: 'List 'Tag
+                  quote $ List Tag
                 state $ either (open-field states :data)
                   {} (:tab :slider)
                     :point-d $ [] 20 20
@@ -340,7 +341,8 @@
         'comp-counter $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-counter (states x)
             let
-                cursor $ decode-map-as (open-field states :cursor) (:: 'List 'Tag)
+                cursor $ decode-map-as (open-field states :cursor)
+                  quote $ List Tag
                 state $ either (open-field states :data)
                   {} $ :count 0
               {}
@@ -499,13 +501,15 @@
                   :p $ comp-drag-point (>> states :p)
                     decode-map-as
                       either (open-field state :p) ([] 0 0)
-                      :: 'List 'Number
+                      quote $ List Number
                     fn (new-position d!)
                       d! cursor $ assoc state :p new-position
                     Option :some $ {}
                   :arrow $ comp-arrow (>> states :arrow)
-                    decode-map-as (open-field state :from) (:: 'List 'Number)
-                    decode-map-as (open-field state :to) (:: 'List 'Number)
+                    decode-map-as (open-field state :from)
+                      quote $ List Number
+                    decode-map-as (open-field state :to)
+                      quote $ List Number
                     fn (from to d!)
                       d! cursor $ -> state (assoc :from from) (assoc :to to)
                     Option :some $ {}
@@ -525,7 +529,8 @@
         'comp-keydown $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-keydown (states)
             let
-                cursor $ decode-map-as (open-field states :cursor) (:: 'List 'Tag)
+                cursor $ decode-map-as (open-field states :cursor)
+                  quote $ List Tag
                 state $ either (open-field states :data)
                   {} $ :times 0
               {}
@@ -641,12 +646,12 @@
             let
                 parent-cursor $ decode-map-as
                   either (open-field states :cursor) ([])
-                  :: 'List 'Tag
+                  quote $ List Tag
                 branch $ .unwrap-or (get states k) ({})
               assoc
                 decode-map-as
                   either branch $ {}
-                  :: 'Map 'Tag 'Dynamic
+                  quote $ Map Tag Dynamic
                 , :cursor $ append parent-cursor k
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) Tag
@@ -711,7 +716,7 @@
             if (list? props)
               {} (:type :group) (:position props) (:children xs)
               .merge
-                decode-map-as props $ :: 'Map 'Tag 'Dynamic
+                decode-map-as props $ quote $ Map Tag Dynamic
                 {} (:type :group) (:children xs)
           :examples $ []
           :schema $ quote $ Fn Dynamic & Dynamic
@@ -755,9 +760,9 @@
                       let
                           data-path $ decode-map-as
                             .concat ([]) & $ ->
-                              decode-map-as path $ :: 'List 'Dynamic
+                              decode-map-as path $ quote $ List Dynamic
                               .map $ fn (x) ([] :children x)
-                            :: 'List 'Dynamic
+                            quote $ List Dynamic
                           target-component $
                             get-in-dynamic (deref *tree-state) data-path
                             , .unwrap-or nil
@@ -766,7 +771,7 @@
                           let
                               actions $ decode-map-as
                                 either (open-field target-component :actions) ({})
-                                :: 'Map 'Tag 'Dynamic
+                                quote $ Map Tag Dynamic
                               listener $ &let
                                 action $ open-field e :action
                                 if (tag? action) (open-field actions action) (raise "|expects event action Tag")
@@ -855,7 +860,7 @@
                 options $ .unwrap-or (first xs) false
               if (map? options)
                 .merge
-                  decode-map-as options $ :: 'Map 'Tag 'Dynamic
+                  decode-map-as options $ quote $ Map Tag Dynamic
                   {} (:type :ops)
                     :path $ either (open-field options :path) (rest xs)
                 {} (:type :ops) (:path xs) (:line-width 1)
@@ -941,7 +946,7 @@
                 cursor $ decode-map-as
                     first op-data
                     , .unwrap
-                  :: 'List 'Tag
+                  quote $ List Tag
                 data $
                   last op-data
                   , .unwrap
@@ -949,7 +954,7 @@
                 assoc-in store
                   .concat ([] :states) cursor $ [] :data
                   , data
-                :: 'Map 'Tag 'Dynamic
+                quote $ Map Tag Dynamic
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) (List Dynamic)
             -> $ Map Tag Dynamic
