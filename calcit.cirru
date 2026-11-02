@@ -149,6 +149,25 @@
           :schema $ quote $ Fn (Map Tag Dynamic) (List Number) Dynamic
             Option $ Map Tag Dynamic
             -> $ Map Tag Dynamic
+          :tests $ [] $ %{} 'TestEntry (:name |optional-drag-label)
+            :code $ quote $ let
+                label $ fn (options)
+                  let
+                      component $ comp-drag-point ({}) ([] 1 2)
+                        fn (p d) &unit
+                        Option :some options
+                    .unwrap $ last $ open-field (open-field component :tree) :children
+              assert= nil $ label $ {} (:render-text false)
+              assert= nil $ label $ {}
+                :render-text $ fn (p) nil
+              assert= "|(1,2)" $ open-field
+                label $ {}
+                , :text
+              assert= |custom $ open-field
+                label $ {} $ :render-text
+                  fn (p) |custom
+                , :text
+            :tags $ #{} :unit
         'comp-slider $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-slider (states value on-change arg)
             let
