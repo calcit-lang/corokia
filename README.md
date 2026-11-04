@@ -1,13 +1,15 @@
 # Corokia in Calcit
 
-原生桌面画布实验，使用正式 Calcit **0.34.1**、已发布 Paint **0.2.11** 和 Memof **0.0.44**。
+原生桌面画布实验，候选 **0.2.6** 配对正式 Calcit **0.34.2**、已发布 Paint **0.2.11** 和 Memof **0.0.44**。
 
 ## 对使用者的影响
 
 需按精确依赖重新安装并重启原生进程，Paint 原生库必须对应当前平台和 ABI。
-依赖使用正式 Paint 0.2.11 与 Memof 0.0.44，需重新构建对应平台的原生库。本轮 macOS 原生构建被 skia-bindings 0.97.2 生成的 `_Traits` 未定义错误阻塞。Linux CI 已完成原生依赖构建、完整类型检查和首帧生命周期验收，结果见下方记录。
+依赖使用正式 Paint 0.2.11 与 Memof 0.0.44，需重新构建对应平台的原生库。此前 macOS 原生构建遇到 skia-bindings 0.97.2 生成的 `_Traits` 未定义错误；本候选保留原 Linux 原生构建、类型门禁和首帧生命周期，验收以对应 PR 的精确提交 CI 为准。
 
-本次通过官方 formatter 更新旧类型表达式，保留原测试和全部类型门禁。现有状态游标只接受 Tag，事件及组件 Map 接收开放数据，尚未引入新的 union 合同。
+本次仅对齐工具链声明与工作流版本断言，Snapshot、公开合同、原九项测试和全部类型门禁不变。下游等正式 Git tag 发布后再固定该版本，不使用 main/hash 替代发版。
+
+现有状态游标只接受 Tag，事件及组件 Map 接收开放数据。后续使用 union 需要先建立闭合的内部模型；开放的 `Map Tag Dynamic` 不能直接作为 union 成员。本候选不声称已清除这些边界。
 
 已有受检边界保持：初始 ready nil 忽略，其他非 Map 事件拒绝；过期目标只警告并停止派发。
 组件回调调用前检查 fn?，数值与布局字段在具体使用前检查，不用强转、伪空 Map 或新增默认值替代错误。
@@ -19,7 +21,7 @@ Memof 在这里用于缓存，没有 Anchor 调用；不将开放 Map 状态或�
 ```sh
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.34.1"
+test "$(calcit -v)" = "0.34.2"
 calcit calcit.cirru edit format
 git diff --exit-code --quiet -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs
@@ -30,9 +32,9 @@ calcit calcit.cirru test --require-match --summary-only --format json
 ```
 
 Linux CI 在上述检查外，通过 `xvfb-run -a env CALCIT_PAINT_SMOKE_ONCE=1 calcit calcit.cirru` 执行首帧生命周期，并由工作流设置一分钟超时。
-Linux CI 已通过 61 个定义、完整 strict、零动态方法/弃用调用、原八项测试加拖拽标签回归共九项，以及 Paint 首帧生命周期。验收对应提交 `a37bb7f`，见 [成功工作流](https://github.com/calcit-lang/corokia/actions/runs/41443481496)。
+历史 0.34.1 的 Linux CI 已通过 61 个定义、完整 strict、零动态方法/弃用调用、原八项测试加拖拽标签回归共九项，以及 Paint 首帧生命周期。验收对应提交 `a37bb7f`，见 [成功工作流](https://github.com/calcit-lang/corokia/actions/runs/41443481496)。
 
-本轮 macOS 仅完成发布依赖源码的类型预检和拖拽标签测试，原生库构建失败，尚未验收本机原生窗口。Linux 首帧检查也未覆盖完整视觉或鼠标交互。运行 `calcit calcit.cirru` 可在具备原生依赖的图形桌面启动画布。
+本候选在 macOS 使用已核对正式 tag 提交的不可变依赖源码预检：61 个定义、完整 strict、零动态方法/弃用调用通过，原测试 8/9 通过，余下一项需要尚未安装的 Paint dylib。没有声称本机 Caps 原生构建或窗口验收完成。Linux 首帧检查也未覆盖完整视觉或鼠标交互。运行 `calcit calcit.cirru` 可在具备原生依赖的图形桌面启动画布。
 
 ## 原生构建
 
