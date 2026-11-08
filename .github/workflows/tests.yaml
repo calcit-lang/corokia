@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   test:
-    name: Calcit 0.35.1 validation
+    name: Calcit 0.38.0 validation
     runs-on: ubuntu-24.04
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
@@ -21,7 +21,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: calcit-lang/setup-calcit@v1.5.0
+      - uses: calcit-lang/setup-calcit@v1.5.1
         with:
           deps-file: deps.cirru
           tools: calcit,caps
@@ -40,7 +40,7 @@ jobs:
       - name: Validate Calcit
         run: |
           set -euo pipefail
-          test "$(calcit -v)" = "0.35.1"
+          test "$(calcit -v)" = "0.38.0"
           calcit calcit.cirru edit format
           git diff --exit-code --quiet -- calcit.cirru
           calcit calcit.cirru --check-only --all-defs

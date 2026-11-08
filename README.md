@@ -1,6 +1,15 @@
 # Corokia in Calcit
 
-原生桌面画布实验，候选 **0.2.6** 配对正式 Calcit **0.35.1**、已发布 Paint **0.2.11** 和 Memof **0.0.46**。
+原生桌面画布实验，候选 **0.2.6** 配对正式 Calcit **0.38.0** 和 Memof **0.0.47**。Paint 配对 **0.2.12**，需安装正式模块并重新构建对应平台原生库。
+
+## Calcit 0.38.0 迁移
+
+`open-field` 现在返回 `Option`。缺失字段或显式 `nil` 返回 `:none`，其他值包括
+`false` 都返回 `:some`。使用 `.unwrap-or` 提供默认值，使用 `match` 区分分支。
+旧代码直接读取结果时需同步调整。Paint 输出的可选位置和字体字段在未配置时省略，
+由渲染器沿用默认行为。拖拽标签关闭时仍保留原占位节点。组件事件的回调使用 `DispatchOp`，路径读取保留调用方的键类型。
+
+## 0.35.1 迁移记录
 
 ## 对使用者的影响
 
@@ -21,7 +30,7 @@ Memof 在这里用于缓存，没有 Anchor 调用；不将开放 Map 状态或�
 ```sh
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.35.1"
+test "$(calcit -v)" = "0.38.0"
 calcit calcit.cirru edit format
 git diff --exit-code --quiet -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs
@@ -34,7 +43,7 @@ calcit calcit.cirru test --require-match --summary-only --format json
 Linux CI 在上述检查外，通过 `xvfb-run -a env CALCIT_PAINT_SMOKE_ONCE=1 calcit calcit.cirru` 执行首帧生命周期，并由工作流设置一分钟超时。
 历史 0.34.1 的 Linux CI 已通过 61 个定义、完整 strict、零动态方法/弃用调用、原八项测试加拖拽标签回归共九项，以及 Paint 首帧生命周期。验收对应提交 `a37bb7f`，见 [成功工作流](https://github.com/calcit-lang/corokia/actions/runs/41443481496)。
 
-本候选在 macOS 使用已核对正式 tag 提交的不可变依赖源码预检：62 个定义、完整 strict、零动态方法/弃用调用通过，原测试 8/9 通过，余下一项需要尚未安装的 Paint dylib。没有声称本机 Caps 原生构建或窗口验收完成。Linux 首帧检查也未覆盖完整视觉或鼠标交互。运行 `calcit calcit.cirru` 可在具备原生依赖的图形桌面启动画布。
+0.38.0 候选在 macOS 通过 Caps 严格安装正式 Paint 0.2.12 和 Memof 0.0.47，完成原生库构建、62 个定义、完整 strict、零动态方法/弃用调用、原九项测试和实际窗口首帧。运行 `calcit calcit.cirru` 可在具备原生依赖的图形桌面启动画布。
 
 `dispatch!` 使用 `DispatchOp` union 接收 Tag 操作或 Tag 列表游标，状态载荷继续开放。
 
