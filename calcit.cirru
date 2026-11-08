@@ -314,14 +314,14 @@
                 :children $ {}
                   :main $ if
                     or (= tab :main) (nil? tab)
-                    memof1-call comp-data-list $ >> states :main
+                    memof1-call-unary comp-data-list $ >> states :main
                     g $ {}
                   :tabs $ comp-tabs (>> states :tabs) tab ([] :main :rotate :cycloid :drag-demo :slider :keydown :image)
                     fn (new-tab d!)
                       d! cursor $ assoc state :tab new-tab
-                  :rotate $ if (= tab :rotate) (memof1-call comp-demo-rotate)
+                  :rotate $ if (= tab :rotate) (memof1-call-nullary comp-demo-rotate)
                     g $ {}
-                  :cycloid $ if (= tab :cycloid) (memof1-call comp-demo-cycloid)
+                  :cycloid $ if (= tab :cycloid) (memof1-call-nullary comp-demo-cycloid)
                     g $ {}
                   :drag-demo $ if (= tab :drag-demo)
                     comp-drag-demo $ >> states :drag-demo
@@ -616,7 +616,7 @@
             corokia.core :refer $ g >> defcomp circle rect text touch-area key-listener polyline ops image open-field
             corokia.comp :refer $ comp-drag-point comp-slider comp-arrow comp-tabs
             corokia.complex :refer $ c+ c- c* rad-point
-            memof.once :refer $ memof1-call
+            memof.once :refer $ memof1-call-nullary memof1-call-unary
     'corokia.complex $ %{} 'FileEntry
       :defs $ {}
         'c* $ %{} 'CodeEntry (:doc |)
