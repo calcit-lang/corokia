@@ -40,9 +40,7 @@
           :code $ quote $ defcomp comp-arrow (states from to on-change arg)
             let
                 options $ .unwrap-or arg $ {}
-                cursor $ open-field states :cursor
                 defaults $ {} (:radius 6) (:render-text false)
-                state $ either (open-field states :data) ({})
                 direction $ c- from to
                 length $ c-length direction
                 unit $ c* direction $ [] (&/ 12 length) 0
@@ -63,7 +61,7 @@
                 :actions $ {}
                 :render $ fn (dict)
                   g
-                    {} $ :position $ open-field options :position
+                    select-keys options $ [] :position
                     .unwrap $ get dict :from
                     .unwrap $ get dict :to
                     ops
@@ -82,9 +80,9 @@
           :code $ quote $ defcomp comp-drag-point (states position on-change arg)
             let
                 cursor $ &let
-                  cursor-value $ either (open-field states :cursor) ([])
+                  cursor-value $ .unwrap-or (open-field states :cursor) ([])
                   if (list? cursor-value) cursor-value $ raise "|expects cursor in a list"
-                state $ either (open-field states :data)
+                state $ .unwrap-or (open-field states :data)
                   {} $ :initial-position position
                 options $ .unwrap-or arg $ {}
               assert "|expects states" $ map? states
@@ -93,43 +91,47 @@
               {}
                 :children $ {}
                 :render $ fn (dict)
-                  g
-                    {} $ :position position
-                    touch-area :drag cursor $ Option :some $ .merge
-                      {} (:radius 8)
-                        :fill-color $ [] 20 80 90
-                      , options
-                    let
-                        renderer $ open-field options :render-text
-                        content $ cond
-                            fn? renderer
-                            nil->option $ renderer position
-                          (= renderer false) (Option :none)
-                          true $ Option :some $ str "|("
-                            .unwrap $ first position
-                            , |,
-                              .unwrap $ last position
-                              , "|)"
-                      match content
-                        (:none) nil
-                        (:some label)
-                          if (string? label)
+                  let
+                      area $ touch-area :drag cursor $ Option :some
+                        .merge
+                          {} (:radius 8)
+                            :fill-color $ [] 20 80 90
+                          , options
+                      renderer $ .unwrap-or (open-field options :render-text) :corokia/default-label
+                      content $ cond
+                          fn? renderer
+                          nil->option $ renderer position
+                        (= renderer false) (Option :none)
+                        true $ Option :some $ str "|("
+                          .unwrap $ first position
+                          , |,
+                            .unwrap $ last position
+                            , "|)"
+                    match content
+                      (:none)
+                        g
+                          {} $ :position position
+                          , area nil
+                      (:some label)
+                        g
+                          {} $ :position position
+                          , area $ if (string? label)
                             text label $ Option :some $ .merge options
                               {}
-                                :color $ either (open-field options :font-color) ([] 0 0 100 0.7)
+                                :color $ .unwrap-or (open-field options :font-color) ([] 0 0 100 0.7)
                                 :position $ [] 16 0
                             raise "|expects drag label renderer to return String or nil"
                 :actions $ {} $ :drag
                   fn (e d!)
                     &let
-                      t $ open-field e :type
+                      t $ .unwrap-or (open-field e :type) :corokia/no-event
                       when (= :mouse-down t)
                         d! cursor $ assoc state :initial-position position
                       when (= :mouse-move t)
                         on-change
                           c+
                             &let
-                              initial $ open-field state :initial-position
+                              initial $ .unwrap-or (open-field state :initial-position) false
                               if (list? initial)
                                 .map initial $ fn (v)
                                   match (data-view v)
@@ -138,8 +140,8 @@
                                 raise "|expects initial drag position List"
                             .map
                               []
-                                either (open-field e :dx) 0
-                                either (open-field e :dy) 0
+                                .unwrap-or (open-field e :dx) 0
+                                .unwrap-or (open-field e :dy) 0
                               fn (v)
                                 match (data-view v)
                                   (:number n) n
@@ -156,14 +158,17 @@
                       component $ comp-drag-point ({}) ([] 1 2)
                         fn (p d) &unit
                         Option :some options
-                    .unwrap $ last $ open-field (open-field component :tree) :children
+                    .unwrap $ last $ .unwrap
+                      open-field
+                        .unwrap $ open-field component :tree
+                        , :children
               assert= nil $ label $ {} (:render-text false)
               assert= nil $ label $ {}
                 :render-text $ fn (p) nil
-              assert= "|(1,2)" $ open-field
+              assert= "|(1,2)" $ .unwrap $ open-field
                 label $ {}
                 , :text
-              assert= |custom $ open-field
+              assert= |custom $ .unwrap $ open-field
                 label $ {} $ :render-text
                   fn (p) |custom
                 , :text
@@ -172,14 +177,14 @@
           :code $ quote $ defcomp comp-slider (states value on-change arg)
             let
                 cursor $ &let
-                  cursor-value $ open-field states :cursor
+                  cursor-value $ .unwrap $ open-field states :cursor
                   if (list? cursor-value) cursor-value $ raise "|expects cursor in a list"
                 options $ merge-non-nil
                   {} (:precision 2) (:unit 1) (:title |Slider)
                     :position $ [] 0 0
                   .unwrap-or arg $ {}
-                position $ open-field options :position
-                state $ either (open-field states :data)
+                position $ .unwrap $ get options :position
+                state $ .unwrap-or (open-field states :data)
                   {} (:v0 nil) (:x0 nil)
               assert "|expects states in map" $ map? states
               assert "|expects position in a list" $ list? position
@@ -194,37 +199,42 @@
                       :position $ [] 20 20
                       :line-color $ [] 0 0 100
                     text
-                      str (open-field options :title) "|: " $ &number:format (assert-type value 'Number)
-                        decode-map-as (open-field options :precision) 'Number
+                      str
+                        .unwrap $ open-field options :title
+                        , "|: " $ &number:format (assert-type value 'Number)
+                          decode-map-as
+                            .unwrap $ open-field options :precision
+                            , 'Number
                       Option :some $ {}
                         :color $ [] 0 0 100 0.7
                         :position $ [] 12 0
                 :actions $ {} $ :slide
                   fn (e d!)
-                    match (open-field e :type)
+                    match
+                      .unwrap-or (open-field e :type) :corokia/no-event
                       :mouse-move $ on-change
                         +
                           match
-                            data-view $ open-field state :v0
+                            data-view $ .unwrap-or (open-field state :v0) false
                             (:number n) n
                             _ $ raise "|expects numeric slider field"
                           *
                             -
                               match
-                                data-view $ open-field e :x
+                                data-view $ .unwrap-or (open-field e :x) false
                                 (:number n) n
                                 _ $ raise "|expects numeric slider field"
                               match
-                                data-view $ open-field state :x0
+                                data-view $ .unwrap-or (open-field state :x0) false
                                 (:number n) n
                                 _ $ raise "|expects numeric slider field"
                             match
-                              data-view $ open-field options :unit
+                              data-view $ .unwrap-or (open-field options :unit) false
                               (:number n) n
                               _ $ raise "|expects numeric slider field"
                         , d!
                       :mouse-down $ d! cursor $ -> state (assoc :v0 value)
-                        assoc :x0 $ open-field e :x
+                        assoc :x0 $ .unwrap $ open-field e :x
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) Number Dynamic
             Option $ Map Tag Dynamic
@@ -233,7 +243,7 @@
           :code $ quote $ defcomp comp-tabs (states tab tabs on-change arg)
             let
                 cursor $ &let
-                  cursor-value $ open-field states :cursor
+                  cursor-value $ .unwrap $ open-field states :cursor
                   if (list? cursor-value) cursor-value $ raise "|expects cursor in a list"
                 options $ .merge
                   {}
@@ -243,9 +253,9 @@
                     :font-size 13
                   .unwrap-or arg $ {}
                 dx $ decode-map-as
-                  either (open-field options :dx) 40
+                  .unwrap-or (open-field options :dx) 40
                   , 'Number
-                dy $ either (open-field options :dy) 12
+                dy $ .unwrap-or (open-field options :dy) 12
               {}
                 :children $ {}
                 :render $ fn (dict)
@@ -256,22 +266,23 @@
                           &+ dx $ &* idx $ &+ 12 (&* 2 dx)
                           , 20
                         touch-area :select cursor $ Option :some $ {} (:data info) (:dx dx) (:dy dy)
-                          :fill-color $ open-field options :fill-color
-                          :line-color $ open-field options :line-color
+                          :fill-color $ .unwrap $ get options :fill-color
+                          :line-color $ .unwrap $ get options :line-color
                         text
                           &str:slice (str info) 1 $ .len $ str info
-                          Option :some $ {} (:align :center)
-                            :position $ [] 0 0
-                            :size $ open-field options :font-size
-                            :font-face $ open-field options :font-face
-                            :color $ open-field options :font-color
+                          Option :some $ .merge
+                            {} (:align :center)
+                              :position $ [] 0 0
+                              :size $ .unwrap $ get options :font-size
+                              :color $ .unwrap $ get options :font-color
+                            select-keys options $ [] :font-face
                 :actions $ {} $ :select
                   fn (e d!)
                     when
-                      = :mouse-down $ open-field e :type
+                      = :mouse-down $ .unwrap-or (open-field e :type) :corokia/no-event
                       if (fn? on-change)
                         on-change
-                          turn-tag $ open-field e :data
+                          turn-tag $ .unwrap $ open-field e :data
                           , d!
                         raise "|expects tab on-change function"
           :examples $ []
@@ -288,15 +299,17 @@
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (store)
             let
-                states $ decode-map-as (open-field store :states) (Map Tag Dynamic)
+                states $ decode-map-as
+                  .unwrap $ open-field store :states
+                  Map Tag Dynamic
                 cursor $ decode-map-as
-                  either (open-field states :cursor) ([])
+                  .unwrap-or (open-field states :cursor) ([])
                   List Tag
-                state $ either (open-field states :data)
+                state $ .unwrap-or (open-field states :data)
                   {} (:tab :slider)
                     :point-d $ [] 20 20
                     :slider-v 0
-                tab $ open-field state :tab
+                tab $ .unwrap-or (open-field state :tab) :corokia/no-tab
               {}
                 :children $ {}
                   :main $ if
@@ -316,7 +329,7 @@
                   :slider $ if (= tab :slider)
                     comp-slider (>> states :slider)
                       decode-map-as
-                        either (open-field state :slider-v) 10
+                        .unwrap-or (open-field state :slider-v) 10
                         , 'Number
                       fn (v d!) (; println "|slider change:" v)
                         d! cursor $ assoc state :slider-v v
@@ -354,22 +367,29 @@
                     tree $ corokia.core/get-shape-tree $ comp-container
                       {} $ :states $ {}
                         :data $ {} $ :tab tab
-                    tabs $ .unwrap $ first (open-field tree :children)
-                    content $ .unwrap $ nth (open-field tree :children) 1
+                    tabs $ .unwrap $ first
+                      .unwrap $ open-field tree :children
+                    content $ .unwrap $ nth
+                      .unwrap $ open-field tree :children
+                      , 1
                     index $ .unwrap $ get
                       {} (:main 0) (:rotate 1) (:cycloid 2) (:slider 3) (:drag-demo 4) (:keydown 5) (:image 6)
                       , tab
-                    selected $ .unwrap $ nth (open-field content :children) index
-                  assert= :group $ open-field tabs :type
+                    selected $ .unwrap $ nth
+                      .unwrap $ open-field content :children
+                      , index
+                  assert= :group $ .unwrap $ open-field tabs :type
                   assert=
                     if (= tab :image) :image :group
-                    open-field selected :type
+                    .unwrap $ open-field selected :type
                   assert= ([]) (calcit-paint.core/validate-scene tree)
         'comp-counter $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-counter (states x)
             let
-                cursor $ decode-map-as (open-field states :cursor) (List Tag)
-                state $ either (open-field states :data)
+                cursor $ decode-map-as
+                  .unwrap $ open-field states :cursor
+                  List Tag
+                state $ .unwrap-or (open-field states :data)
                   {} $ :count 0
               {}
                 :children $ {}
@@ -384,7 +404,7 @@
                     text |- $ Option :some $ {} (:align :center)
                       :position $ [] 0 0
                     text
-                      str x |: $ open-field state :count
+                      str x |: $ .unwrap-or (open-field state :count) |nil
                       Option :some $ {} (:align :center)
                         :position $ [] 40 0
                     text |+ $ Option :some $ {} (:align :center)
@@ -392,12 +412,16 @@
                 :actions $ {}
                   :inc $ fn (e d!)
                     when
-                      = (open-field e :type) :mouse-down
+                      =
+                        .unwrap-or (open-field e :type) :corokia/no-event
+                        , :mouse-down
                       d! cursor $ update state :count $ fn (n)
                         inc $ decode-map-as n 'Number
                   :dec $ fn (e d!)
                     when
-                      = (open-field e :type) :mouse-down
+                      =
+                        .unwrap-or (open-field e :type) :corokia/no-event
+                        , :mouse-down
                       d! cursor $ update state :count $ fn (n)
                         dec $ decode-map-as n 'Number
           :examples $ []
@@ -407,8 +431,8 @@
         'comp-data-list $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-data-list (states)
             let
-                cursor $ open-field states :cursor
-                state $ either (open-field states :data)
+                cursor $ .unwrap $ open-field states :cursor
+                state $ .unwrap-or (open-field states :data)
                   {} $ :size 0
               {}
                 :children $ .merge $ -> (range 3)
@@ -422,7 +446,7 @@
                 :render $ fn (dict)
                   g ({})
                     text
-                      str "|Size: " $ open-field state :size
+                      str "|Size: " $ .unwrap-or (open-field state :size) |nil
                       Option :some $ {} (:align :center)
                         :position $ [] 20 20
                     g ([] 40 60) & $ -> (range 3)
@@ -516,8 +540,8 @@
         'comp-drag-demo $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-drag-demo (states)
             let
-                cursor $ open-field states :cursor
-                state $ either (open-field states :data)
+                cursor $ .unwrap $ open-field states :cursor
+                state $ .unwrap-or (open-field states :data)
                   {}
                     :p $ [] 20 20
                     :from $ [] 10 10
@@ -526,14 +550,18 @@
                 :children $ {}
                   :p $ comp-drag-point (>> states :p)
                     decode-map-as
-                      either (open-field state :p) ([] 0 0)
+                      .unwrap-or (open-field state :p) ([] 0 0)
                       List Number
                     fn (new-position d!)
                       d! cursor $ assoc state :p new-position
                     Option :some $ {}
                   :arrow $ comp-arrow (>> states :arrow)
-                    decode-map-as (open-field state :from) (List Number)
-                    decode-map-as (open-field state :to) (List Number)
+                    decode-map-as
+                      .unwrap $ open-field state :from
+                      List Number
+                    decode-map-as
+                      .unwrap $ open-field state :to
+                      List Number
                     fn (from to d!)
                       d! cursor $ -> state (assoc :from from) (assoc :to to)
                     Option :some $ {}
@@ -553,27 +581,29 @@
         'comp-keydown $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-keydown (states)
             let
-                cursor $ decode-map-as (open-field states :cursor) (List Tag)
-                state $ either (open-field states :data)
+                cursor $ decode-map-as
+                  .unwrap $ open-field states :cursor
+                  List Tag
+                state $ .unwrap-or (open-field states :data)
                   {} $ :times 0
               {}
                 :children $ {}
                 :render $ fn (dict)
                   g ({})
                     text
-                      str "|press up times..: " $ open-field state :times
+                      str "|press up times..: " $ .unwrap-or (open-field state :times) |nil
                       Option :some $ {} $ :position ([] 100 100)
                     key-listener |Up :inc cursor
                     key-listener |Down :dec cursor
                 :actions $ {}
                   :inc $ fn (e d!)
                     if
-                      = :key-down $ open-field e :type
+                      = :key-down $ .unwrap-or (open-field e :type) :corokia/no-event
                       d! cursor $ update state :times $ fn (n)
                         inc $ decode-map-as n 'Number
                   :dec $ fn (e d!)
                     if
-                      = :key-down $ open-field e :type
+                      = :key-down $ .unwrap-or (open-field e :type) :corokia/no-event
                       d! cursor $ update state :times $ fn (n)
                         dec $ decode-map-as n 'Number
           :examples $ []
@@ -668,7 +698,7 @@
           :code $ quote $ defn >> (states k)
             let
                 parent-cursor $ decode-map-as
-                  either (open-field states :cursor) ([])
+                  .unwrap-or (open-field states :cursor) ([])
                   List Tag
                 branch $ .unwrap-or (get states k) ({})
               assoc
@@ -689,11 +719,11 @@
                     :line-width 1
                   .unwrap-or arg $ {}
               {} (:type :circle)
-                :position $ either (open-field options :position) ([] 0 0)
+                :position $ .unwrap-or (open-field options :position) ([] 0 0)
                 :radius radius
-                :fill-color $ open-field options :fill-color
-                :line-color $ open-field options :line-color
-                :line-width $ open-field options :line-width
+                :fill-color $ .unwrap $ get options :fill-color
+                :line-color $ .unwrap $ get options :line-color
+                :line-width $ .unwrap $ get options :line-width
           :examples $ []
           :schema $ quote $ Fn Number
             Option $ Map Tag Dynamic
@@ -732,7 +762,7 @@
                   get ret :actions
                   , .unwrap
           :examples $ []
-          :schema $ quote $ Macro SyntaxSymbol SyntaxList & Syntax
+          :schema $ quote $ Macro SyntaxSymbol SyntaxList (& Syntax)
             -> $ Definition Dynamic
         'g $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn g (props & xs)
@@ -742,7 +772,7 @@
                 decode-map-as props $ Map Tag Dynamic
                 {} (:type :group) (:children xs)
           :examples $ []
-          :schema $ quote $ Fn Dynamic & Dynamic
+          :schema $ quote $ Fn Dynamic (& Dynamic)
             -> $ Map Tag Dynamic
         'get-in-dynamic $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn get-in-dynamic (data path)
@@ -752,17 +782,25 @@
                 fn (child)
                   get-in-dynamic child $ rest path
           :examples $ []
-          :schema $ quote $ Fn Dynamic (List Dynamic)
+          :schema $ quote $ Fn Dynamic (List K)
             -> $ Option Dynamic
+            :generics K
         'get-shape-tree $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn get-shape-tree (tree)
             if (nil? tree) nil $ match (open-field tree :type)
-              nil $ do (echo "|nil type from tree:" tree) nil
-              :group $ if (open-field tree :pure-shape?) tree $ update tree :children
-                fn (xs)
-                  if (list? xs) (.map xs get-shape-tree) (raise "|expects group children in a list")
-              :component $ get-shape-tree $ open-field tree :tree
-              _ tree
+              (:some kind)
+                match kind
+                  :group $ if
+                    .unwrap-or (open-field tree :pure-shape?) false
+                    , tree $ update tree :children
+                      fn (xs)
+                        if (list? xs) (.map xs get-shape-tree) (raise "|expects group children in a list")
+                  :component $ match (open-field tree :tree)
+                    (:some child) (get-shape-tree child)
+                    (:none) (get-shape-tree nil)
+                  _ tree
+              (:none)
+                do (echo "|nil type from tree:" tree) nil
           :examples $ []
           :schema $ quote $ Fn Dynamic (-> Dynamic)
         'handle-tree-event $ %{} 'CodeEntry (:doc |)
@@ -773,41 +811,47 @@
               (map? e)
                 let
                     path $ open-field e :path
+                    action $ open-field e :action
                   cond
-                      = :window-resized $ open-field e :type
+                      = :window-resized $ .unwrap-or (open-field e :type) :corokia/no-event
                       &let
                         info $ track-overcost 40 $ get-shape-tree (deref *tree-state)
                         ; with-log info
                         track-overcost 40 $ push-drawing-data! |render-canvas! info
-                    (and (non-nil? path) (non-nil? (open-field e :action)))
+                    (and (.some? path) (.some? action))
                       let
+                          path-value $ .unwrap path
+                          action-value $ .unwrap action
                           data-path $ decode-map-as
                             .concat ([]) & $ ->
-                              decode-map-as path $ List Dynamic
+                              decode-map-as path-value $ List Dynamic
                               .map $ fn (x) ([] :children x)
                             List Dynamic
-                          target-component $
-                            get-in-dynamic (deref *tree-state) data-path
-                            , .unwrap-or nil
                         ; echo e
-                        if (nil? target-component) (echo "|WARNING: cannot find target component:" data-path)
-                          let
-                              actions $ decode-map-as
-                                either (open-field target-component :actions) ({})
-                                Map Tag Dynamic
-                              listener $ &let
-                                action $ open-field e :action
-                                if (tag? action) (open-field actions action) (raise "|expects event action Tag")
-                            if (nil? listener)
-                              echo "|WARNING: cannot find comp listener" (open-field e :action) |among (keys actions) "|with path" path
-                              if (fn? listener) (listener e dispatch!) (raise "|expects component event listener function")
-                            ; echo target-component
-                            ; echo $ deref *tree-state
+                        match
+                          get-in-dynamic (deref *tree-state) data-path
+                          (:none) (echo "|WARNING: cannot find target component:" data-path)
+                          (:some target-component)
+                            if (nil? target-component) (echo "|WARNING: cannot find target component:" data-path)
+                              let
+                                  actions $ decode-map-as
+                                    .unwrap-or (open-field target-component :actions) ({})
+                                    Map Tag Dynamic
+                                  listener $ if (tag? action-value) (open-field actions action-value) (raise "|expects event action Tag")
+                                match listener
+                                  (:none)
+                                    echo "|WARNING: cannot find comp listener" action-value |among (keys actions) "|with path" path-value
+                                  (:some callback)
+                                    if (fn? callback) (callback e dispatch!) (raise "|expects component event listener function")
+                                ; echo target-component
+                                ; echo $ deref *tree-state
                     true &unit
               true $ raise "|Expected Paint event Map or ready nil"
             , &unit
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic (-> Unit)
+          :schema $ quote $ Fn Dynamic
+            Fn corokia.main/DispatchOp Dynamic $ -> Unit
+            -> Unit
           :tests $ [] $ %{} 'TestEntry (:name |ready-and-malformed-host-events)
             :code $ quote $ let
                 dispatch! $ fn (cursor data) (raise |unexpected-dispatch)
@@ -842,7 +886,7 @@
                             :path $ [] :target
                             :action :click
                           , dispatch!
-                        open-field @*tree-state :test-dispatched
+                        .unwrap $ open-field @*tree-state :test-dispatched
                       fn (message) (reset! *tree-state tree) (raise message)
                   reset! *tree-state tree
                   assert=
@@ -863,20 +907,21 @@
             -> $ Map Tag Dynamic
         'open-field $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn open-field (data field)
-            (get data field) .unwrap-or nil
+            .and-then (get data field) nil->option
           :examples $ []
-          :schema $ quote $ Fn Dynamic Tag (-> Dynamic)
+          :schema $ quote $ Fn Dynamic Tag
+            -> $ Option Dynamic
           :tests $ []
-            %{} 'TestEntry (:name |preserves-missing-as-nil)
-              :code $ quote $ assert= nil
-                open-field
-                  {} $ :x 1
-                  , :missing
             %{} 'TestEntry (:name |reads-present-value)
-              :code $ quote $ assert= 1
+              :code $ quote $ assert= (Option :some 1)
                 open-field
                   {} $ :x 1
                   , :x
+            %{} 'TestEntry (:name |represents-missing-as-none)
+              :code $ quote $ assert= (Option :none)
+                open-field
+                  {} $ :x 1
+                  , :missing
         'ops $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn ops (& xs)
             let
@@ -885,18 +930,18 @@
                 .merge
                   decode-map-as options $ Map Tag Dynamic
                   {} (:type :ops)
-                    :path $ either (open-field options :path) (rest xs)
+                    :path $ .unwrap-or (open-field options :path) (rest xs)
                 {} (:type :ops) (:path xs) (:line-width 1)
                   :line-color $ [] 0 80 80
           :examples $ []
-          :schema $ quote $ Fn & Dynamic
+          :schema $ quote $ Fn (& Dynamic)
             -> $ Map Tag Dynamic
         'polyline $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn polyline (stops arg)
             assert "|expects stops in list of points" $ list? stops
             let
                 options $ .unwrap-or arg $ {}
-                position $ either (open-field options :position) ([] 0 0)
+                position $ .unwrap-or (open-field options :position) ([] 0 0)
               merge-non-nil
                 {} (:line-width 1) (:line-join :round)
                   :line-color $ [] 0 0 100
@@ -914,13 +959,13 @@
                     :line-color $ [] 0 0 100 0.8
                     :line-width 1
                   .unwrap-or arg $ {}
-                position $ either (open-field options :position) ([] 0 0)
+                position $ .unwrap-or (open-field options :position) ([] 0 0)
               {} (:type :rect) (:position position)
                 :width $ .unwrap $ first sizes
                 :height $ .unwrap $ last sizes
-                :fill-color $ open-field options :fill-color
-                :line-color $ open-field options :line-color
-                :line-width $ open-field options :line-width
+                :fill-color $ .unwrap $ get options :fill-color
+                :line-color $ .unwrap $ get options :line-color
+                :line-width $ .unwrap $ get options :line-width
           :examples $ []
           :schema $ quote $ Fn (List Number)
             Option $ Map Tag Dynamic
@@ -939,12 +984,10 @@
           :code $ quote $ defn text (content arg)
             &let
               options $ .unwrap-or arg $ {}
-              .merge options $ {} (:type :text)
-                :position $ open-field options :position
-                :text content
-                :color $ either (open-field options :color) ([] 0 0 100)
-                :align $ either (open-field options :align) :center
-                :size $ either (open-field options :size) 14
+              .merge options $ {} (:type :text) (:text content)
+                :color $ .unwrap-or (open-field options :color) ([] 0 0 100)
+                :align $ .unwrap-or (open-field options :align) :center
+                :size $ .unwrap-or (open-field options :size) 14
           :examples $ []
           :schema $ quote $ Fn String
             Option $ Map Tag Dynamic
@@ -954,10 +997,7 @@
             let
                 options $ .unwrap-or arg $ {}
               .merge
-                {} (:type :touch-area)
-                  :position $ open-field options :position
-                  :action action
-                  :path path
+                {} (:type :touch-area) (:action action) (:path path)
                 , options
           :examples $ []
           :schema $ quote $ Fn Tag (List Dynamic)
