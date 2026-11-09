@@ -709,6 +709,16 @@
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) Tag
             -> $ Map Tag Dynamic
+        'apply-state-update $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn apply-state-update (store cursor data)
+            decode-map-as
+              assoc-in store
+                .concat ([] :states) cursor $ [] :data
+                , data
+              Map Tag Dynamic
+          :examples $ []
+          :schema $ quote $ Fn (Map Tag Dynamic) (List Tag) Dynamic
+            -> $ Map Tag Dynamic
         'circle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn circle (radius arg)
             let
@@ -1013,11 +1023,7 @@
                 data $
                   last op-data
                   , .unwrap
-              decode-map-as
-                assoc-in store
-                  .concat ([] :states) cursor $ [] :data
-                  , data
-                Map Tag Dynamic
+              apply-state-update store cursor data
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) (List Dynamic)
             -> $ Map Tag Dynamic
@@ -1042,11 +1048,27 @@
           :code $ quote $ defn dispatch! (op data)
             match op
               (List cursor)
-                recur :states $ [] cursor data
+                do (swap! *store corokia.core/apply-state-update cursor data) &unit
               (Tag action)
                 do (swap! *store updater action data) &unit
           :examples $ []
           :schema $ quote $ Fn corokia.main/DispatchOp Dynamic (-> Unit)
+          :tests $ [] $ %{} 'TestEntry (:name |typed-and-legacy-state-path)
+            :code $ quote $ let
+                original @*store
+                cursor $ [] :panel :detail
+                value $ {} (:open? false) (:count 0)
+              dispatch! cursor value
+              let
+                  direct @*store
+                reset! *store original
+                dispatch! :states $ [] cursor value
+                let
+                    legacy @*store
+                  reset! *store original
+                  assert= direct legacy
+                  assert= (Option :some value)
+                    corokia.core/get-in-dynamic direct $ [] :states :panel :detail :data
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (render-page)
             add-watch! *store :change $ fn (v v0)
