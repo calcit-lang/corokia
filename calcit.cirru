@@ -720,6 +720,15 @@
           :schema $ quote $ Fn (Map Tag Dynamic) (List Tag) V
             -> $ Map Tag Dynamic
             :generics V
+          :tests $ [] $ %{} 'TestEntry (:name |heterogeneous-state-writes)
+            :code $ quote $ let
+                store $ {}
+                with-label $ apply-state-update store ([] :panel :label) |ready
+                with-count $ apply-state-update with-label ([] :panel :count) 2
+              assert= (Option :some |ready)
+                get-in-dynamic with-count $ [] :states :panel :label :data
+              assert= (Option :some 2)
+                get-in-dynamic with-count $ [] :states :panel :count :data
         'circle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn circle (radius arg)
             let
