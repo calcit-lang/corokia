@@ -717,8 +717,18 @@
                 , data
               Map Tag Dynamic
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (List Tag) Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) (List Tag) V
             -> $ Map Tag Dynamic
+            :generics V
+          :tests $ [] $ %{} 'TestEntry (:name |heterogeneous-state-writes)
+            :code $ quote $ let
+                store $ {}
+                with-label $ apply-state-update store ([] :panel :label) |ready
+                with-count $ apply-state-update with-label ([] :panel :count) 2
+              assert= (Option :some |ready)
+                get-in-dynamic with-count $ [] :states :panel :label :data
+              assert= (Option :some 2)
+                get-in-dynamic with-count $ [] :states :panel :count :data
         'circle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn circle (radius arg)
             let
@@ -1071,9 +1081,7 @@
                     corokia.core/get-in-dynamic direct $ [] :states :panel :detail :data
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (render-page)
-            add-watch! *store :change $ fn (v v0)
-              hint-fn $ Fn (Map Tag Dynamic) (Map Tag Dynamic) (-> Unit)
-              render-page
+            add-watch! *store :change $ fn (v v0) (render-page)
             echo "|app started."
             launch-canvas! $ fn (event) (handle-tree-event event dispatch!)
           :examples $ []

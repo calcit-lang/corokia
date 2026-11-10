@@ -1,11 +1,15 @@
 # Corokia in Calcit
 
-原生桌面画布实验，候选 **0.2.6** 配对正式 Calcit **0.38.0** 和 Memof **0.0.49**。Paint 配对 **0.2.12**，需安装正式模块并重新构建对应平台原生库。
+原生桌面画布实验，候选 **0.2.6** 配对正式 Calcit **0.40.0** 和 Memof **0.0.49**。Paint 配对 **0.2.13**，需安装正式模块并重新构建对应平台原生库。
 
 `main` 列表、`rotate` 和 `cycloid` 的组件缓存使用对应的单参数、零参数泛型入口，保留
 组件 Map 的返回类型及现有缓存生命周期。
 
-## Calcit 0.38.0 迁移
+## Calcit 0.40.0 迁移
+
+状态更新保留写入值的具体类型。状态树仍可保存不同类型的数据，`DispatchOp` 继续区分 Tag 操作与 Tag 列表游标。渲染监听器的参数由状态 Ref 推导。
+
+## Calcit 0.38.0 迁移记录
 
 `open-field` 现在返回 `Option`。缺失字段或显式 `nil` 返回 `:none`，其他值包括
 `false` 都返回 `:some`。使用 `.unwrap-or` 提供默认值，使用 `match` 区分分支。
@@ -33,7 +37,7 @@ Memof 在这里用于缓存，没有 Anchor 调用；不将开放 Map 状态或�
 ```sh
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.38.0"
+test "$(calcit -v)" = "0.40.0"
 calcit calcit.cirru edit format
 git diff --exit-code --quiet -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs
