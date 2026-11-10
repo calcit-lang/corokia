@@ -73,15 +73,21 @@
                       [] :line-to to
                       [] :line-to $ c+ to branch-b
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (List Number) (List Number) Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) (List Number) (List Number)
+            Fn (List Number) (List Number)
+              Fn corokia.main/DispatchOp Dynamic $ -> Unit
+              -> R
             Option $ Map Tag Dynamic
             -> $ Map Tag Dynamic
+            :generics R
         'comp-drag-point $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-drag-point (states position on-change arg)
             let
                 cursor $ &let
                   cursor-value $ .unwrap-or (open-field states :cursor) ([])
-                  if (list? cursor-value) cursor-value $ raise "|expects cursor in a list"
+                  if (list? cursor-value)
+                    decode-map-as cursor-value $ List Tag
+                    raise "|expects cursor in a list"
                 state $ .unwrap-or (open-field states :data)
                   {} $ :initial-position position
                 options $ .unwrap-or arg $ {}
@@ -123,6 +129,9 @@
                             raise "|expects drag label renderer to return String or nil"
                 :actions $ {} $ :drag
                   fn (e d!)
+                    hint-fn $ Fn Dynamic
+                      Fn corokia.main/DispatchOp Dynamic $ -> Unit
+                      -> Dynamic
                     &let
                       t $ .unwrap-or (open-field e :type) :corokia/no-event
                       when (= :mouse-down t)
@@ -148,9 +157,13 @@
                                   _ $ raise "|expects numeric drag position"
                           , d!
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (List Number) Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) (List Number)
+            Fn (List Number)
+              Fn corokia.main/DispatchOp Dynamic $ -> Unit
+              -> R
             Option $ Map Tag Dynamic
             -> $ Map Tag Dynamic
+            :generics R
           :tests $ [] $ %{} 'TestEntry (:name |optional-drag-label)
             :code $ quote $ let
                 label $ fn (options)
@@ -178,7 +191,9 @@
             let
                 cursor $ &let
                   cursor-value $ .unwrap $ open-field states :cursor
-                  if (list? cursor-value) cursor-value $ raise "|expects cursor in a list"
+                  if (list? cursor-value)
+                    decode-map-as cursor-value $ List Tag
+                    raise "|expects cursor in a list"
                 options $ merge-non-nil
                   {} (:precision 2) (:unit 1) (:title |Slider)
                     :position $ [] 0 0
@@ -210,6 +225,9 @@
                         :position $ [] 12 0
                 :actions $ {} $ :slide
                   fn (e d!)
+                    hint-fn $ Fn Dynamic
+                      Fn corokia.main/DispatchOp Dynamic $ -> Unit
+                      -> Dynamic
                     match
                       .unwrap-or (open-field e :type) :corokia/no-event
                       :mouse-move $ on-change
@@ -236,9 +254,13 @@
                       :mouse-down $ d! cursor $ -> state (assoc :v0 value)
                         assoc :x0 $ .unwrap $ open-field e :x
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) Number Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) Number
+            Fn Number
+              Fn corokia.main/DispatchOp Dynamic $ -> Unit
+              -> R
             Option $ Map Tag Dynamic
             -> $ Map Tag Dynamic
+            :generics R
         'comp-tabs $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-tabs (states tab tabs on-change arg)
             let
@@ -278,6 +300,9 @@
                             select-keys options $ [] :font-face
                 :actions $ {} $ :select
                   fn (e d!)
+                    hint-fn $ Fn Dynamic
+                      Fn corokia.main/DispatchOp Dynamic $ -> Unit
+                      -> Dynamic
                     when
                       = :mouse-down $ .unwrap-or (open-field e :type) :corokia/no-event
                       if (fn? on-change)
@@ -286,9 +311,13 @@
                           , d!
                         raise "|expects tab on-change function"
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) Dynamic (List Dynamic) Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) Dynamic (List Dynamic)
+            Fn Tag
+              Fn corokia.main/DispatchOp Dynamic $ -> Unit
+              -> R
             Option $ Map Tag Dynamic
             -> $ Map Tag Dynamic
+            :generics R
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.comp
           :require
@@ -540,7 +569,9 @@
         'comp-drag-demo $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-drag-demo (states)
             let
-                cursor $ .unwrap $ open-field states :cursor
+                cursor $ decode-map-as
+                  .unwrap $ open-field states :cursor
+                  List Tag
                 state $ .unwrap-or (open-field states :data)
                   {}
                     :p $ [] 20 20
@@ -709,6 +740,11 @@
           :examples $ []
           :schema $ quote $ Fn (Map Tag Dynamic) Tag
             -> $ Map Tag Dynamic
+        'ListenerKey $ %{} 'CodeEntry
+          :doc "|Keyboard key names accepted by Paint: a String or Tag, forwarded as supplied."
+          :code $ quote $ defunion ListenerKey String Tag
+          :examples $ []
+          :schema $ quote UnionDef
         'apply-state-update $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn apply-state-update (store cursor data)
             decode-map-as
@@ -923,7 +959,7 @@
           :code $ quote $ defn key-listener (key action path arg)
             {} (:type :key-listener) (:key key) (:path path) (:action action) (:data arg)
           :examples $ []
-          :schema $ quote $ Fn Dynamic Tag (List Dynamic) (Option Dynamic)
+          :schema $ quote $ Fn corokia.core/ListenerKey Tag (List Dynamic) (Option Dynamic)
             -> $ Map Tag Dynamic
         'open-field $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn open-field (data field)
