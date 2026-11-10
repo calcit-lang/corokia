@@ -53,11 +53,11 @@
                   :from $ comp-drag-point (>> states :from) from
                     fn (point d!)
                       if (fn? on-change) (on-change point to d!) (raise "|expects arrow on-change function")
-                    Option :some $ .merge defaults options
+                    Some $ .merge defaults options
                   :to $ comp-drag-point (>> states :to) to
                     fn (point d!)
                       if (fn? on-change) (on-change from point d!) (raise "|expects arrow on-change function")
-                    Option :some $ .merge defaults options
+                    Some $ .merge defaults options
                 :actions $ {}
                 :render $ fn (dict)
                   g
@@ -98,7 +98,7 @@
                 :children $ {}
                 :render $ fn (dict)
                   let
-                      area $ touch-area :drag cursor $ Option :some
+                      area $ touch-area :drag cursor $ Some
                         .merge
                           {} (:radius 8)
                             :fill-color $ [] 20 80 90
@@ -107,8 +107,8 @@
                       content $ cond
                           fn? renderer
                           nil->option $ renderer position
-                        (= renderer false) (Option :none)
-                        true $ Option :some $ str "|("
+                        (= renderer false) None
+                        true $ Some $ str "|("
                           .unwrap $ first position
                           , |,
                             .unwrap $ last position
@@ -122,7 +122,7 @@
                         g
                           {} $ :position position
                           , area $ if (string? label)
-                            text label $ Option :some $ .merge options
+                            text label $ Some $ .merge options
                               {}
                                 :color $ .unwrap-or (open-field options :font-color) ([] 0 0 100 0.7)
                                 :position $ [] 16 0
@@ -170,7 +170,7 @@
                   let
                       component $ comp-drag-point ({}) ([] 1 2)
                         fn (p d) &unit
-                        Option :some options
+                        Some options
                     .unwrap $ last $ .unwrap
                       open-field
                         .unwrap $ open-field component :tree
@@ -209,18 +209,18 @@
                 :children $ {}
                 :render $ fn (dict)
                   g position
-                    touch-area :slide cursor $ Option :some $ {} (:radius 8)
+                    touch-area :slide cursor $ Some $ {} (:radius 8)
                       :fill-color $ [] 0 80 70
                       :position $ [] 20 20
                       :line-color $ [] 0 0 100
                     text
                       str
                         .unwrap $ open-field options :title
-                        , "|: " $ &number:format (assert-type value 'Number)
+                        , "|: " $ &number:format (assert-type value Number)
                           decode-map-as
                             .unwrap $ open-field options :precision
                             , 'Number
-                      Option :some $ {}
+                      Some $ {}
                         :color $ [] 0 0 100 0.7
                         :position $ [] 12 0
                 :actions $ {} $ :slide
@@ -287,12 +287,12 @@
                         {} $ :position $ []
                           &+ dx $ &* idx $ &+ 12 (&* 2 dx)
                           , 20
-                        touch-area :select cursor $ Option :some $ {} (:data info) (:dx dx) (:dy dy)
+                        touch-area :select cursor $ Some $ {} (:data info) (:dx dx) (:dy dy)
                           :fill-color $ .unwrap $ get options :fill-color
                           :line-color $ .unwrap $ get options :line-color
                         text
                           &str:slice (str info) 1 $ .len $ str info
-                          Option :some $ .merge
+                          Some $ .merge
                             {} (:align :center)
                               :position $ [] 0 0
                               :size $ .unwrap $ get options :font-size
@@ -362,7 +362,7 @@
                         , 'Number
                       fn (v d!) (; println "|slider change:" v)
                         d! cursor $ assoc state :slider-v v
-                      Option :some $ {} (:unit 0.1)
+                      Some $ {} (:unit 0.1)
                         :position $ [] 0 40
                         :title |demo
                     g $ {}
@@ -425,18 +425,18 @@
                 :render $ fn (dict)
                   g
                     {} $ :position $ [] 0 (* x 30)
-                    touch-area :dec cursor $ Option :some $ {} (:radius 10)
+                    touch-area :dec cursor $ Some $ {} (:radius 10)
                       :fill-color $ [] 200 80 90
-                    touch-area :inc cursor $ Option :some $ {} (:radius 10)
+                    touch-area :inc cursor $ Some $ {} (:radius 10)
                       :position $ [] 80 0
                       :fill-color $ [] 200 80 90
-                    text |- $ Option :some $ {} (:align :center)
+                    text |- $ Some $ {} (:align :center)
                       :position $ [] 0 0
                     text
                       str x |: $ .unwrap-or (open-field state :count) |nil
-                      Option :some $ {} (:align :center)
+                      Some $ {} (:align :center)
                         :position $ [] 40 0
-                    text |+ $ Option :some $ {} (:align :center)
+                    text |+ $ Some $ {} (:align :center)
                       :position $ [] 80 0
                 :actions $ {}
                   :inc $ fn (e d!)
@@ -476,18 +476,18 @@
                   g ({})
                     text
                       str "|Size: " $ .unwrap-or (open-field state :size) |nil
-                      Option :some $ {} (:align :center)
+                      Some $ {} (:align :center)
                         :position $ [] 20 20
                     g ([] 40 60) & $ -> (range 3)
                       .map $ fn (x)
                         .unwrap $ get dict $ turn-tag (str |task- x)
                     g ({})
-                      circle 20 $ Option :some $ {}
+                      circle 20 $ Some $ {}
                         :fill-color $ [] 0 0 100 0.4
                         :line-color $ [] 200 80 90
                         :position $ [] 100 200
                       rect ([] 40 40)
-                        Option :some $ {}
+                        Some $ {}
                           :position $ [] 100 150
                           :fill-color $ [] 0 0 100 0.4
                           :line-color $ [] 200 80 90
@@ -527,7 +527,7 @@
                               rad-point $ * v x
                             c* ([] r2 0)
                               rad-point $ * v2 x
-                      Option :some $ {}
+                      Some $ {}
                         :position $ [] 300 300
                         :color $ [] 0 80 60
                         :width 2
@@ -556,7 +556,7 @@
                               + b0 $ * r0 x
                               , 0
                             rad-point $ * &PI r1 x
-                      Option :some $ {}
+                      Some $ {}
                         :position $ [] 360 280
                         :color $ [] 0 30 80
                         :width 2
@@ -585,7 +585,7 @@
                       List Number
                     fn (new-position d!)
                       d! cursor $ assoc state :p new-position
-                    Option :some $ {}
+                    Some $ {}
                   :arrow $ comp-arrow (>> states :arrow)
                     decode-map-as
                       .unwrap $ open-field state :from
@@ -595,7 +595,7 @@
                       List Number
                     fn (from to d!)
                       d! cursor $ -> state (assoc :from from) (assoc :to to)
-                    Option :some $ {}
+                    Some $ {}
                       :line-color $ [] 200 80 70
                       :line-width 2
                 :actions $ {}
@@ -623,7 +623,7 @@
                   g ({})
                     text
                       str "|press up times..: " $ .unwrap-or (open-field state :times) |nil
-                      Option :some $ {} $ :position ([] 100 100)
+                      Some $ {} $ :position ([] 100 100)
                     key-listener |Up :inc cursor
                     key-listener |Down :dec cursor
                 :actions $ {}
@@ -673,7 +673,7 @@
                   (first p2) .unwrap
           :examples $ []
           :schema $ quote $ Fn (List Number) (List Number)
-            -> $ List Number
+            -> $ Tuple Number Number
           :tests $ [] $ %{} 'TestEntry (:name |multiplies-complex-pairs)
             :code $ quote $ assert= ([] -5 10)
               c* ([] 1 2) ([] 3 4)
@@ -690,7 +690,7 @@
                 (last p2) .unwrap
           :examples $ []
           :schema $ quote $ Fn (List Number) (List Number)
-            -> $ List Number
+            -> $ Tuple Number Number
           :tests $ [] $ %{} 'TestEntry (:name |adds-pairs)
             :code $ quote $ assert= ([] 4 6)
               c+ ([] 1 2) ([] 3 4)
@@ -707,7 +707,7 @@
                 (last p2) .unwrap
           :examples $ []
           :schema $ quote $ Fn (List Number) (List Number)
-            -> $ List Number
+            -> $ Tuple Number Number
           :tests $ [] $ %{} 'TestEntry (:name |subtracts-pairs)
             :code $ quote $ assert= ([] -2 -2)
               c- ([] 1 2) ([] 3 4)
@@ -716,7 +716,7 @@
             [] (cos x) (sin x)
           :examples $ []
           :schema $ quote $ Fn Number
-            -> $ List Number
+            -> $ Tuple Number Number
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.complex
     'corokia.core $ %{} 'FileEntry
@@ -761,9 +761,9 @@
                 store $ {}
                 with-label $ apply-state-update store ([] :panel :label) |ready
                 with-count $ apply-state-update with-label ([] :panel :count) 2
-              assert= (Option :some |ready)
+              assert= (Some |ready)
                 get-in-dynamic with-count $ [] :states :panel :label :data
-              assert= (Option :some 2)
+              assert= (Some 2)
                 get-in-dynamic with-count $ [] :states :panel :count :data
         'circle $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn circle (radius arg)
@@ -832,7 +832,7 @@
             -> $ Map Tag Dynamic
         'get-in-dynamic $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn get-in-dynamic (data path)
-            if (empty? path) (Option :some data)
+            if (empty? path) (Some data)
               .and-then
                 get data $ .unwrap $ first path
                 fn (child)
@@ -959,7 +959,7 @@
           :code $ quote $ defn key-listener (key action path arg)
             {} (:type :key-listener) (:key key) (:path path) (:action action) (:data arg)
           :examples $ []
-          :schema $ quote $ Fn corokia.core/ListenerKey Tag (List Dynamic) (Option Dynamic)
+          :schema $ quote $ Fn ListenerKey Tag (List Dynamic) (Option Dynamic)
             -> $ Map Tag Dynamic
         'open-field $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn open-field (data field)
@@ -969,12 +969,12 @@
             -> $ Option Dynamic
           :tests $ []
             %{} 'TestEntry (:name |reads-present-value)
-              :code $ quote $ assert= (Option :some 1)
+              :code $ quote $ assert= (Some 1)
                 open-field
                   {} $ :x 1
                   , :x
             %{} 'TestEntry (:name |represents-missing-as-none)
-              :code $ quote $ assert= (Option :none)
+              :code $ quote $ assert= None
                 open-field
                   {} $ :x 1
                   , :missing
@@ -1003,7 +1003,8 @@
                   :line-color $ [] 0 0 100
                 , options $ {} (:type :polyline) (:position position) (:stops stops)
           :examples $ []
-          :schema $ quote $ Fn (List Dynamic)
+          :schema $ quote $ Fn
+            List $ Tuple Number Number
             Option $ Map Tag Dynamic
             -> $ Map Tag Dynamic
         'rect $ %{} 'CodeEntry (:doc |)
@@ -1098,7 +1099,7 @@
               (Tag action)
                 do (swap! *store updater action data) &unit
           :examples $ []
-          :schema $ quote $ Fn corokia.main/DispatchOp Dynamic (-> Unit)
+          :schema $ quote $ Fn DispatchOp Dynamic (-> Unit)
           :tests $ [] $ %{} 'TestEntry (:name |typed-and-legacy-state-path)
             :code $ quote $ let
                 original @*store
@@ -1113,7 +1114,7 @@
                     legacy @*store
                   reset! *store original
                   assert= direct legacy
-                  assert= (Option :some value)
+                  assert= (Some value)
                     corokia.core/get-in-dynamic direct $ [] :states :panel :detail :data
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (render-page)
