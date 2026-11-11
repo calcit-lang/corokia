@@ -10,6 +10,11 @@
   :files $ {}
     'corokia.comp $ %{} 'FileEntry
       :defs $ {}
+        'TabId $ %{} 'CodeEntry
+          :doc "|Tab identifiers supported by the existing turn-tag selection callback."
+          :code $ quote $ defunion TabId Tag String Symbol
+          :examples $ []
+          :schema $ quote UnionDef
         'angle-45 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def angle-45 (&/ &PI 5)
           :examples $ []
@@ -291,7 +296,12 @@
                           :fill-color $ .unwrap $ get options :fill-color
                           :line-color $ .unwrap $ get options :line-color
                         text
-                          &str:slice (str info) 1 $ .len $ str info
+                          let
+                              label $ match info
+                                (Tag value) (str value)
+                                (String value) value
+                                (Symbol value) (str value)
+                            &str:slice label 1 $ .len label
                           Some $ .merge
                             {} (:align :center)
                               :position $ [] 0 0
@@ -311,13 +321,13 @@
                           , d!
                         raise "|expects tab on-change function"
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) Dynamic (List Dynamic)
+          :schema $ quote $ Fn (Map Tag Dynamic) Selected (List TabId)
             Fn Tag
               Fn corokia.main/DispatchOp Dynamic $ -> Unit
               -> R
             Option $ Map Tag Dynamic
             -> $ Map Tag Dynamic
-            :generics R
+            :generics Selected R
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.comp
           :require

@@ -10,6 +10,8 @@
 `polyline` 的每个点现在检查为两个数值的 Tuple，仍以原来的 `[] x y` 传给 Paint。
 动态生成的点需先在输入边界校验长度和类型。复数运算与 `rad-point` 的返回类型也明确为二元 Tuple。
 
+`comp-tabs` 的标识列表使用 `List TabId`，接受 Tag、String 或 Symbol。动态载入的列表需先解码为该类型，选择回调仍收到 Tag。
+
 状态更新保留写入值的具体类型。状态树仍可保存不同类型的数据，`DispatchOp` 继续区分 Tag 操作与 Tag 列表游标。渲染监听器的参数由状态 Ref 推导。
 
 ## Calcit 0.38.0 迁移记录
