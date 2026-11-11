@@ -979,8 +979,9 @@
           :code $ quote $ defn key-listener (key action path arg)
             {} (:type :key-listener) (:key key) (:path path) (:action action) (:data arg)
           :examples $ []
-          :schema $ quote $ Fn ListenerKey Tag (List Dynamic) (Option Dynamic)
+          :schema $ quote $ Fn ListenerKey Tag (List K) (Option V)
             -> $ Map Tag Dynamic
+            :generics K V
         'open-field $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn open-field (data field)
             .and-then (get data field) nil->option
@@ -1077,9 +1078,10 @@
                 {} (:type :touch-area) (:action action) (:path path)
                 , options
           :examples $ []
-          :schema $ quote $ Fn Tag (List Dynamic)
+          :schema $ quote $ Fn Tag (List K)
             Option $ Map Tag Dynamic
             -> $ Map Tag Dynamic
+            :generics K
         'update-states $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn update-states (store op-data)
             let
