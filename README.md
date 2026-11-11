@@ -1,11 +1,16 @@
 # Corokia in Calcit
 
-原生桌面画布实验，候选 **0.2.6** 配对正式 Calcit **0.40.0** 和 Memof **0.0.49**。Paint 配对 **0.2.13**，需安装正式模块并重新构建对应平台原生库。
+原生桌面画布实验，候选 **0.2.6** 配对正式 Calcit **0.41.0** 和 Memof **0.0.49**。Paint 配对 **0.2.13**，需安装正式模块并重新构建对应平台原生库。
 
 `main` 列表、`rotate` 和 `cycloid` 的组件缓存使用对应的单参数、零参数泛型入口，保留
 组件 Map 的返回类型及现有缓存生命周期。
 
-## Calcit 0.40.0 迁移
+## Calcit 0.41.0 迁移
+
+`polyline` 的每个点现在检查为两个数值的 Tuple，仍以原来的 `[] x y` 传给 Paint。
+动态生成的点需先在输入边界校验长度和类型。复数运算与 `rad-point` 的返回类型也明确为二元 Tuple。
+
+`comp-tabs` 的标识列表使用 `List TabId`，接受 Tag、String 或 Symbol。动态载入的列表需先解码为该类型，选择回调仍收到 Tag。
 
 状态更新保留写入值的具体类型。状态树仍可保存不同类型的数据，`DispatchOp` 继续区分 Tag 操作与 Tag 列表游标。渲染监听器的参数由状态 Ref 推导。
 
@@ -37,7 +42,7 @@ Memof 在这里用于缓存，没有 Anchor 调用；不将开放 Map 状态或�
 ```sh
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.40.0"
+test "$(calcit -v)" = "0.41.0"
 calcit calcit.cirru edit format
 git diff --exit-code --quiet -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs
@@ -194,11 +199,10 @@ corokia.core/polyline
     [] 2 2
   Option :some $ {}
     :position $ [] 1 1
-    :line-color Color
-    :line-width 1
-    :line-join :round
-    ; ":round | :milter | :bevel"
-    :fill-color $ [] 0 0 100
+    :color Color
+    :width 1
+    :join :round
+    :cap :round
 ```
 
 Ops:
