@@ -78,13 +78,13 @@
                       [] :line-to to
                       [] :line-to $ c+ to branch-b
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (List Number) (List Number)
+          :schema $ quote $ Fn (Map Tag S) (List Number) (List Number)
             Fn (List Number) (List Number)
               Fn corokia.main/DispatchOp Dynamic $ -> Unit
               -> R
             Option $ Map Tag Dynamic
             -> $ Map Tag Dynamic
-            :generics R
+            :generics S R
         'comp-drag-point $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-drag-point (states position on-change arg)
             let
@@ -162,13 +162,13 @@
                                   _ $ raise "|expects numeric drag position"
                           , d!
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (List Number)
+          :schema $ quote $ Fn (Map Tag S) (List Number)
             Fn (List Number)
               Fn corokia.main/DispatchOp Dynamic $ -> Unit
               -> R
             Option $ Map Tag Dynamic
             -> $ Map Tag Dynamic
-            :generics R
+            :generics S R
           :tests $ [] $ %{} 'TestEntry (:name |optional-drag-label)
             :code $ quote $ let
                 label $ fn (options)
@@ -259,13 +259,13 @@
                       :mouse-down $ d! cursor $ -> state (assoc :v0 value)
                         assoc :x0 $ .unwrap $ open-field e :x
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) Number
+          :schema $ quote $ Fn (Map Tag S) Number
             Fn Number
               Fn corokia.main/DispatchOp Dynamic $ -> Unit
               -> R
             Option $ Map Tag Dynamic
             -> $ Map Tag Dynamic
-            :generics R
+            :generics S R
         'comp-tabs $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-tabs (states tab tabs on-change arg)
             let
@@ -315,13 +315,13 @@
                           , d!
                         raise "|expects tab on-change function"
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) Selected (List TabId)
+          :schema $ quote $ Fn (Map Tag S) Selected (List TabId)
             Fn Tag
               Fn corokia.main/DispatchOp Dynamic $ -> Unit
               -> R
             Option $ Map Tag Dynamic
             -> $ Map Tag Dynamic
-            :generics Selected R
+            :generics S Selected R
         'tab-label $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn tab-label (id)
             match id
