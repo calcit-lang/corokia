@@ -295,13 +295,7 @@
                         touch-area :select cursor $ Some $ {} (:data info) (:dx dx) (:dy dy)
                           :fill-color $ .unwrap $ get options :fill-color
                           :line-color $ .unwrap $ get options :line-color
-                        text
-                          let
-                              label $ match info
-                                (Tag value) (str value)
-                                (String value) value
-                                (Symbol value) (str value)
-                            &str:slice label 1 $ .len label
+                        text (tab-label info)
                           Some $ .merge
                             {} (:align :center)
                               :position $ [] 0 0
@@ -328,6 +322,22 @@
             Option $ Map Tag Dynamic
             -> $ Map Tag Dynamic
             :generics Selected R
+        'tab-label $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn tab-label (id)
+            match id
+              (Tag value) (to-string value)
+              (String value) value
+              (Symbol value) (to-string value)
+          :examples $ []
+          :schema $ quote $ Fn TabId (-> String)
+          :tests $ [] $ %{} 'TestEntry (:name |keeps-string-labels-and-removes-symbol-prefixes)
+            :code $ quote $ do
+              assert= |cat $ tab-label |cat
+              assert= |bat $ tab-label |bat
+              assert= "|中文😀" $ tab-label "|中文😀"
+              assert= |main $ tab-label :main
+              assert= |main $ tab-label 'main
+            :tags $ #{} :unit
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.comp
           :require
