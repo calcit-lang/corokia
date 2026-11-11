@@ -802,8 +802,9 @@
                 :line-width $ .unwrap $ get options :line-width
           :examples $ []
           :schema $ quote $ Fn Number
-            Option $ Map Tag Dynamic
+            Option $ Map Tag P
             -> $ Map Tag Dynamic
+            :generics P
         'defcomp $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defmacro defcomp (comp-name args & body)
             quasiquote $ defn ~comp-name ~args $ let
@@ -973,8 +974,9 @@
         'image $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn image (options) (assoc options :type :image)
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic)
+          :schema $ quote $ Fn (Map Tag P)
             -> $ Map Tag Dynamic
+            :generics P
         'key-listener $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn key-listener (key action path arg)
             {} (:type :key-listener) (:key key) (:path path) (:action action) (:data arg)
@@ -1026,8 +1028,9 @@
           :examples $ []
           :schema $ quote $ Fn
             List $ Tuple Number Number
-            Option $ Map Tag Dynamic
+            Option $ Map Tag P
             -> $ Map Tag Dynamic
+            :generics P
         'rect $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn rect (sizes arg)
             let
@@ -1046,8 +1049,9 @@
                 :line-width $ .unwrap $ get options :line-width
           :examples $ []
           :schema $ quote $ Fn (List Number)
-            Option $ Map Tag Dynamic
+            Option $ Map Tag P
             -> $ Map Tag Dynamic
+            :generics P
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! (comp-tree)
             &let (tree comp-tree) (reset! *tree-state tree) (; with-log tree)
@@ -1068,8 +1072,9 @@
                 :size $ .unwrap-or (open-field options :size) 14
           :examples $ []
           :schema $ quote $ Fn String
-            Option $ Map Tag Dynamic
+            Option $ Map Tag P
             -> $ Map Tag Dynamic
+            :generics P
         'touch-area $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn touch-area (action path arg)
             let
