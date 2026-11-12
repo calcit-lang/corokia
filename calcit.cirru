@@ -879,7 +879,7 @@
               (:none)
                 do (echo "|nil type from tree:" tree) nil
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> Dynamic)
+          :schema $ quote $ Fn Dynamic (-> Dynamic) (:features :io)
         'handle-tree-event $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn handle-tree-event (e dispatch!)
             cond
@@ -929,6 +929,7 @@
           :schema $ quote $ Fn Dynamic
             Fn corokia.main/DispatchOp Dynamic $ -> Unit
             -> Unit
+            :features :io :state
           :tests $ [] $ %{} 'TestEntry (:name |ready-and-malformed-host-events)
             :code $ quote $ let
                 dispatch! $ fn (cursor data) (raise |unexpected-dispatch)
@@ -1061,7 +1062,7 @@
                 push-drawing-data! |reset-canvas! $ [] 200 80 30
                 track-overcost 40 $ push-drawing-data! |render-canvas! info
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> Unit)
+          :schema $ quote $ Fn Dynamic (-> Unit) (:features :io :state)
         'text $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn text (content arg)
             &let
@@ -1126,7 +1127,7 @@
               (Tag action)
                 do (swap! *store updater action data) &unit
           :examples $ []
-          :schema $ quote $ Fn DispatchOp Dynamic (-> Unit)
+          :schema $ quote $ Fn DispatchOp Dynamic (-> Unit) (:features :state)
           :tests $ [] $ %{} 'TestEntry (:name |typed-and-legacy-state-path)
             :code $ quote $ let
                 original @*store
@@ -1149,7 +1150,7 @@
             echo "|app started."
             launch-canvas! $ fn (event) (handle-tree-event event dispatch!)
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io :state)
         'on-error $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn on-error (message)
             calcit-paint.core/push-drawing-data! |render-canvas! $ {} (:type :text) (:text message)
@@ -1162,12 +1163,12 @@
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! () (reset-memof1-caches!) (println |reloaded) (render-page)
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io :state)
         'render-page $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-page ()
             render-app! $ comp-container $ deref *store
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io :state)
         'updater $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn updater (store op data)
             match op
