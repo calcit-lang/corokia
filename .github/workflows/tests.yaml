@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   test:
-    name: Calcit 0.41.0 validation
+    name: Calcit 0.42.0 validation
     runs-on: ubuntu-24.04
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
@@ -29,6 +29,22 @@ jobs:
 
       - name: Install calcit-paint system libraries
         run: |
+          reachable=0
+          for host in azure.archive.ubuntu.com archive.ubuntu.com security.ubuntu.com; do
+            if getent ahostsv4 "$host" >/dev/null; then
+              reachable=$((reachable + 1))
+            fi
+          done
+          if [ "$reachable" -eq 0 ]; then
+            echo "All default Ubuntu mirror lookups failed; using the Kernel.org mirror."
+            sudo sed -Ei 's#^(URIs: )(mirror\+file:/etc/apt/apt-mirrors\.txt|https?://(azure\.archive|archive|security)\.ubuntu\.com/ubuntu/?)$#\1https://mirrors.edge.kernel.org/ubuntu/#' /etc/apt/sources.list.d/ubuntu.sources
+          elif [ "$reachable" -lt 3 ] && [ -f /etc/apt/apt-mirrors.txt ]; then
+            echo "Ubuntu mirror DNS failed; adding the Kernel.org mirror."
+            printf 'https://mirrors.edge.kernel.org/ubuntu/\tpriority:4\n' | sudo tee -a /etc/apt/apt-mirrors.txt
+            if [ -f /etc/apt/sources.list.d/ubuntu.sources ] && ! getent ahostsv4 security.ubuntu.com >/dev/null; then
+              sudo sed -Ei 's#^(URIs: )https?://security\.ubuntu\.com/ubuntu/?$#\1mirror+file:/etc/apt/apt-mirrors.txt#' /etc/apt/sources.list.d/ubuntu.sources
+            fi
+          fi
           sudo apt-get update
           sudo apt-get install --yes libfontconfig1-dev libfreetype6-dev ninja-build xvfb xauth libgl1-mesa-dev libgl1-mesa-dri libxkbcommon-x11-0
 
@@ -40,7 +56,7 @@ jobs:
       - name: Validate Calcit
         run: |
           set -euo pipefail
-          test "$(calcit -v)" = "0.41.0"
+          test "$(calcit -v)" = "0.42.0"
           calcit calcit.cirru edit format
           git diff --exit-code --quiet -- calcit.cirru
           calcit calcit.cirru --check-only --all-defs
