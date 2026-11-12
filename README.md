@@ -1,11 +1,11 @@
 # Corokia in Calcit
 
-原生桌面画布实验，候选 **0.2.6** 配对正式 Calcit **0.42.0** 和 Memof **0.0.49**。Paint 配对 **0.2.13**，需安装正式模块并重新构建对应平台原生库。
+原生桌面画布实验，候选 **0.2.6** 配对正式 Calcit **0.42.1** 和 Memof **0.0.49**。Paint 配对 **0.2.13**，需安装正式模块并重新构建对应平台原生库。
 
 `main` 列表、`rotate` 和 `cycloid` 的组件缓存使用对应的单参数、零参数泛型入口，保留
 组件 Map 的返回类型及现有缓存生命周期。
 
-## Calcit 0.42.0 迁移
+## Calcit 0.42.1 迁移
 
 `polyline` 的每个点现在检查为两个数值的 Tuple，仍以原来的 `[] x y` 传给 Paint。
 动态生成的点需先在输入边界校验长度和类型。复数运算与 `rad-point` 的返回类型也明确为二元 Tuple。
@@ -42,7 +42,7 @@ Memof 在这里用于缓存，没有 Anchor 调用；不将开放 Map 状态或�
 ```sh
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.42.0"
+test "$(calcit -v)" = "0.42.1"
 calcit calcit.cirru edit format
 git diff --exit-code --quiet -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs
