@@ -136,7 +136,7 @@
                   fn (e d!)
                     hint-fn $ Fn Dynamic
                       Fn corokia.main/DispatchOp Dynamic $ -> Unit
-                      -> Dynamic
+                      -> Unit
                     &let
                       t $ .unwrap-or (open-field e :type) :corokia/no-event
                       when (= :mouse-down t)
@@ -161,6 +161,7 @@
                                   (:number n) n
                                   _ $ raise "|expects numeric drag position"
                           , d!
+                    , &unit
           :examples $ []
           :schema $ quote $ Fn (Map Tag S) (List Number)
             Fn (List Number)
@@ -232,7 +233,7 @@
                   fn (e d!)
                     hint-fn $ Fn Dynamic
                       Fn corokia.main/DispatchOp Dynamic $ -> Unit
-                      -> Dynamic
+                      -> Unit
                     match
                       .unwrap-or (open-field e :type) :corokia/no-event
                       :mouse-move $ on-change
@@ -258,6 +259,7 @@
                         , d!
                       :mouse-down $ d! cursor $ -> state (assoc :v0 value)
                         assoc :x0 $ .unwrap $ open-field e :x
+                    , &unit
           :examples $ []
           :schema $ quote $ Fn (Map Tag S) Number
             Fn Number
@@ -306,14 +308,21 @@
                   fn (e d!)
                     hint-fn $ Fn Dynamic
                       Fn corokia.main/DispatchOp Dynamic $ -> Unit
-                      -> Dynamic
+                      -> Unit
                     when
                       = :mouse-down $ .unwrap-or (open-field e :type) :corokia/no-event
                       if (fn? on-change)
                         on-change
-                          turn-tag $ .unwrap $ open-field e :data
+                          match
+                            decode-map-as
+                              .unwrap $ open-field e :data
+                              , TabId
+                            (Tag value) value
+                            (String value) (turn-tag value)
+                            (Symbol value) (turn-tag value)
                           , d!
                         raise "|expects tab on-change function"
+                    , &unit
           :examples $ []
           :schema $ quote $ Fn (Map Tag S) Selected (List TabId)
             Fn Tag
