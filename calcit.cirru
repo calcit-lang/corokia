@@ -935,9 +935,10 @@
               true $ raise "|Expected Paint event Map or ready nil"
             , &unit
           :examples $ []
-          :schema $ quote $ Fn Dynamic
+          :schema $ quote $ Fn EventInput
             Fn corokia.main/DispatchOp Dynamic $ -> Unit
             -> Unit
+            :generics EventInput
             :features :io :state
           :tests $ [] $ %{} 'TestEntry (:name |ready-and-malformed-host-events)
             :code $ quote $ let
@@ -998,8 +999,9 @@
           :code $ quote $ defn open-field (data field)
             .and-then (get data field) nil->option
           :examples $ []
-          :schema $ quote $ Fn Dynamic Tag
+          :schema $ quote $ Fn Input Tag
             -> $ Option Dynamic
+            :generics Input
           :tests $ []
             %{} 'TestEntry (:name |reads-present-value)
               :code $ quote $ assert= (Some 1)
