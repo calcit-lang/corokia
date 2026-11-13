@@ -1109,8 +1109,9 @@
                   , .unwrap
               apply-state-update store cursor data
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (List Dynamic)
+          :schema $ quote $ Fn (Map Tag Dynamic) (List V)
             -> $ Map Tag Dynamic
+            :generics V
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.core
           :require
