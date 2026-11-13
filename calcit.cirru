@@ -868,9 +868,9 @@
                 fn (child)
                   get-in-dynamic child $ rest path
           :examples $ []
-          :schema $ quote $ Fn Dynamic (List K)
+          :schema $ quote $ Fn Input (List K)
             -> $ Option Dynamic
-            :generics K
+            :generics Input K
         'get-shape-tree $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn get-shape-tree (tree)
             if (nil? tree) nil $ match (open-field tree :type)
@@ -1073,7 +1073,7 @@
                 push-drawing-data! |reset-canvas! $ [] 200 80 30
                 track-overcost 40 $ push-drawing-data! |render-canvas! info
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> Unit) (:features :io :state)
+          :schema $ quote $ Fn Tree (-> Unit) (:generics Tree) (:features :io :state)
         'text $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn text (content arg)
             &let
