@@ -858,8 +858,9 @@
                 decode-map-as props $ Map Tag Dynamic
                 {} (:type :group) (:children xs)
           :examples $ []
-          :schema $ quote $ Fn Dynamic (& Dynamic)
+          :schema $ quote $ Fn Props (& Dynamic)
             -> $ Map Tag Dynamic
+            :generics Props
         'get-in-dynamic $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn get-in-dynamic (data path)
             if (empty? path) (Some data)
