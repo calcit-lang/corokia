@@ -767,8 +767,9 @@
                   Map Tag Dynamic
                 , :cursor $ append parent-cursor k
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) Tag
+          :schema $ quote $ Fn (Map Tag Field) Tag
             -> $ Map Tag Dynamic
+            :generics Field
         'ListenerKey $ %{} 'CodeEntry
           :doc "|Keyboard key names accepted by Paint: a String or Tag, forwarded as supplied."
           :code $ quote $ defunion ListenerKey String Tag
@@ -1097,9 +1098,9 @@
                 , options
           :examples $ []
           :schema $ quote $ Fn Tag (List K)
-            Option $ Map Tag Dynamic
+            Option $ Map Tag P
             -> $ Map Tag Dynamic
-            :generics K
+            :generics K P
         'update-states $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn update-states (store op-data)
             let
