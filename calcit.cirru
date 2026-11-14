@@ -782,9 +782,9 @@
                 , data
               Map Tag Dynamic
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (List Tag) V
+          :schema $ quote $ Fn (Map Tag Field) (List Tag) V
             -> $ Map Tag Dynamic
-            :generics V
+            :generics Field V
           :tests $ [] $ %{} 'TestEntry (:name |heterogeneous-state-writes)
             :code $ quote $ let
                 store $ {}
