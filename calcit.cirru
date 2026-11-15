@@ -5,7 +5,7 @@
   :entries $ {} $ :default
     {} (:description |) (:init-fn 'corokia.main/main!) (:mode :native) (:reload-fn 'corokia.main/reload!) (:target :native)
       :feature-policy $ {}
-      :modules $ [] |calcit-paint/ |memof/
+      :modules $ [] |calcit-paint/
       :type-slots $ {}
   :files $ {}
     'corokia.comp $ %{} 'FileEntry
@@ -354,6 +354,17 @@
             corokia.complex :refer $ c+ c- c*
     'corokia.comp.container $ %{} 'FileEntry
       :defs $ {}
+        '*memo-cache $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defref *memo-cache ({})
+          :examples $ []
+          :schema $ quote $ Ref
+            Map Dynamic $ Map Dynamic Dynamic
+        'clear-memo-cache! $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn clear-memo-cache! ()
+            reset! *memo-cache $ {}
+            , &unit
+          :examples $ []
+          :schema $ quote $ Fn (-> Unit) (:features :state)
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (store)
             let
@@ -372,14 +383,14 @@
                 :children $ {}
                   :main $ if
                     or (= tab :main) (nil? tab)
-                    memof1-call-unary comp-data-list $ >> states :main
+                    memo1 comp-data-list $ >> states :main
                     g $ {}
                   :tabs $ comp-tabs (>> states :tabs) tab ([] :main :rotate :cycloid :drag-demo :slider :keydown :image)
                     fn (new-tab d!)
                       d! cursor $ assoc state :tab new-tab
-                  :rotate $ if (= tab :rotate) (memof1-call-nullary comp-demo-rotate)
+                  :rotate $ if (= tab :rotate) (memo0 comp-demo-rotate)
                     g $ {}
-                  :cycloid $ if (= tab :cycloid) (memof1-call-nullary comp-demo-cycloid)
+                  :cycloid $ if (= tab :cycloid) (memo0 comp-demo-cycloid)
                     g $ {}
                   :drag-demo $ if (= tab :drag-demo)
                     comp-drag-demo $ >> states :drag-demo
@@ -418,6 +429,7 @@
           :schema $ quote $ Fn (Map Tag T)
             -> $ Map Tag Dynamic
             :generics T
+            :features :state
           :tests $ [] $ %{} 'TestEntry (:name |render-tabs-with-option-lookups)
             :code $ quote $ each ([] :main :rotate :cycloid :drag-demo :slider :keydown :image)
               fn (tab)
@@ -670,13 +682,45 @@
           :schema $ quote $ Fn (Map Tag T)
             -> $ Map Tag Dynamic
             :generics T
+        'memo0 $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn memo0 (f)
+            let
+                slot $ &map:get @*memo-cache f
+                hit $ match slot
+                  (:some m) (&map:get m :zero)
+                  (:none) None
+              match hit
+                (:some value) value
+                (:none)
+                  let
+                      value $ f
+                      m $ .unwrap-or (&map:get @*memo-cache f) ({})
+                    reset! *memo-cache $ assoc @*memo-cache f $ assoc m :zero value
+                    , value
+          :examples $ []
+          :schema $ quote $ Fn AnyFn (-> Dynamic) (:features :state) (:open :reflect)
+        'memo1 $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn memo1 (f arg)
+            let
+                slot $ &map:get @*memo-cache f
+                hit $ match slot
+                  (:some m) (&map:get m arg)
+                  (:none) None
+              match hit
+                (:some value) value
+                (:none)
+                  let
+                      value $ f arg
+                    reset! *memo-cache $ assoc @*memo-cache f $ assoc ({}) arg value
+                    , value
+          :examples $ []
+          :schema $ quote $ Fn AnyFn Dynamic (-> Dynamic) (:features :state) (:open :reflect)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.comp.container
           :require
             corokia.core :refer $ g >> defcomp circle rect text touch-area key-listener polyline ops image open-field
             corokia.comp :refer $ comp-drag-point comp-slider comp-arrow comp-tabs
             corokia.complex :refer $ c+ c- c* rad-point
-            memof.once :refer $ memof1-call-nullary memof1-call-unary
     'corokia.complex $ %{} 'FileEntry
       :defs $ {}
         'c* $ %{} 'CodeEntry (:doc |)
@@ -1175,7 +1219,7 @@
           :examples $ []
           :schema $ quote $ Fn String (-> Unit)
         'reload! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn reload! () (reset-memof1-caches!) (println |reloaded) (render-page)
+          :code $ quote $ defn reload! () (corokia.comp.container/clear-memo-cache!) (println |reloaded) (render-page)
           :examples $ []
           :schema $ quote $ Fn (-> Unit) (:features :io :state)
         'render-page $ %{} 'CodeEntry (:doc |)
@@ -1196,7 +1240,6 @@
           :require
             corokia.core :refer $ render-app! >> handle-tree-event update-states
             corokia.comp.container :refer $ comp-container
-            memof.once :refer $ reset-memof1-caches!
             calcit-paint.core :refer $ launch-canvas!
     'corokia.util $ %{} 'FileEntry
       :defs $ {} $ 'track-overcost
