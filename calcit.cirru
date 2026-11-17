@@ -982,7 +982,7 @@
             , &unit
           :examples $ []
           :schema $ quote $ Fn EventInput
-            Fn corokia.main/DispatchOp Dynamic $ -> Unit
+            Fn corokia.main/DispatchOp Dynamic (-> Unit) (:features :io :state)
             -> Unit
             :generics EventInput
             :features :io :state
