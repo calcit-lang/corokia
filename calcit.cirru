@@ -358,7 +358,7 @@
           :code $ quote $ defref *memo-cache ({})
           :examples $ []
           :schema $ quote $ Ref
-            Map Dynamic $ Map Dynamic Dynamic
+            Map Dynamic $ Map Dynamic $ Map Tag Dynamic
         'clear-memo-cache! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn clear-memo-cache! ()
             reset! *memo-cache $ {}
@@ -698,7 +698,10 @@
                     reset! *memo-cache $ assoc @*memo-cache f $ assoc m :zero value
                     , value
           :examples $ []
-          :schema $ quote $ Fn AnyFn (-> Dynamic) (:features :state) (:open :reflect)
+          :schema $ quote $ Fn
+            Fn $ -> $ Map Tag Dynamic
+            -> $ Map Tag Dynamic
+            :features :state
         'memo1 $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn memo1 (f arg)
             let
@@ -714,7 +717,12 @@
                     reset! *memo-cache $ assoc @*memo-cache f $ assoc ({}) arg value
                     , value
           :examples $ []
-          :schema $ quote $ Fn AnyFn Dynamic (-> Dynamic) (:features :state) (:open :reflect)
+          :schema $ quote $ Fn
+            Fn (Map Tag Dynamic)
+              -> $ Map Tag Dynamic
+            Map Tag Dynamic
+            -> $ Map Tag Dynamic
+            :features :state
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns corokia.comp.container
           :require
