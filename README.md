@@ -1,6 +1,6 @@
 # Corokia in Calcit
 
-原生桌面画布实验，候选 **0.2.6** 配对正式 Calcit **0.44.0** 和 Paint **0.2.13**；组件缓存由本仓库维护，不再依赖 Memof。需安装正式 Paint 模块并重新构建对应平台原生库。
+原生桌面画布实验，候选 **0.2.6** 配对正式 Calcit **0.44.0** 和 Paint **0.2.14**；组件缓存由本仓库维护，不再依赖 Memof。需安装正式 Paint 模块并重新构建对应平台原生库。macOS arm64 的 Skia 构建仍受 [Paint #148](https://github.com/calcit-lang/calcit-paint/issues/148) 影响。
 
 `main` 列表、`rotate` 和 `cycloid` 的组件缓存使用对应的单参数、零参数泛型入口，保留
 组件 Map 的返回类型及现有缓存生命周期。
