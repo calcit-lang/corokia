@@ -42,7 +42,7 @@
 ```sh
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.43.0"
+test "$(calcit -v)" = "0.44.0"
 calcit calcit.cirru edit format
 git diff --exit-code --quiet -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs
