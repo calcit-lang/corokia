@@ -107,7 +107,7 @@
                         .merge
                           {} (:radius 8)
                             :fill-color $ [] 20 80 90
-                          , options
+                          dissoc options :render-text
                       renderer $ .unwrap-or (open-field options :render-text) :corokia/default-label
                       content $ cond
                           fn? renderer
@@ -127,7 +127,7 @@
                         g
                           {} $ :position position
                           , area $ if (string? label)
-                            text label $ Some $ .merge options
+                            text label $ Some $ .merge (dissoc options :render-text)
                               {}
                                 :color $ .unwrap-or (open-field options :font-color) ([] 0 0 100 0.7)
                                 :position $ [] 16 0
@@ -170,28 +170,50 @@
             Option $ Map Tag Dynamic
             -> $ Map Tag Dynamic
             :generics S R
-          :tests $ [] $ %{} 'TestEntry (:name |optional-drag-label)
-            :code $ quote $ let
-                label $ fn (options)
-                  let
-                      component $ comp-drag-point ({}) ([] 1 2)
-                        fn (p d) &unit
-                        Some options
-                    .unwrap $ last $ .unwrap
-                      open-field
-                        .unwrap $ open-field component :tree
-                        , :children
-              assert= nil $ label $ {} (:render-text false)
-              assert= nil $ label $ {}
-                :render-text $ fn (p) nil
-              assert= "|(1,2)" $ .unwrap $ open-field
-                label $ {}
-                , :text
-              assert= |custom $ .unwrap $ open-field
-                label $ {} $ :render-text
-                  fn (p) |custom
-                , :text
-            :tags $ #{} :unit
+          :tests $ []
+            %{} 'TestEntry (:name |optional-drag-label)
+              :code $ quote $ let
+                  label $ fn (options)
+                    let
+                        component $ comp-drag-point ({}) ([] 1 2)
+                          fn (p d) &unit
+                          Some options
+                      .unwrap $ last $ .unwrap
+                        open-field
+                          .unwrap $ open-field component :tree
+                          , :children
+                assert= nil $ label $ {} (:render-text false)
+                assert= nil $ label $ {}
+                  :render-text $ fn (p) nil
+                assert= "|(1,2)" $ .unwrap $ open-field
+                  label $ {}
+                  , :text
+                assert= |custom $ .unwrap $ open-field
+                  label $ {} $ :render-text
+                    fn (p) |custom
+                  , :text
+              :tags $ #{} :unit
+            %{} 'TestEntry (:name |no-renderer-in-scene)
+              :code $ quote $ let
+                  component $ comp-drag-point ({}) ([] 1 2)
+                    fn (p d) &unit
+                    Some $ {} (:radius 12)
+                      :render-text $ fn (p) |custom
+                  tree $ .unwrap $ open-field component :tree
+                  children $ decode-map-as
+                    .unwrap $ open-field tree :children
+                    List Dynamic
+                  area $ decode-map-as
+                    .unwrap $ first children
+                    Map Tag Dynamic
+                  label $ decode-map-as
+                    .unwrap $ last children
+                    Map Tag Dynamic
+                assert= false $ contains? area :render-text
+                assert= false $ contains? label :render-text
+                assert= 12 $ .unwrap $ get area :radius
+                assert= |custom $ .unwrap $ get label :text
+              :tags $ #{} :unit
         'comp-slider $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-slider (states value on-change arg)
             let
