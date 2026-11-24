@@ -953,7 +953,7 @@
               (:some kind)
                 match kind
                   :group $ if
-                    .unwrap-or (open-field tree :pure-shape?) false
+                    = true $ .unwrap-or (open-field tree :pure-shape?) false
                     , tree $ update tree :children
                       fn (xs)
                         if (list? xs) (.map xs get-shape-tree) (raise "|expects group children in a list")
