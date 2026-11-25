@@ -1,6 +1,6 @@
 # Corokia in Calcit
 
-原生桌面画布实验，候选 **0.2.7** 配对正式 Calcit **0.45.0** 和 Paint **0.2.15**；组件缓存由本仓库维护，不再依赖 Memof。需安装正式 Paint 模块并重新构建对应平台原生库。
+原生桌面画布实验，候选 **0.2.8** 配对正式 Calcit **0.45.1** 和 Paint **0.2.16**；组件缓存由本仓库维护，不再依赖 Memof。需安装正式 Paint 模块并重新构建对应平台原生库。
 
 `main` 列表、`rotate` 和 `cycloid` 的组件缓存使用对应的单参数、零参数泛型入口，保留
 组件 Map 的返回类型及现有缓存生命周期。
@@ -42,7 +42,7 @@
 ```sh
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.45.0"
+test "$(calcit -v)" = "0.45.1"
 calcit calcit.cirru edit format
 git diff --exit-code --quiet -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs
