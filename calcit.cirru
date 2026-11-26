@@ -112,7 +112,8 @@
                       content $ cond
                           fn? renderer
                           nil->option $ renderer position
-                        (= renderer false) None
+                        (if (bool? renderer) (not renderer) false)
+                          , None
                         true $ Some $ str "|("
                           .unwrap $ first position
                           , |,
@@ -139,9 +140,9 @@
                       -> Unit
                     &let
                       t $ .unwrap-or (open-field e :type) :corokia/no-event
-                      when (= :mouse-down t)
+                      when (corokia.core/tag-equal? t :mouse-down)
                         d! cursor $ assoc state :initial-position position
-                      when (= :mouse-move t)
+                      when (corokia.core/tag-equal? t :mouse-move)
                         on-change
                           c+
                             &let
@@ -332,7 +333,9 @@
                       Fn corokia.main/DispatchOp Dynamic $ -> Unit
                       -> Unit
                     when
-                      = :mouse-down $ .unwrap-or (open-field e :type) :corokia/no-event
+                      corokia.core/tag-equal?
+                        .unwrap-or (open-field e :type) :corokia/no-event
+                        , :mouse-down
                       if (fn? on-change)
                         on-change
                           match
@@ -401,23 +404,34 @@
                     :point-d $ [] 20 20
                     :slider-v 0
                 tab $ .unwrap-or (open-field state :tab) :corokia/no-tab
+                tab-tag $ if (tag? tab)
+                  Some $ decode-map-as tab 'Tag
+                  , None
               {}
                 :children $ {}
                   :main $ if
-                    or (= tab :main) (nil? tab)
+                    or
+                      = tab-tag $ Some :main
+                      nil? tab
                     memo1 comp-data-list $ >> states :main
                     g $ {}
                   :tabs $ comp-tabs (>> states :tabs) tab ([] :main :rotate :cycloid :drag-demo :slider :keydown :image)
                     fn (new-tab d!)
                       d! cursor $ assoc state :tab new-tab
-                  :rotate $ if (= tab :rotate) (memo0 comp-demo-rotate)
+                  :rotate $ if
+                    = tab-tag $ Some :rotate
+                    memo0 comp-demo-rotate
                     g $ {}
-                  :cycloid $ if (= tab :cycloid) (memo0 comp-demo-cycloid)
+                  :cycloid $ if
+                    = tab-tag $ Some :cycloid
+                    memo0 comp-demo-cycloid
                     g $ {}
-                  :drag-demo $ if (= tab :drag-demo)
+                  :drag-demo $ if
+                    = tab-tag $ Some :drag-demo
                     comp-drag-demo $ >> states :drag-demo
                     g $ {}
-                  :slider $ if (= tab :slider)
+                  :slider $ if
+                    = tab-tag $ Some :slider
                     comp-slider (>> states :slider)
                       decode-map-as
                         .unwrap-or (open-field state :slider-v) 10
@@ -428,10 +442,12 @@
                         :position $ [] 0 40
                         :title |demo
                     g $ {}
-                  :keydown $ if (= tab :keydown)
+                  :keydown $ if
+                    = tab-tag $ Some :keydown
                     comp-keydown $ >> states :keydown
                     g $ {}
-                  :image $ if (= tab :image)
+                  :image $ if
+                    = tab-tag $ Some :image
                     image $ {} (:file-path |assets/calcit.png) (:x 100) (:y 200) (:w 100) (:h 100)
                     g $ {}
                 :render $ fn (dict)
@@ -504,14 +520,14 @@
                 :actions $ {}
                   :inc $ fn (e d!)
                     when
-                      =
+                      corokia.core/tag-equal?
                         .unwrap-or (open-field e :type) :corokia/no-event
                         , :mouse-down
                       d! cursor $ update state :count $ fn (n)
                         inc $ decode-map-as n 'Number
                   :dec $ fn (e d!)
                     when
-                      =
+                      corokia.core/tag-equal?
                         .unwrap-or (open-field e :type) :corokia/no-event
                         , :mouse-down
                       d! cursor $ update state :count $ fn (n)
@@ -692,14 +708,20 @@
                 :actions $ {}
                   :inc $ fn (e d!)
                     if
-                      = :key-down $ .unwrap-or (open-field e :type) :corokia/no-event
+                      corokia.core/tag-equal?
+                        .unwrap-or (open-field e :type) :corokia/no-event
+                        , :key-down
                       d! cursor $ update state :times $ fn (n)
                         inc $ decode-map-as n 'Number
+                    , &unit
                   :dec $ fn (e d!)
                     if
-                      = :key-down $ .unwrap-or (open-field e :type) :corokia/no-event
+                      corokia.core/tag-equal?
+                        .unwrap-or (open-field e :type) :corokia/no-event
+                        , :key-down
                       d! cursor $ update state :times $ fn (n)
                         dec $ decode-map-as n 'Number
+                    , &unit
           :examples $ []
           :schema $ quote $ Fn (Map Tag T)
             -> $ Map Tag Dynamic
@@ -953,7 +975,9 @@
               (:some kind)
                 match kind
                   :group $ if
-                    = true $ .unwrap-or (open-field tree :pure-shape?) false
+                    let
+                        checked-pure-shape $ .unwrap-or (open-field tree :pure-shape?) false
+                      if (bool? checked-pure-shape) checked-pure-shape false
                     , tree $ update tree :children
                       fn (xs)
                         if (list? xs) (.map xs get-shape-tree) (raise "|expects group children in a list")
@@ -975,7 +999,9 @@
                     path $ open-field e :path
                     action $ open-field e :action
                   cond
-                      = :window-resized $ .unwrap-or (open-field e :type) :corokia/no-event
+                      corokia.core/tag-equal?
+                        .unwrap-or (open-field e :type) :corokia/no-event
+                        , :window-resized
                       &let
                         info $ track-overcost 40 $ get-shape-tree (deref *tree-state)
                         ; with-log info
@@ -1150,6 +1176,20 @@
                 track-overcost 40 $ push-drawing-data! |render-canvas! info
           :examples $ []
           :schema $ quote $ Fn Tree (-> Unit) (:generics Tree) (:features :io :state)
+        'tag-equal? $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn tag-equal? (value expected)
+            if (tag? value)
+              = (decode-map-as value 'Tag) expected
+              , false
+          :examples $ []
+          :schema $ quote $ Fn T Tag (-> Bool) (:generics T)
+          :tests $ [] $ %{} 'TestEntry (:name |matches-only-tag-values)
+            :code $ quote $ do
+              assert= true $ tag-equal? :mouse-down :mouse-down
+              assert= false $ tag-equal? :mouse-up :mouse-down
+              assert= false $ tag-equal? |mouse-down :mouse-down
+              assert= false $ tag-equal? nil :mouse-down
+            :tags $ #{} :unit
         'text $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn text (content arg)
             &let

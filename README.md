@@ -1,6 +1,6 @@
 # Corokia in Calcit
 
-原生桌面画布实验，候选 **0.2.8** 配对正式 Calcit **0.45.1** 和 Paint **0.2.16**；组件缓存由本仓库维护，不再依赖 Memof。需安装正式 Paint 模块并重新构建对应平台原生库。
+原生桌面画布实验，当前源码配对正式 Calcit **0.46.0** 和 Paint **0.2.16**（已发布 **0.2.8** 仍配对 Calcit **0.45.1**）；组件缓存由本仓库维护，不再依赖 Memof。需安装正式 Paint 模块并重新构建对应平台原生库。
 
 `main` 列表、`rotate` 和 `cycloid` 的组件缓存使用对应的单参数、零参数泛型入口，保留
 组件 Map 的返回类型及现有缓存生命周期。
@@ -28,7 +28,7 @@
 需按精确依赖重新安装并重启原生进程，Paint 原生库必须对应当前平台和 ABI。
 依赖使用正式 Paint 0.2.11 与 Memof 0.0.46，需重新构建对应平台的原生库。此前 macOS 原生构建遇到 skia-bindings 0.97.2 生成的 `_Traits` 未定义错误；本候选保留原 Linux 原生构建、类型门禁和首帧生命周期，验收以对应 PR 的精确提交 CI 为准。
 
-本次仅对齐工具链声明与工作流版本断言，Snapshot、公开合同、原九项测试和全部类型门禁不变。下游等正式 Git tag 发布后再固定该版本，不使用 main/hash 替代发版。
+当前升级对事件 Tag 和布尔值先做检查再比较，保留公开合同与原有类型门禁。下游等正式 Git tag 发布后再固定该版本，不使用 main/hash 替代发版。
 
 现有状态游标只接受 Tag，事件及组件 Map 接收开放数据。后续使用 union 需要先建立闭合的内部模型；开放的 `Map Tag Dynamic` 不能直接作为 union 成员。本候选不声称已清除这些边界。
 
@@ -42,7 +42,7 @@
 ```sh
 caps --strict --ci
 caps verify --toolchain
-test "$(calcit -v)" = "0.45.1"
+test "$(calcit -v)" = "0.46.0"
 calcit calcit.cirru edit format
 git diff --exit-code --quiet -- calcit.cirru
 calcit calcit.cirru --check-only --all-defs
